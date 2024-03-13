@@ -13,6 +13,8 @@ public class ZMKDbContext(DbContextOptions options) : IdentityDbContext<
 {
     public DbSet<Employee> Employees { get; set; }
 
+    public DbSet<Session> Sessions { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

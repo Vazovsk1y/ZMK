@@ -12,7 +12,7 @@ using ZMK.PostgresDAL;
 namespace ZMK.PostgresDAL.Migrations
 {
     [DbContext(typeof(ZMKDbContext))]
-    [Migration("20240313101411_Initial")]
+    [Migration("20240313143304_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -167,6 +167,31 @@ namespace ZMK.PostgresDAL.Migrations
                     b.ToTable("AspNetRoles", (string)null);
                 });
 
+            modelBuilder.Entity("ZMK.Domain.Entities.Session", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ClosingDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Sessions");
+                });
+
             modelBuilder.Entity("ZMK.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -290,6 +315,17 @@ namespace ZMK.PostgresDAL.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ZMK.Domain.Entities.Session", b =>
+                {
+                    b.HasOne("ZMK.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ZMK.Domain.Entities.User", b =>
