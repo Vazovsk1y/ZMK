@@ -13,18 +13,14 @@ namespace ZMK.Application.Implementation;
 
 public class AuthService : BaseService, IAuthService
 {
-    private readonly UserManager<User> _userManager;
-    private readonly ICurrentSessionProvider _currentSessionProvider;
     public AuthService(
         IClock clock,
         ILogger<BaseService> logger,
         IServiceScopeFactory serviceScopeFactory,
         ZMKDbContext dbContext,
         UserManager<User> userManager,
-        ICurrentSessionProvider currentSessionProvider) : base(clock, logger, serviceScopeFactory, dbContext)
+        ICurrentSessionProvider currentSessionProvider) : base(clock, logger, serviceScopeFactory, dbContext, currentSessionProvider, userManager)
     {
-        _userManager = userManager;
-        _currentSessionProvider = currentSessionProvider;
     }
 
     public async Task<Result<Guid>> LoginAsync(UserLoginDTO loginDTO, CancellationToken cancellationToken = default)
@@ -39,11 +35,13 @@ public class AuthService : BaseService, IAuthService
             return Result.Failure<Guid>(validationResult.Errors);
         }
 
-        var user = await _userManager.FindByNameAsync(loginDTO.Username).ConfigureAwait(false);
+        var user = await _userManager.FindByNameAsync(loginDTO.UserName).ConfigureAwait(false);
 
         switch (user)
         {
             case null:
+                return Result.Failure<Guid>(Errors.Auth.InvalidUsernameOrPassword);
+            case User when await _userManager.HasPasswordAsync(user) && string.IsNullOrWhiteSpace(loginDTO.Password):
                 return Result.Failure<Guid>(Errors.Auth.InvalidUsernameOrPassword);
             case User when !string.IsNullOrWhiteSpace(loginDTO.Password) && !await _userManager.CheckPasswordAsync(user, loginDTO.Password):
                 return Result.Failure<Guid>(Errors.Auth.InvalidUsernameOrPassword);

@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 
 namespace ZMK.Wpf.ViewModels;
 
-internal abstract partial class DialogViewModel : TitledViewModel
+public abstract partial class DialogViewModel : TitledViewModel
 {
     #region --Fields--
 

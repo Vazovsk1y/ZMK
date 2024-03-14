@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using ZMK.Domain.Entities;
+﻿using ZMK.Domain.Entities;
 using ZMK.Wpf.ViewModels;
 
 namespace ZMK.Wpf.Extensions;
@@ -15,24 +14,56 @@ public static class Mapper
         };
     }
 
+    public static UserViewModel ToPanelViewModel(this UserAddViewModel userAddViewModel, Guid id)
+    {
+        var entity = new UserViewModel
+        {
+            Id = id,
+            Employee = userAddViewModel.SelectedEmployee,
+            Role = userAddViewModel.SelectedRole,
+            UserName = userAddViewModel.UserName,
+        };
+
+        entity.SaveState();
+        return entity;
+    }
+
     public static CurrentUserViewModel ToViewModel(this User user)
     {
+        var role = user.Roles.SingleOrDefault() ?? throw new InvalidOperationException($"У {user.UserName} не определена роль.");
+
         return new CurrentUserViewModel
         {
             Id = user.Id,
             UserName = user.UserName!,
-            Roles = new ObservableCollection<string>(user.Roles.Select(r => r.Role!.Name)!),
-            Employee = user.Employee!.ToViewModel()
+            Role = role.Role!.ToPanelViewModel(),
+            Employee = user.Employee!.ToPanelViewModel(),
         };
     }
 
-    public static CurrentEmployeeViewModel ToViewModel(this Employee employee)
+    public static UserViewModel ToPanelViewModel(this User user)
     {
+        var role = user.Roles.Select(e => e.Role).SingleOrDefault() ?? throw new InvalidOperationException($"У {user.UserName} не определена роль.");
 
-        return new CurrentEmployeeViewModel
+        var entity = new UserViewModel
         {
-            Id = employee.Id,
-            FullName = employee.FullName
+            Id = user.Id,
+            Role = role.ToPanelViewModel(),
+            Employee = user.Employee!.ToPanelViewModel(),
+            UserName = user.UserName!,
         };
+
+        entity.SaveState();
+        return entity;
+    }
+
+    public static UserViewModel.RoleViewModel ToPanelViewModel(this Role role)
+    {
+        return new UserViewModel.RoleViewModel(role.Id, role.Name!);
+    }
+
+    public static UserViewModel.EmployeeViewModel ToPanelViewModel(this Employee employee)
+    {
+        return new UserViewModel.EmployeeViewModel(employee.Id, employee.FullName);
     }
 }

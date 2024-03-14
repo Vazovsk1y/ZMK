@@ -8,9 +8,11 @@
         xmlns:viewmodels="clr-namespace:ZMK.Wpf.ViewModels" 
         d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel, IsDesignTimeCreatable=True}"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
         Title="{Binding ControlTitle}" Height="450" Width="800">
     <Grid>
         <DockPanel>
+            <controls:UsersPanelControl DockPanel.Dock="Top" DataContext="{Binding UsersPanelViewModel}" Margin="20"/>
             <controls:StatusPanelControl DockPanel.Dock="Bottom" DataContext="{Binding StatusPanelViewModel}"/>
         </DockPanel>
     </Grid>

@@ -1,8 +1,12 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using ZMK.Application.Implementation.Constants;
+using ZMK.Application.Implementation.Extensions;
 using ZMK.Application.Services;
+using ZMK.Domain.Entities;
 using ZMK.Domain.Shared;
 using ZMK.PostgresDAL;
 
@@ -14,17 +18,23 @@ public abstract class BaseService
     protected readonly ILogger _logger;
     protected readonly IServiceScopeFactory _serviceScopeFactory;
     protected readonly ZMKDbContext _dbContext;
+    protected readonly ICurrentSessionProvider _currentSessionProvider;
+    protected readonly UserManager<User> _userManager;
 
     protected BaseService(
         IClock clock,
         ILogger<BaseService> logger,
         IServiceScopeFactory serviceScopeFactory,
-        ZMKDbContext dbContext)
+        ZMKDbContext dbContext,
+        ICurrentSessionProvider currentSessionProvider,
+        UserManager<User> userManager)
     {
         _clock = clock;
         _logger = logger;
         _serviceScopeFactory = serviceScopeFactory;
         _dbContext = dbContext;
+        _currentSessionProvider = currentSessionProvider;
+        _userManager = userManager;
     }
 
     protected Result Validate<T>(T @object) where T : notnull
@@ -57,5 +67,30 @@ public abstract class BaseService
         }
 
         return Result.Success();
+    }
+
+    protected async Task<Result<Session>> IsAbleToPerformAction(CancellationToken cancellationToken, params string[] requiredRoles)
+    {
+        var currentSession = await _dbContext.Sessions.LoadByIdAsync(_currentSessionProvider.GetCurrentSessionId(), cancellationToken);
+
+        switch (currentSession)
+        {
+            case null:
+                return Result.Failure<Session>(Errors.Auth.Unauthorized);
+            case Session { IsActive: false }:
+                return Result.Failure<Session>(Errors.Auth.Unauthorized);
+            default:
+                {
+                    foreach (var role in requiredRoles)
+                    {
+                        if (!await _userManager.IsInRoleAsync(currentSession.User!, role))
+                        {
+                            return Result.Failure<Session>(Errors.Auth.AccessDenied);
+                        }
+                    }
+
+                    return Result.Success(currentSession);
+                }
+        }
     }
 }

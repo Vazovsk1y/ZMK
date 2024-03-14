@@ -14,6 +14,7 @@ public static class Registrator
     {
         services.AddTransient<IClock, Clock>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUserService, UserService>();
 
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddIdentity();
@@ -30,6 +31,8 @@ public static class Registrator
             e.Password.RequireDigit = false;
             e.Password.RequireUppercase = false;
             e.Password.RequireLowercase = false;
+
+            e.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZабвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789";
         })
         .AddSignInManager<SignInManager<User>>()
         .AddRoles<Role>()

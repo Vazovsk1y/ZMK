@@ -1,0 +1,55 @@
+﻿<UserControl x:Class="ZMK.Wpf.Views.Controls.UsersPanelControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ZMK.Wpf.Views.Controls" 
+             xmlns:viewmodels="clr-namespace:ZMK.Wpf.ViewModels" 
+             d:DataContext="{d:DesignInstance Type=viewmodels:UsersPanelViewModel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <ScrollViewer>
+            <StackPanel>
+                <DataGrid ItemsSource="{Binding Users}"
+                          SelectedItem="{Binding SelectedUser}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False">
+
+                    <DataGrid.Resources>
+                        <CollectionViewSource x:Key="AvailableEmployees" Source="{Binding AvailableEmployees}"/>
+                        <CollectionViewSource x:Key="AvailableRoles" Source="{Binding AvailableRoles}"/>
+                    </DataGrid.Resources>
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Имя пользователя" 
+                                            Binding="{Binding UserName}"/>
+                        <DataGridComboBoxColumn Header="Имя сотрудника" 
+                                                ItemsSource="{Binding Source={StaticResource AvailableEmployees}}"
+                                                SelectedItemBinding="{Binding Employee}"
+                                                DisplayMemberPath="FullName"/>
+                        <DataGridComboBoxColumn Header="Роль"
+                                                ItemsSource="{Binding Source={StaticResource AvailableRoles}}"
+                                                SelectedItemBinding="{Binding Role}"
+                                                DisplayMemberPath="Name"/>
+                        <DataGridTextColumn Header="Установить пароль"
+                                            Binding="{Binding Password}"/>
+                        <DataGridTextColumn  
+                                            Binding="{Binding UpdatableSign.Value}" 
+                                            IsReadOnly="True"/>
+                    </DataGrid.Columns>
+                    
+                </DataGrid>
+
+                <StackPanel 
+                    Orientation="Horizontal">
+
+                    <Button Content="Добавить" Command="{Binding AddCommand}" Margin="10"/>
+                    <Button Content="Сохранить изменения" Command="{Binding SaveChangesCommand}" Margin="10"/>
+                    <Button Content="Удалить" Command="{Binding DeleteCommand}" Margin="10"/>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

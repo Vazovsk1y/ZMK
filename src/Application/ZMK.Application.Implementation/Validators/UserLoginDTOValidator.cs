@@ -7,6 +7,6 @@ public class UserLoginDTOValidator : AbstractValidator<UserLoginDTO>
 {
     public UserLoginDTOValidator()
     {
-        RuleFor(e => e.Username).NotEmpty();
+        RuleFor(e => e.UserName).NotEmpty();
     }
 }

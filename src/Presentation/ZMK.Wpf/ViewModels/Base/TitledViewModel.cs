@@ -2,7 +2,7 @@
 
 namespace ZMK.Wpf.ViewModels;
 
-internal class TitledViewModel : ObservableRecipient
+public class TitledViewModel : ObservableRecipient
 {
     public CurrentSessionViewModel? CurrentSession { get; } = App.CurrentSession;
 
