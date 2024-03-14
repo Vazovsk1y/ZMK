@@ -24,7 +24,14 @@ public static class Registrator
     private static void AddIdentity(this IServiceCollection services)
     {
         services
-        .AddIdentityCore<User>()
+        .AddIdentity<User, Role>(e =>
+        {
+            e.Password.RequireNonAlphanumeric = false;
+            e.Password.RequireDigit = false;
+            e.Password.RequireUppercase = false;
+            e.Password.RequireLowercase = false;
+        })
+        .AddSignInManager<SignInManager<User>>()
         .AddRoles<Role>()
         .AddEntityFrameworkStores<ZMKDbContext>()
         .AddDefaultTokenProviders();

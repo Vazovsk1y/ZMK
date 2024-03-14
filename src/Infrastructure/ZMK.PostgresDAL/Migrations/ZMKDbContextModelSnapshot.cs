@@ -132,6 +132,15 @@ namespace ZMK.PostgresDAL.Migrations
                         .IsUnique();
 
                     b.ToTable("Employees");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("f778ab84-9aae-41eb-ad52-7cd97a206285"),
+                            FullName = "Тестовый Сотрудник",
+                            Post = "Тестовый Сотрудник",
+                            Remark = "Создан исключительно в целях тестирования, рекомендуется удалить."
+                        });
                 });
 
             modelBuilder.Entity("ZMK.Domain.Entities.Role", b =>
@@ -162,6 +171,32 @@ namespace ZMK.PostgresDAL.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("26ecec29-d9a9-428d-8777-0efd98f79e2c"),
+                            ConcurrencyStamp = "ffc262fd-9beb-4fe8-85a1-1075185be82d",
+                            Description = "Администратор системы имеет право добавлять/изменять любые настройки и проэкты. Определяет текущую базу и ее местоположение.",
+                            Name = "Администратор",
+                            NormalizedName = "АДМИНИСТРАТОР"
+                        },
+                        new
+                        {
+                            Id = new Guid("2dca6dbb-ade8-4922-b2be-983f15033fd9"),
+                            ConcurrencyStamp = "24375cb8-4ab2-4afd-890b-a82f22432760",
+                            Description = "Пользователь имеет право вносить выполнение по маркам, создавать и изменять отгрузки.",
+                            Name = "Пользователь",
+                            NormalizedName = "ПОЛЬЗОВАТЕЛЬ"
+                        },
+                        new
+                        {
+                            Id = new Guid("450abc0e-8c58-4f72-9a69-14e255ae733e"),
+                            ConcurrencyStamp = "21d309c5-c0b6-45a5-abd7-57d0e6c86acd",
+                            Description = "Доступ к проэктам с правом просмотра данных.",
+                            Name = "Читатель",
+                            NormalizedName = "ЧИТАТЕЛЬ"
+                        });
                 });
 
             modelBuilder.Entity("ZMK.Domain.Entities.Session", b =>
@@ -245,10 +280,6 @@ namespace ZMK.PostgresDAL.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
@@ -261,6 +292,21 @@ namespace ZMK.PostgresDAL.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("9f324120-86c5-4c45-ad0a-a9ce367c1982"),
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "92063e91-20d8-4b6c-9a56-e3d5db8cf0b0",
+                            EmailConfirmed = false,
+                            EmployeeId = new Guid("f778ab84-9aae-41eb-ad52-7cd97a206285"),
+                            LockoutEnabled = true,
+                            NormalizedUserName = "TESTADMIN",
+                            PhoneNumberConfirmed = false,
+                            TwoFactorEnabled = false,
+                            UserName = "TestAdmin"
+                        });
                 });
 
             modelBuilder.Entity("ZMK.Domain.Entities.UserRole", b =>
@@ -276,6 +322,13 @@ namespace ZMK.PostgresDAL.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = new Guid("9f324120-86c5-4c45-ad0a-a9ce367c1982"),
+                            RoleId = new Guid("26ecec29-d9a9-428d-8777-0efd98f79e2c")
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

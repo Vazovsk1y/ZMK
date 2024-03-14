@@ -10,6 +10,6 @@ public static class Errors
 
         public static readonly Error InvalidUsernameOrPassword = new($"{BaseCode}.{nameof(InvalidUsernameOrPassword)}", "Неверный логин или пароль.");
 
-        public static readonly Error SessionIsAlreadyOpened = new($"{BaseCode}.{nameof(SessionIsAlreadyOpened)}", "Другой уже пользователь использует приложение.");
+        public static readonly Error SessionIsAlreadyOpened = new($"{BaseCode}.{nameof(SessionIsAlreadyOpened)}", "Другой пользователь уже использует приложение.");
     }
 }

@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ZMK.Application.Contracts;
 using ZMK.Application.Implementation.Constants;
-using ZMK.Application.Implementation.Extensions;
 using ZMK.Application.Services;
 using ZMK.Domain.Entities;
 using ZMK.Domain.Shared;
@@ -28,36 +27,44 @@ public class AuthService : BaseService, IAuthService
         _currentSessionProvider = currentSessionProvider;
     }
 
-    public async Task<Result<SessionDTO>> LoginAsync(UserLoginDTO loginDTO, CancellationToken cancellationToken = default)
+    public async Task<Result<Guid>> LoginAsync(UserLoginDTO loginDTO, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+
+        _logger.LogInformation("Попытка входа в аккаунт.");
 
         var validationResult = Validate(loginDTO);
         if (validationResult.IsFailure)
         {
-            return Result.Failure<SessionDTO>(validationResult.Errors);
+            return Result.Failure<Guid>(validationResult.Errors);
         }
 
-        var user = await _userManager.FindByNameAsync(loginDTO.Username);
+        var user = await _userManager.FindByNameAsync(loginDTO.Username).ConfigureAwait(false);
 
         switch (user)
         {
             case null:
-                return Result.Failure<SessionDTO>(Errors.Auth.InvalidUsernameOrPassword);
-            case User when !await _userManager.CheckPasswordAsync(user, loginDTO.Password):
-                return Result.Failure<SessionDTO>(Errors.Auth.InvalidUsernameOrPassword);
+                return Result.Failure<Guid>(Errors.Auth.InvalidUsernameOrPassword);
+            case User when !string.IsNullOrWhiteSpace(loginDTO.Password) && !await _userManager.CheckPasswordAsync(user, loginDTO.Password):
+                return Result.Failure<Guid>(Errors.Auth.InvalidUsernameOrPassword);
             case User when await _dbContext.Sessions.AnyAsync(e => e.IsActive, cancellationToken):
-                return Result.Failure<SessionDTO>(Errors.Auth.SessionIsAlreadyOpened);
+                return Result.Failure<Guid>(Errors.Auth.SessionIsAlreadyOpened);
             default:
                 {
-                    return await AddOrUpdateSession(user, cancellationToken);
+                    await _dbContext
+                        .Entry(user)
+                        .Reference(e => e.Employee)
+                        .LoadAsync(cancellationToken)
+                        .ConfigureAwait(false);
+
+                    return await AddOrUpdateSession(user, cancellationToken).ConfigureAwait(false);
                 }
         }
     }
 
-    public async Task<Result> LogoutAsync(CancellationToken cancellationToken = default)
+    public Result Logout()
     {
-        cancellationToken.ThrowIfCancellationRequested();
+        _logger.LogInformation("Выход из аккаунта...");
 
         var currentSessionId = _currentSessionProvider.GetCurrentSessionId();
         if (currentSessionId is null)
@@ -65,13 +72,14 @@ public class AuthService : BaseService, IAuthService
             return Result.Success();
         }
 
-        var session = await _dbContext.Sessions.SingleOrDefaultAsync(e => e.Id == currentSessionId, cancellationToken);
+        var session = _dbContext.Sessions
+            .Include(e => e.User)
+            .Include(e => e.User!.Employee)
+            .SingleOrDefault(e => e.Id == currentSessionId);
 
         switch (session)
         {
             case null:
-                return Result.Success();
-            case Session { IsActive: false }:
                 return Result.Success();
             default:
                 {
@@ -79,15 +87,16 @@ public class AuthService : BaseService, IAuthService
                     session.ClosingDate = currentDate;
                     session.IsActive = false;
 
-                    await _dbContext.SaveChangesAsync(cancellationToken);
+                    _dbContext.SaveChanges();
+                    _logger.LogInformation("'{userName} - {employeeFullName}' успешно вышел из аккаунта.", session.User!.UserName, session.User.Employee!.FullName);
                     return Result.Success();
                 }
         }
     }
 
-    private async Task<Result<SessionDTO>> AddOrUpdateSession(User user, CancellationToken cancellationToken)
+    private async Task<Result<Guid>> AddOrUpdateSession(User user, CancellationToken cancellationToken)
     {
-        var session = await _dbContext.Sessions.SingleOrDefaultAsync(e => e.UserId == user.Id, cancellationToken);
+        var session = await _dbContext.Sessions.SingleOrDefaultAsync(e => e.UserId == user.Id, cancellationToken).ConfigureAwait(false);
 
         var currentDate = _clock.GetDateTimeOffsetUtcNow();
         if (session is null)
@@ -106,9 +115,11 @@ public class AuthService : BaseService, IAuthService
         {
             session.IsActive = true;
             session.CreationDate = currentDate;
+            session.ClosingDate = null;
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        return Result.Success(session.ToDTO());
+        _logger.LogInformation("Вы вошли в аккаунт '{userName} - {employeeName}'.", user.UserName, user.Employee!.FullName);
+        return Result.Success(session.Id);
     }
 }

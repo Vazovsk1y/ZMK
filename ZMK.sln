@@ -19,6 +19,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZMK.Application", "src\Appl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZMK.Application.Implementation", "src\Application\ZMK.Application.Implementation\ZMK.Application.Implementation.csproj", "{3D889830-7173-47CD-BAFF-E0009432E104}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{043EDD2D-5C61-4072-8A60-8286EA202AF6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZMK.Wpf", "src\Presentation\ZMK.Wpf\ZMK.Wpf.csproj", "{D315BD88-004E-4721-937F-C37FC43FB0F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +45,10 @@ Global
 		{3D889830-7173-47CD-BAFF-E0009432E104}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D889830-7173-47CD-BAFF-E0009432E104}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D889830-7173-47CD-BAFF-E0009432E104}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D315BD88-004E-4721-937F-C37FC43FB0F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D315BD88-004E-4721-937F-C37FC43FB0F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D315BD88-004E-4721-937F-C37FC43FB0F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D315BD88-004E-4721-937F-C37FC43FB0F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +61,8 @@ Global
 		{20559DF2-56FA-48B7-928A-2BE18F545E54} = {CFB25E00-39FC-486B-99EA-272DB1C1C078}
 		{2837D17C-AEC4-4DAC-A160-2E5C5B2AC27B} = {20559DF2-56FA-48B7-928A-2BE18F545E54}
 		{3D889830-7173-47CD-BAFF-E0009432E104} = {20559DF2-56FA-48B7-928A-2BE18F545E54}
+		{043EDD2D-5C61-4072-8A60-8286EA202AF6} = {CFB25E00-39FC-486B-99EA-272DB1C1C078}
+		{D315BD88-004E-4721-937F-C37FC43FB0F2} = {043EDD2D-5C61-4072-8A60-8286EA202AF6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4FAE6AE4-59ED-4B47-883A-EE27621C9FAC}

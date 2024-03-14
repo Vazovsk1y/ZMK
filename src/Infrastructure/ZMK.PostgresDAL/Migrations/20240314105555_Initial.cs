@@ -4,6 +4,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace ZMK.PostgresDAL.Migrations
 {
     /// <inheritdoc />
@@ -67,7 +69,6 @@ namespace ZMK.PostgresDAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Username = table.Column<string>(type: "text", nullable: false),
                     EmployeeId = table.Column<Guid>(type: "uuid", nullable: false),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -200,6 +201,31 @@ namespace ZMK.PostgresDAL.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Description", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { new Guid("26ecec29-d9a9-428d-8777-0efd98f79e2c"), "ffc262fd-9beb-4fe8-85a1-1075185be82d", "Администратор системы имеет право добавлять/изменять любые настройки и проэкты. Определяет текущую базу и ее местоположение.", "Администратор", "АДМИНИСТРАТОР" },
+                    { new Guid("2dca6dbb-ade8-4922-b2be-983f15033fd9"), "24375cb8-4ab2-4afd-890b-a82f22432760", "Пользователь имеет право вносить выполнение по маркам, создавать и изменять отгрузки.", "Пользователь", "ПОЛЬЗОВАТЕЛЬ" },
+                    { new Guid("450abc0e-8c58-4f72-9a69-14e255ae733e"), "21d309c5-c0b6-45a5-abd7-57d0e6c86acd", "Доступ к проэктам с правом просмотра данных.", "Читатель", "ЧИТАТЕЛЬ" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Employees",
+                columns: new[] { "Id", "FullName", "Post", "Remark" },
+                values: new object[] { new Guid("f778ab84-9aae-41eb-ad52-7cd97a206285"), "Тестовый Сотрудник", "Тестовый Сотрудник", "Создан исключительно в целях тестирования, рекомендуется удалить." });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUsers",
+                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "EmployeeId", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
+                values: new object[] { new Guid("9f324120-86c5-4c45-ad0a-a9ce367c1982"), 0, "92063e91-20d8-4b6c-9a56-e3d5db8cf0b0", null, false, new Guid("f778ab84-9aae-41eb-ad52-7cd97a206285"), true, null, null, "TESTADMIN", null, null, false, null, false, "TestAdmin" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetUserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[] { new Guid("26ecec29-d9a9-428d-8777-0efd98f79e2c"), new Guid("9f324120-86c5-4c45-ad0a-a9ce367c1982") });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
