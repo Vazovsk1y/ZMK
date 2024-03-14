@@ -24,7 +24,8 @@ internal class Program
 #endif
 
         App app = new();
-        //app.InitializeComponent();
+        app.StartGlobalExceptionsHandling();
+        app.InitializeComponent();
         app.MigrateDatabase();
         app.Run();
     }

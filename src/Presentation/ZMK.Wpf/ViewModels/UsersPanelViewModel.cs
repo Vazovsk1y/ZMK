@@ -107,7 +107,14 @@ internal partial class UsersPanelViewModel : ObservableRecipient,
             results.Add(updateResult);
         }
 
-        MessageBoxHelper.ShowInfoBox($"Информация об {results.Where(e =>e.IsSuccess).Count()} пользователях была обновлена успешно.");
+        if (results.Where(e => e.IsSuccess).Any())
+        {
+            MessageBoxHelper.ShowInfoBox($"Информация об {results.Where(e => e.IsSuccess).Count()} пользователях была обновлена успешно.");
+        }
+        else
+        {
+            MessageBoxHelper.ShowErrorBox(results.Where(e => e.IsFailure).SelectMany(e => e.Errors).Display());
+        }
 
         if (currentUserUpdated)
         {

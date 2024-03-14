@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System.Windows;
 using ZMK.Application.Services;
 using ZMK.PostgresDAL;
@@ -43,5 +44,42 @@ public partial class App : System.Windows.Application
         using var scope = App.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ZMKDbContext>();
         dbContext.Database.Migrate();
+    }
+
+    public void StartGlobalExceptionsHandling()
+    {
+        const string MessageTemplate = "Что-то пошло не так в {exceptionSource}.";
+
+        DispatcherUnhandledException += (sender, e) =>
+        {
+            using var scope = Services.CreateScope();
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<App>>();
+            var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
+
+            logger.LogError(e.Exception, MessageTemplate, nameof(DispatcherUnhandledException));
+            e.Handled = true;
+
+            Current.Shutdown();
+        };
+
+        AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+        {
+            using var scope = Services.CreateScope();
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<App>>();
+            var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
+
+            logger.LogError(e.ExceptionObject as Exception, MessageTemplate, $"{nameof(AppDomain.CurrentDomain)}.{nameof(AppDomain.CurrentDomain.UnhandledException)}");
+            authService.Logout();
+        };
+
+        TaskScheduler.UnobservedTaskException += (sender, e) =>
+        {
+            using var scope = Services.CreateScope();
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<App>>();
+            var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
+
+            logger.LogError(e.Exception, MessageTemplate, nameof(TaskScheduler.UnobservedTaskException));
+            authService.Logout();
+        };
     }
 }
