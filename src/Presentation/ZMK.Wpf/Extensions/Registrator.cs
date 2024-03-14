@@ -29,6 +29,7 @@ public static class Registrator
     {
         services.AddSingleton<IUserDialogService, UserDialogService>();
         services.AddTransient<ICurrentSessionProvider, CurrentSessionProvider>();
+        services.AddSingleton<StatusPanelViewModel>();
 
         services.AddWindowWithViewModelSingleton<MainWindow, MainWindowViewModel>();
         services.AddWindowWithViewModelTransient<LoginWindow, LoginWindowViewModel>();

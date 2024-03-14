@@ -4,6 +4,8 @@ namespace ZMK.Wpf.ViewModels;
 
 internal class TitledViewModel : ObservableRecipient
 {
+    public CurrentSessionViewModel? CurrentSession { get; } = App.CurrentSession;
+
     private string? _controlTitle = "Undefined";
 
     public string? ControlTitle
