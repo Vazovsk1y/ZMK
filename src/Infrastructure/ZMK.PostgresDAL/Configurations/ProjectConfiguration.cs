@@ -19,6 +19,11 @@ public class ProjectConfiguration : IEntityTypeConfiguration<Project>
             .HasForeignKey(p => p.CreatorId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        builder
+            .HasMany(e => e.Areas)
+            .WithOne(e => e.Project)
+            .HasForeignKey(e => e.ProjectId);
+
         builder.HasOne(p => p.Settings)
             .WithOne()
             .HasForeignKey<ProjectSettings>(ps => ps.ProjectId)

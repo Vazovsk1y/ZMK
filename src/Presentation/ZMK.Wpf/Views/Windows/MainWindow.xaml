@@ -36,7 +36,11 @@
                 </Menu.ItemsPanel>
 
                 <MenuItem Header="Проэкты"
-                          Template="{StaticResource MenuItem_Template}">
+                          Template="{StaticResource MenuItem_Template}"
+                          DataContext="{Binding ProjectsPanelViewModel}"
+                                Command="{Binding DataContext.MenuItemChangedCommand, 
+                         RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                               CommandParameter="{Binding}">
 
                     <MenuItem.Icon>
                         <Image Source="/Assets/Icons/projects.png"
@@ -87,6 +91,9 @@
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type viewmodels:EmployeesPanelViewModel}">
                         <controls:EmployeesPanelControl DataContext="{Binding}"/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type viewmodels:ProjectsPanelViewModel}">
+                        <controls:ProjectsPanelControl DataContext="{Binding}"/>
                     </DataTemplate>
                 </ContentControl.Resources>
             </ContentControl>

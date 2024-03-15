@@ -9,4 +9,6 @@ public class Area : Entity
     public required int Order { get; set; }
 
     public string? Remark { get; set; }
+
+    public IEnumerable<ProjectArea> Projects { get; set; } = new List<ProjectArea>();
 }

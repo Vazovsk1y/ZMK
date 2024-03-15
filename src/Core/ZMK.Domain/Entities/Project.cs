@@ -28,6 +28,8 @@ public class Project : Entity, IAuditable
 
     public ProjectSettings Settings { get; set; } = null!;
 
+    public IEnumerable<ProjectArea> Areas { get; set; } = new HashSet<ProjectArea>();
+
     #endregion
 }
 

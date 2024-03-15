@@ -1,10 +1,68 @@
-﻿using ZMK.Domain.Entities;
+﻿using ZMK.Application.Contracts;
+using ZMK.Domain.Entities;
 using ZMK.Wpf.ViewModels;
+using static ZMK.Wpf.ViewModels.ProjectViewModel;
 
 namespace ZMK.Wpf.Extensions;
 
 public static class Mapper
 {
+    public static ProjectViewModel ToViewModel(this Project project)
+    {
+        var entity = new ProjectViewModel
+        {
+            Id = project.Id,
+            Creator = project.Creator is not null ? new CreatorViewModel(project.Creator.Id, project.Creator!.UserName!) : null,
+            ClosingDate = project.ClosingDate,
+            CreatedDate = project.CreatedDate,
+            ModifiedDate = project.ModifiedDate,
+            FactoryNumber = project.FactoryNumber,
+            ContractNumber = project.ContractNumber,
+            Customer = project.Customer,
+            Vendor = project.Vendor,
+            Remark = project.Remark,
+            Settings = project.Settings.ToViewModel(project),
+        };
+        entity.Settings.SaveState();
+        entity.SaveState();
+        return entity;
+    }
+
+    public static ProjectUpdateDTO ToDTO(this ProjectViewModel viewModel)
+    {
+        return new ProjectUpdateDTO(
+            viewModel.Id,
+            viewModel.FactoryNumber,
+            viewModel.ContractNumber,
+            viewModel.Customer,
+            viewModel.Vendor,
+            viewModel.Remark,
+            viewModel.Settings.IsEditable,
+            viewModel.Settings.AllowMarksDeleting,
+            viewModel.Settings.AllowMarksAdding,
+            viewModel.Settings.AllowMarksModifying,
+            viewModel.Settings.AreExecutorsRequired,
+            viewModel.Settings.Areas.Select(area => area.Id)
+        );
+    }
+
+    private static ProjectSettingsViewModel ToViewModel(this ProjectSettings settings, Project project)
+    {
+        var entity = new ProjectSettingsViewModel
+        {
+            ProjectId = settings.ProjectId,
+            IsEditable = settings.IsEditable,
+            AllowMarksDeleting = settings.AllowMarksDeleting,
+            AllowMarksModifying = settings.AllowMarksModifying,
+            AllowMarksAdding = settings.AllowMarksAdding,
+            AreExecutorsRequired = settings.AreExecutorsRequired,
+            Areas = new (project.Areas.Select(e => new ProjectSettingsViewModel.AreaViewModel(e.AreaId, e.Area.Title, e.Area.Order))),
+        };
+
+        entity.SaveState();
+        return entity;
+    }
+
     public static CurrentSessionViewModel ToViewModel(this Session session)
     {
         return new CurrentSessionViewModel

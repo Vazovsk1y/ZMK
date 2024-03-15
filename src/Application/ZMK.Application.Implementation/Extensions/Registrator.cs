@@ -16,6 +16,7 @@ public static class Registrator
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IEmployeeService, EmployeeService>();
+        services.AddScoped<IProjectService, ProjectService>();
 
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddIdentity();

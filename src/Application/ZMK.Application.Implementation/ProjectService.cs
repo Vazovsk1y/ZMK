@@ -80,11 +80,6 @@ public class ProjectService : BaseService, IProjectService
             return Result.Success();
         }
 
-        if (project.Id == isAbleResult.Value.User!.Employee!.Id)
-        {
-            return Result.Failure(new Error(nameof(Error), "Зайдите с другого аккаунта чтобы иметь возможность удалить данного сотрудника."));
-        }
-
         _dbContext.Projects.Remove(project);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -123,11 +118,6 @@ public class ProjectService : BaseService, IProjectService
             default:
                 {
                     project.Update(dTO, _clock);
-                    if (await _dbContext.Projects.AnyAsync(e => e.FactoryNumber == project.FactoryNumber, cancellationToken))
-                    {
-                        return Result.Failure<Guid>(new Error(nameof(Error), "Проэкт с таким заводским номером уже существует."));
-                    }
-
                     var previousProjectAreas = await _dbContext.ProjectsAreas.Where(e => e.ProjectId == project.Id).ToListAsync(cancellationToken);
                     var newProjectAreas = dTO.Areas.Select(e => new ProjectArea { AreaId = e, ProjectId = project.Id }).ToList();
 

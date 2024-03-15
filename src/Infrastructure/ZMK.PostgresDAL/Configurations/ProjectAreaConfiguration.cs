@@ -10,13 +10,7 @@ public class ProjectAreaConfiguration : IEntityTypeConfiguration<ProjectArea>
     {
         builder.HasKey(pa => new { pa.ProjectId, pa.AreaId });
 
-
-        builder.HasOne(e => e.Area)
-            .WithMany()
-            .HasForeignKey(e => e.AreaId);
-
-        builder.HasOne(e => e.Project)
-            .WithMany()
-            .HasForeignKey(e => e.ProjectId);
+        builder.HasOne(e => e.Area).WithMany(e => e.Projects);
+        builder.HasOne(e => e.Project).WithMany(e => e.Areas);
     }
 }

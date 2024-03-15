@@ -8,7 +8,15 @@ public abstract class ModifiableViewModel<T> :
 {
     public T PreviousState { get; private set; } = default!;
 
-    public UpdatableSign? UpdatableSign => IsModified() ? new UpdatableSign() : null;
+    private UpdatableSign? _updatableSign;
+    public virtual UpdatableSign? UpdatableSign
+    {
+        get => _updatableSign is null ? IsModified() ? new UpdatableSign() : null : _updatableSign;
+        set
+        {
+            SetProperty(ref _updatableSign, value);
+        }
+    }
 
     public abstract bool IsModified();
 

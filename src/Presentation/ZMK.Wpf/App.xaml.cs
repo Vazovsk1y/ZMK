@@ -59,7 +59,7 @@ public partial class App : System.Windows.Application
             logger.LogError(e.Exception, MessageTemplate, nameof(DispatcherUnhandledException));
             e.Handled = true;
 
-            Current.Shutdown();
+            Current?.Shutdown();
         };
 
         AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
@@ -71,7 +71,7 @@ public partial class App : System.Windows.Application
             logger.LogError(e.ExceptionObject as Exception, MessageTemplate, $"{nameof(AppDomain.CurrentDomain)}.{nameof(AppDomain.CurrentDomain.UnhandledException)}");
             authService.Logout();
 
-            Current.Shutdown();
+            Current?.Shutdown();
         };
 
         TaskScheduler.UnobservedTaskException += (sender, e) =>
@@ -83,7 +83,7 @@ public partial class App : System.Windows.Application
             logger.LogError(e.Exception, MessageTemplate, nameof(TaskScheduler.UnobservedTaskException));
             authService.Logout();
 
-            Current.Shutdown();
+            Current?.Shutdown();
         };
     }
 }

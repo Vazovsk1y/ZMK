@@ -1,0 +1,65 @@
+﻿<UserControl x:Class="ZMK.Wpf.Views.Controls.ProjectsPanelControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ZMK.Wpf.Views.Controls" 
+             xmlns:viewmodels="clr-namespace:ZMK.Wpf.ViewModels" 
+             d:DataContext="{d:DesignInstance Type=viewmodels:ProjectsPanelViewModel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <ScrollViewer>
+            <StackPanel>
+                <DataGrid ItemsSource="{Binding Projects}"
+                          SelectedItem="{Binding SelectedProject}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False">
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Заводской номер" 
+                                            Binding="{Binding FactoryNumber}"/>
+                        <DataGridTextColumn Header="Номер договора" 
+                                            Binding="{Binding ContractNumber}"/>
+                        <DataGridTextColumn Header="Заказчик" 
+                                            Binding="{Binding Customer}"/>
+                        <DataGridTextColumn Header="Поставщик" 
+                                            Binding="{Binding Vendor}"/>
+                        <DataGridTextColumn Header="Примечание" 
+                                            Binding="{Binding Remark}"/>
+                        <DataGridTextColumn Header="Создатель"
+                                            IsReadOnly="True"
+                                            Binding="{Binding Creator.UserName}"/>
+                        <DataGridTextColumn Header="Дата создания"
+                                            IsReadOnly="True"
+                                            Binding="{Binding CreatedDate}"/>
+                        <DataGridTextColumn Header="Дата изменения"
+                                            IsReadOnly="True"
+                                            Binding="{Binding ModifiedDate}"/>
+                        <DataGridTextColumn Header="Дата закрытия"
+                                            IsReadOnly="True"
+                                            Binding="{Binding ClosingDate}"/>
+                        <DataGridTextColumn IsReadOnly="True"
+                                            Binding="{Binding UpdatableSign.Value}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Добавить" 
+                            Command="{Binding AddCommand}" 
+                            Margin="10"/>
+                    <Button Content="Сохранить изменения" 
+                            Command="{Binding SaveChangesCommand}" 
+                            Margin="10"/>
+                    <Button Content="Удалить" 
+                            Command="{Binding DeleteCommand}" 
+                            Margin="10"/>
+                    <Button Content="Настройки" 
+                            Command="{Binding ProjectSettingsCommand}" 
+                            Margin="10"/>
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

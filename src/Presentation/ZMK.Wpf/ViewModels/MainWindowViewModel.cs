@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using System.Reflection;
 
 namespace ZMK.Wpf.ViewModels;
 
@@ -11,6 +12,8 @@ public partial class MainWindowViewModel : TitledViewModel
 
     public EmployeesPanelViewModel EmployeesPanelViewModel { get; }
 
+    public ProjectsPanelViewModel ProjectsPanelViewModel { get; }
+
     [ObservableProperty]
     public IRefrashable? _selectedMenuItem;
 
@@ -19,12 +22,16 @@ public partial class MainWindowViewModel : TitledViewModel
     public MainWindowViewModel(
         StatusPanelViewModel statusPanelViewModel,
         UsersPanelViewModel usersPanelViewModel,
-        EmployeesPanelViewModel employeesPanelViewModel)
+        EmployeesPanelViewModel employeesPanelViewModel,
+        ProjectsPanelViewModel projectsPanelViewModel)
     {
         ControlTitle = App.Title;
         StatusPanelViewModel = statusPanelViewModel;
         UsersPanelViewModel = usersPanelViewModel;
         EmployeesPanelViewModel = employeesPanelViewModel;
+        ProjectsPanelViewModel = projectsPanelViewModel;
+
+        ActivateAllRecipients();
     }
 
     public MainWindowViewModel()
@@ -63,5 +70,19 @@ public partial class MainWindowViewModel : TitledViewModel
 
         _tokenSource?.Dispose();
         _tokenSource = null;
+    }
+
+    private void ActivateAllRecipients()
+    {
+        var type = GetType();
+        var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        foreach (var property in properties)
+        {
+            if (property.GetValue(this) is ObservableRecipient observableRecipient)
+            {
+                observableRecipient.IsActive = true;
+            }
+        }
     }
 }

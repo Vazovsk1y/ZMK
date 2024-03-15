@@ -8,6 +8,6 @@ public class ProjectAddDTOValidator : AbstractValidator<ProjectAddDTO>
     public ProjectAddDTOValidator()
     {
         RuleFor(e => e.FactoryNumber).NotEmpty();
-        RuleFor(e => e.Areas).Must(e => e.Distinct().Count() == e.Count()).WithMessage("Участки не могут повторяться.");
+        RuleFor(e => e.Areas).NotEmpty().Must(e => e.Distinct().Count() == e.Count()).WithMessage("Участки не могут повторяться.");
     }
 }
