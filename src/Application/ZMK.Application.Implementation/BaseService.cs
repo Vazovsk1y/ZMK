@@ -69,7 +69,7 @@ public abstract class BaseService
         return Result.Success();
     }
 
-    protected async Task<Result<Session>> IsAbleToPerformAction(CancellationToken cancellationToken, params string[] requiredRoles)
+    protected async Task<Result<Session>> IsAbleToPerformAction(string role, CancellationToken cancellationToken = default)
     {
         var currentSession = await _dbContext.Sessions.LoadByIdAsync(_currentSessionProvider.GetCurrentSessionId(), cancellationToken);
 
@@ -81,12 +81,9 @@ public abstract class BaseService
                 return Result.Failure<Session>(Errors.Auth.Unauthorized);
             default:
                 {
-                    foreach (var role in requiredRoles)
+                    if (!await _userManager.IsInRoleAsync(currentSession.User!, role))
                     {
-                        if (!await _userManager.IsInRoleAsync(currentSession.User!, role))
-                        {
-                            return Result.Failure<Session>(Errors.Auth.AccessDenied);
-                        }
+                        return Result.Failure<Session>(Errors.Auth.AccessDenied);
                     }
 
                     return Result.Success(currentSession);

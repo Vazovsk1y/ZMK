@@ -11,5 +11,6 @@ public record ProjectUpdateDTO(
     bool AllowMarksDeleting,
     bool AllowMarksAdding,
     bool AllowMarksModifying,
-    bool AreExecutorsRequired);
+    bool AreExecutorsRequired,
+    IEnumerable<Guid> Areas);
 

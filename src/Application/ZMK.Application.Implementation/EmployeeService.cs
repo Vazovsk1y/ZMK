@@ -34,7 +34,7 @@ public class EmployeeService : BaseService, IEmployeeService
             return Result.Failure<Guid>(validationResult.Errors);
         }
 
-        var isAbleResult = await IsAbleToPerformAction(cancellationToken, DefaultRoles.Admin).ConfigureAwait(false);
+        var isAbleResult = await IsAbleToPerformAction(DefaultRoles.Admin, cancellationToken).ConfigureAwait(false);
         if (isAbleResult.IsFailure)
         {
             return Result.Failure<Guid>(isAbleResult.Errors);
@@ -55,6 +55,7 @@ public class EmployeeService : BaseService, IEmployeeService
 
         _dbContext.Employees.Add(employee);
         await _dbContext.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("Сотрудник был успешно добавлен.");
         return employee.Id;
     }
 
@@ -62,7 +63,7 @@ public class EmployeeService : BaseService, IEmployeeService
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var isAbleResult = await IsAbleToPerformAction(cancellationToken, DefaultRoles.Admin).ConfigureAwait(false);
+        var isAbleResult = await IsAbleToPerformAction(DefaultRoles.Admin, cancellationToken).ConfigureAwait(false);
         if (isAbleResult.IsFailure)
         {
             return Result.Failure<Guid>(isAbleResult.Errors);
@@ -101,12 +102,13 @@ public class EmployeeService : BaseService, IEmployeeService
             return validationResult;
         }
 
-        var isAbleResult = await IsAbleToPerformAction(cancellationToken, DefaultRoles.Admin).ConfigureAwait(false);
+        var isAbleResult = await IsAbleToPerformAction(DefaultRoles.Admin, cancellationToken).ConfigureAwait(false);
         if (isAbleResult.IsFailure)
         {
             return isAbleResult;
         }
 
+        _logger.LogInformation("Попытка обновления сотрудника.");
         var employee = await _dbContext
             .Employees
             .SingleOrDefaultAsync(e => e.Id == dTO.Id, cancellationToken);
@@ -116,14 +118,12 @@ public class EmployeeService : BaseService, IEmployeeService
             return Result.Failure(Errors.NotFound("Сотрудник"));
         }
 
-        _logger.LogInformation("Попытка обновления сотрудника.");
-
         employee.FullName = dTO.FullName.Trim();
         employee.Remark = dTO.Remark;
         employee.Post = dTO.Post;
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        _logger.LogInformation("Пользователь был успешно обновлен.");
+        _logger.LogInformation("Сотрудник был успешно обновлен.");
         return Result.Success();
     }
 }

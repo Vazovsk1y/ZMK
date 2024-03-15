@@ -35,7 +35,7 @@ public class UserService : BaseService, IUserService
             return Result.Failure<Guid>(validationResult.Errors);
         }
 
-        var isAbleResult = await IsAbleToPerformAction(cancellationToken, DefaultRoles.Admin).ConfigureAwait(false);
+        var isAbleResult = await IsAbleToPerformAction(DefaultRoles.Admin, cancellationToken).ConfigureAwait(false);
         if (isAbleResult.IsFailure)
         {
             return Result.Failure<Guid>(isAbleResult.Errors);
@@ -82,7 +82,7 @@ public class UserService : BaseService, IUserService
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var isAbleResult = await IsAbleToPerformAction(cancellationToken, DefaultRoles.Admin).ConfigureAwait(false);
+        var isAbleResult = await IsAbleToPerformAction(DefaultRoles.Admin, cancellationToken).ConfigureAwait(false);
         if (isAbleResult.IsFailure)
         {
             return isAbleResult;
@@ -118,7 +118,7 @@ public class UserService : BaseService, IUserService
             return validationResult;
         }
 
-        var isAbleResult = await IsAbleToPerformAction(cancellationToken, DefaultRoles.Admin);
+        var isAbleResult = await IsAbleToPerformAction(DefaultRoles.Admin, cancellationToken);
         if (isAbleResult.IsFailure)
         {
             return isAbleResult;
@@ -135,8 +135,8 @@ public class UserService : BaseService, IUserService
         try
         {
             var newRole = await _dbContext.Roles.SingleAsync(e => e.Id == dTO.RoleId, cancellationToken);
-            var userRole = await _dbContext.UserRoles.SingleAsync(e => e.UserId == user.Id && e.RoleId == e.RoleId, cancellationToken);
-            _dbContext.UserRoles.Remove(userRole);
+            var previousRoles = await _dbContext.UserRoles.Where(e => e.UserId == user.Id).ToListAsync(cancellationToken);
+            _dbContext.UserRoles.RemoveRange(previousRoles);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             user.UserName = dTO.UserName.Trim();
