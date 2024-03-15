@@ -1,41 +1,67 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System.Reflection;
+using CommunityToolkit.Mvvm.Input;
 
 namespace ZMK.Wpf.ViewModels;
 
-internal class MainWindowViewModel : TitledViewModel
+public partial class MainWindowViewModel : TitledViewModel
 {
     public StatusPanelViewModel StatusPanelViewModel { get; }
 
     public UsersPanelViewModel UsersPanelViewModel { get; }
 
+    public EmployeesPanelViewModel EmployeesPanelViewModel { get; }
+
+    [ObservableProperty]
+    public IRefrashable? _selectedMenuItem;
+
+    private CancellationTokenSource? _tokenSource;
+
     public MainWindowViewModel(
-        StatusPanelViewModel statusPanelViewModel, 
-        UsersPanelViewModel usersPanelViewModel)
+        StatusPanelViewModel statusPanelViewModel,
+        UsersPanelViewModel usersPanelViewModel,
+        EmployeesPanelViewModel employeesPanelViewModel)
     {
         ControlTitle = App.Title;
         StatusPanelViewModel = statusPanelViewModel;
         UsersPanelViewModel = usersPanelViewModel;
-
-        ActivateAllRecipients();
+        EmployeesPanelViewModel = employeesPanelViewModel;
     }
 
-    public MainWindowViewModel() 
+    public MainWindowViewModel()
     {
         ControlTitle = App.Title;
     }
 
-    private void ActivateAllRecipients()
+    [RelayCommand]
+    public async Task MenuItemChanged(object param)
     {
-        var type = GetType();
-        var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-        foreach (var property in properties)
+        if (param is not IRefrashable refrashable)
         {
-            if (property.GetValue(this) is ObservableRecipient observableRecipient)
-            {
-                observableRecipient.IsActive = true;
-            }
+            return;
         }
+
+        _tokenSource?.Cancel();
+        _tokenSource ??= new();
+
+        try
+        {
+            if (MenuItemChangedCommand.IsRunning)
+            {
+                MenuItemChangedCommand.Cancel();
+            }
+
+            await refrashable.RefreshAsync(_tokenSource.Token).ConfigureAwait(false);
+
+            App.Current.Dispatcher.Invoke(() => SelectedMenuItem = refrashable);
+        }
+        catch (OperationCanceledException)
+        {
+            _tokenSource?.Dispose();
+            _tokenSource = null;
+            return;
+        }
+
+        _tokenSource?.Dispose();
+        _tokenSource = null;
     }
 }

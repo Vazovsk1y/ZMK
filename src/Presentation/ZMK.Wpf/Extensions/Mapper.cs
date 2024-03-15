@@ -28,6 +28,34 @@ public static class Mapper
         return entity;
     }
 
+    public static EmployeeViewModel ToPanelViewModel(this EmployeeAddViewModel employeeAddVm, Guid id)
+    {
+        var entity = new EmployeeViewModel
+        {
+            Id = id,
+            FullName = employeeAddVm.FullName,
+            Post = employeeAddVm.Post,
+            Remark = employeeAddVm.Remark,
+        };
+
+        entity.SaveState();
+        return entity;
+    }
+
+    public static EmployeeViewModel ToPanelViewModel(this Employee employee)
+    {
+        var entity = new EmployeeViewModel
+        {
+            Id = employee.Id,
+            FullName = employee.FullName,
+            Post = employee.Post,
+            Remark = employee.Remark,
+        };
+
+        entity.SaveState();
+        return entity;
+    }
+
     public static CurrentUserViewModel ToViewModel(this User user)
     {
         var role = user.Roles.SingleOrDefault() ?? throw new InvalidOperationException($"У {user.UserName} не определена роль.");
@@ -37,7 +65,7 @@ public static class Mapper
             Id = user.Id,
             UserName = user.UserName!,
             Role = role.Role!.ToPanelViewModel(),
-            Employee = user.Employee!.ToPanelViewModel(),
+            Employee = user.Employee!.ToUsersPanelViewModel(),
         };
     }
 
@@ -49,7 +77,7 @@ public static class Mapper
         {
             Id = user.Id,
             Role = role.ToPanelViewModel(),
-            Employee = user.Employee!.ToPanelViewModel(),
+            Employee = user.Employee!.ToUsersPanelViewModel(),
             UserName = user.UserName!,
         };
 
@@ -62,7 +90,7 @@ public static class Mapper
         return new UserViewModel.RoleViewModel(role.Id, role.Name!);
     }
 
-    public static UserViewModel.EmployeeViewModel ToPanelViewModel(this Employee employee)
+    public static UserViewModel.EmployeeViewModel ToUsersPanelViewModel(this Employee employee)
     {
         return new UserViewModel.EmployeeViewModel(employee.Id, employee.FullName);
     }

@@ -143,7 +143,11 @@ public class UserService : BaseService, IUserService
             user.EmployeeId = dTO.EmployeeId;
 
             IdentityResult changePasswordResult;
-            if (!string.IsNullOrWhiteSpace(dTO.Password))
+            if (string.IsNullOrWhiteSpace(dTO.Password))
+            {
+                changePasswordResult = IdentityResult.Success;
+            }
+            else
             {
                 if (await _userManager.HasPasswordAsync(user))
                 {
@@ -154,11 +158,6 @@ public class UserService : BaseService, IUserService
                 {
                     changePasswordResult = await _userManager.AddPasswordAsync(user, dTO.Password);
                 }
-            }
-            else
-            {
-                user.PasswordHash = null;
-                changePasswordResult = IdentityResult.Success;
             }
             
             if (!changePasswordResult.Succeeded)

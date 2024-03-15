@@ -12,6 +12,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\Icons\employees.png" />
+    <None Remove="Assets\Icons\projects.png" />
+    <None Remove="Assets\Icons\users.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
@@ -21,6 +27,12 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Application\ZMK.Application.Implementation\ZMK.Application.Implementation.csproj" />
     <ProjectReference Include="..\..\Infrastructure\ZMK.PostgresDAL\ZMK.PostgresDAL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Icons\employees.png" />
+    <Resource Include="Assets\Icons\projects.png" />
+    <Resource Include="Assets\Icons\users.png" />
   </ItemGroup>
 
   <ItemGroup>

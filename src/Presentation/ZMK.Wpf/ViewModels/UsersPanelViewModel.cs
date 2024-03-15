@@ -4,9 +4,9 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
-using System.Windows.Media;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
+using ZMK.Domain.Constants;
 using ZMK.Domain.Shared;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
@@ -16,8 +16,9 @@ using ZMK.Wpf.Views.Windows;
 
 namespace ZMK.Wpf.ViewModels;
 
-internal partial class UsersPanelViewModel : ObservableRecipient,
-    IRecipient<UserAddedMessage>
+public partial class UsersPanelViewModel : ObservableRecipient,
+    IRecipient<UserAddedMessage>,
+    IRefrashable
 {
     public ObservableCollection<UserViewModel.RoleViewModel> AvailableRoles { get; } = [];
     public ObservableCollection<UserViewModel.EmployeeViewModel> AvailableEmployees { get; } = [];
@@ -62,7 +63,18 @@ internal partial class UsersPanelViewModel : ObservableRecipient,
         }
     }
 
-    public bool CanDelete() => SelectedUser is not null && Users.Count > 1;
+    public bool CanDelete() 
+    {
+        if (SelectedUser is UserViewModel u && u.Role.Name == DefaultRoles.Admin)
+        {
+            if (Users.Select(e => e.Role).Where(e => e.Name == DefaultRoles.Admin).Count() == 1)
+            {
+                return false;
+            }
+        }
+
+        return SelectedUser is not null && Users.Count > 1 && SelectedUser?.Id != App.CurrentSession?.User.Id;
+    }
 
     [RelayCommand]
     public void Add()
@@ -132,9 +144,9 @@ internal partial class UsersPanelViewModel : ObservableRecipient,
         });
     }
 
-    protected override async void OnActivated()
+    public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {
-        base.OnActivated();
+        cancellationToken.ThrowIfCancellationRequested();
 
         using var scope = App.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ZMKDbContext>();
@@ -147,25 +159,33 @@ internal partial class UsersPanelViewModel : ObservableRecipient,
             .Include(e => e.Employee)
             .OrderBy(e => e.UserName)
             .Select(e => e.ToPanelViewModel())
-            .ToListAsync();
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
 
         var roles = await dbContext
             .Roles
             .AsNoTracking()
             .OrderBy(e => e.Name)
             .Select(e => e.ToPanelViewModel())
-            .ToListAsync();
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
 
         var employees = await dbContext
             .Employees
             .AsNoTracking()
             .OrderBy(e => e.FullName)
-            .Select(e => e.ToPanelViewModel())
-            .ToListAsync();
+            .Select(e => e.ToUsersPanelViewModel())
+            .ToListAsync(cancellationToken);
 
 
         await App.Current.Dispatcher.InvokeAsync(() =>
         {
+            Users.Clear();
+            AvailableRoles.Clear();
+            AvailableEmployees.Clear();
+            SelectedUser = null;
+
             Users.AddRange(users);
             AvailableRoles.AddRange(roles);
             AvailableEmployees.AddRange(employees);

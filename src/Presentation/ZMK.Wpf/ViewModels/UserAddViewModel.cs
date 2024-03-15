@@ -16,7 +16,7 @@ namespace ZMK.Wpf.ViewModels;
 public partial class UserAddViewModel : DialogViewModel
 {
     public ObservableCollection<RoleViewModel> AvailableRoles { get; } = [];
-    public ObservableCollection<EmployeeViewModel> AvailableEmployees { get; } = [];
+    public ObservableCollection<UserViewModel.EmployeeViewModel> AvailableEmployees { get; } = [];
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(AcceptCommand))]
@@ -28,7 +28,7 @@ public partial class UserAddViewModel : DialogViewModel
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(AcceptCommand))]
-    private EmployeeViewModel? _selectedEmployee;
+    private UserViewModel.EmployeeViewModel? _selectedEmployee;
 
     [ObservableProperty]
     private string _password = null!;
@@ -85,7 +85,7 @@ public partial class UserAddViewModel : DialogViewModel
             .Employees
             .AsNoTracking()
             .OrderBy(e => e.FullName)
-            .Select(e => e.ToPanelViewModel())
+            .Select(e => e.ToUsersPanelViewModel())
             .ToListAsync();
 
 

@@ -31,10 +31,12 @@ public static class Registrator
         services.AddTransient<ICurrentSessionProvider, CurrentSessionProvider>();
         services.AddSingleton<StatusPanelViewModel>();
         services.AddSingleton<UsersPanelViewModel>();
+        services.AddSingleton<EmployeesPanelViewModel>();
 
         services.AddWindowWithViewModelSingleton<MainWindow, MainWindowViewModel>();
         services.AddWindowWithViewModelTransient<LoginWindow, LoginWindowViewModel>();
         services.AddWindowWithViewModelTransient<UserAddWindow, UserAddViewModel>();
+        services.AddWindowWithViewModelTransient<EmployeeAddWindow, EmployeeAddViewModel>();
     }
 
     private static IServiceCollection AddWindowWithViewModelTransient<TWindow, TViewModel>(this IServiceCollection services)
