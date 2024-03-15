@@ -16,6 +16,14 @@ public class ZMKDbContext(DbContextOptions options) : IdentityDbContext<
 
     public DbSet<Session> Sessions { get; set; }
 
+    public DbSet<Project> Projects { get; set; }
+
+    public DbSet<ProjectSettings> ProjectsSettings { get; set; }
+
+    public DbSet<Area> Areas { get; set; }
+
+    public DbSet<ProjectArea> ProjectsAreas { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

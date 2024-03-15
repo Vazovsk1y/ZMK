@@ -15,6 +15,20 @@ namespace ZMK.PostgresDAL.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Areas",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Title = table.Column<string>(type: "text", nullable: false),
+                    Order = table.Column<int>(type: "integer", nullable: false),
+                    Remark = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Areas", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoles",
                 columns: table => new
                 {
@@ -182,6 +196,32 @@ namespace ZMK.PostgresDAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Projects",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    FactoryNumber = table.Column<string>(type: "text", nullable: false),
+                    ContractNumber = table.Column<string>(type: "text", nullable: true),
+                    Customer = table.Column<string>(type: "text", nullable: true),
+                    Vendor = table.Column<string>(type: "text", nullable: true),
+                    Remark = table.Column<string>(type: "text", nullable: true),
+                    CreatorId = table.Column<Guid>(type: "uuid", nullable: true),
+                    ClosingDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    CreatedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    ModifiedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Projects", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Projects_AspNetUsers_CreatorId",
+                        column: x => x.CreatorId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Sessions",
                 columns: table => new
                 {
@@ -202,30 +242,99 @@ namespace ZMK.PostgresDAL.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "ProjectsAreas",
+                columns: table => new
+                {
+                    ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
+                    AreaId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProjectsAreas", x => new { x.ProjectId, x.AreaId });
+                    table.ForeignKey(
+                        name: "FK_ProjectsAreas_Areas_AreaId",
+                        column: x => x.AreaId,
+                        principalTable: "Areas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProjectsAreas_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProjectsSettings",
+                columns: table => new
+                {
+                    ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsEditable = table.Column<bool>(type: "boolean", nullable: false),
+                    AllowMarksDeleting = table.Column<bool>(type: "boolean", nullable: false),
+                    AllowMarksModifying = table.Column<bool>(type: "boolean", nullable: false),
+                    AreExecutorsRequired = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProjectsSettings", x => x.ProjectId);
+                    table.ForeignKey(
+                        name: "FK_ProjectsSettings_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Areas",
+                columns: new[] { "Id", "Order", "Remark", "Title" },
+                values: new object[,]
+                {
+                    { new Guid("1ba7e89d-6ba9-4456-80ad-b67bcb941282"), 2, null, "ЛСБ" },
+                    { new Guid("2eea0c0b-0c2c-4543-97c8-7fff39d768e5"), 1, null, "КМД" },
+                    { new Guid("65a8b624-b12c-4bb7-99f4-4811e1966429"), 3, null, "Сборка" },
+                    { new Guid("77dac39f-a0b6-4051-af8c-b989e5eede1e"), 4, null, "Сварка" },
+                    { new Guid("b25dc1ef-4b15-4d14-8c4c-0444a8b0bddf"), 5, null, "Зачистка" }
+                });
+
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Description", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { new Guid("26ecec29-d9a9-428d-8777-0efd98f79e2c"), "ffc262fd-9beb-4fe8-85a1-1075185be82d", "Администратор системы имеет право добавлять/изменять любые настройки и проэкты. Определяет текущую базу и ее местоположение.", "Администратор", "АДМИНИСТРАТОР" },
-                    { new Guid("2dca6dbb-ade8-4922-b2be-983f15033fd9"), "24375cb8-4ab2-4afd-890b-a82f22432760", "Пользователь имеет право вносить выполнение по маркам, создавать и изменять отгрузки.", "Пользователь", "ПОЛЬЗОВАТЕЛЬ" },
-                    { new Guid("450abc0e-8c58-4f72-9a69-14e255ae733e"), "21d309c5-c0b6-45a5-abd7-57d0e6c86acd", "Доступ к проэктам с правом просмотра данных.", "Читатель", "ЧИТАТЕЛЬ" }
+                    { new Guid("0bc0542d-c172-4288-aeba-592a7a45a001"), "94dd7118-761b-46a7-8f8a-d90267e89b53", "Администратор системы имеет право добавлять/изменять любые настройки и проэкты. Определяет текущую базу и ее местоположение.", "Администратор", "АДМИНИСТРАТОР" },
+                    { new Guid("10b53f1f-f04c-44da-8678-064db07c43c9"), "2a1ac89a-6b5b-489e-a11c-cec6a7697f70", "Доступ к проэктам с правом просмотра данных.", "Читатель", "ЧИТАТЕЛЬ" },
+                    { new Guid("18784bfb-0050-4aec-8d68-bb5c26191913"), "1f3d3b95-29e2-49b6-ae2b-69296e91d1d3", "Пользователь имеет право вносить выполнение по маркам, создавать и изменять отгрузки.", "Пользователь", "ПОЛЬЗОВАТЕЛЬ" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Employees",
                 columns: new[] { "Id", "FullName", "Post", "Remark" },
-                values: new object[] { new Guid("f778ab84-9aae-41eb-ad52-7cd97a206285"), "Тестовый Сотрудник", "Тестовый Сотрудник", "Создан исключительно в целях тестирования, рекомендуется удалить." });
+                values: new object[] { new Guid("7bae24db-1003-4031-8185-e22911524b8b"), "Тестовый Сотрудник", "Тестовый Сотрудник", "Создан исключительно в целях тестирования, рекомендуется удалить." });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "EmployeeId", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("9f324120-86c5-4c45-ad0a-a9ce367c1982"), 0, "92063e91-20d8-4b6c-9a56-e3d5db8cf0b0", null, false, new Guid("f778ab84-9aae-41eb-ad52-7cd97a206285"), true, null, null, "TESTADMIN", null, null, false, null, false, "TestAdmin" });
+                values: new object[] { new Guid("521975b4-74a3-45c4-82f5-4c62f26a8bec"), 0, "2930e567-2d29-4f81-a6ca-4e96fb3ac9c6", null, false, new Guid("7bae24db-1003-4031-8185-e22911524b8b"), true, null, null, "TESTADMIN", null, null, false, null, false, "TestAdmin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { new Guid("26ecec29-d9a9-428d-8777-0efd98f79e2c"), new Guid("9f324120-86c5-4c45-ad0a-a9ce367c1982") });
+                values: new object[] { new Guid("0bc0542d-c172-4288-aeba-592a7a45a001"), new Guid("521975b4-74a3-45c4-82f5-4c62f26a8bec") });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Areas_Order",
+                table: "Areas",
+                column: "Order",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Areas_Title",
+                table: "Areas",
+                column: "Title",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -276,6 +385,22 @@ namespace ZMK.PostgresDAL.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Projects_CreatorId",
+                table: "Projects",
+                column: "CreatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Projects_FactoryNumber",
+                table: "Projects",
+                column: "FactoryNumber",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProjectsAreas_AreaId",
+                table: "ProjectsAreas",
+                column: "AreaId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Sessions_UserId",
                 table: "Sessions",
                 column: "UserId");
@@ -300,10 +425,22 @@ namespace ZMK.PostgresDAL.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "ProjectsAreas");
+
+            migrationBuilder.DropTable(
+                name: "ProjectsSettings");
+
+            migrationBuilder.DropTable(
                 name: "Sessions");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Areas");
+
+            migrationBuilder.DropTable(
+                name: "Projects");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

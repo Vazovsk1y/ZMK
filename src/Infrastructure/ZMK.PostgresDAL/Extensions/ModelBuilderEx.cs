@@ -49,11 +49,41 @@ public static class ModelBuilderEx
         UserId = TestUser.Id,
     };
 
+    private static readonly Area[] Areas =
+    [
+        new()
+        {
+            Order = 1,
+            Title = "КМД",
+        },
+        new()
+        {
+            Title = "ЛСБ",
+            Order = 2,
+        },
+        new()
+        {
+            Title = "Сборка",
+            Order = 3,
+        },
+        new()
+        {
+            Title = "Сварка",
+            Order = 4
+        },
+        new()
+        {
+            Title = "Зачистка",
+            Order = 5,
+        }
+    ];
+
     public static void Seed(this ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Role>().HasData(Roles.Values);
         modelBuilder.Entity<Employee>().HasData(TestEmployee);
         modelBuilder.Entity<User>().HasData(TestUser);
         modelBuilder.Entity<UserRole>().HasData(TestUserRole);
+        modelBuilder.Entity<Area>().HasData(Areas);
     }
 }

@@ -12,7 +12,7 @@ using ZMK.PostgresDAL;
 namespace ZMK.PostgresDAL.Migrations
 {
     [DbContext(typeof(ZMKDbContext))]
-    [Migration("20240314105555_Initial")]
+    [Migration("20240315111112_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -113,6 +113,65 @@ namespace ZMK.PostgresDAL.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ZMK.Domain.Entities.Area", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Remark")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Order")
+                        .IsUnique();
+
+                    b.HasIndex("Title")
+                        .IsUnique();
+
+                    b.ToTable("Areas");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("2eea0c0b-0c2c-4543-97c8-7fff39d768e5"),
+                            Order = 1,
+                            Title = "КМД"
+                        },
+                        new
+                        {
+                            Id = new Guid("1ba7e89d-6ba9-4456-80ad-b67bcb941282"),
+                            Order = 2,
+                            Title = "ЛСБ"
+                        },
+                        new
+                        {
+                            Id = new Guid("65a8b624-b12c-4bb7-99f4-4811e1966429"),
+                            Order = 3,
+                            Title = "Сборка"
+                        },
+                        new
+                        {
+                            Id = new Guid("77dac39f-a0b6-4051-af8c-b989e5eede1e"),
+                            Order = 4,
+                            Title = "Сварка"
+                        },
+                        new
+                        {
+                            Id = new Guid("b25dc1ef-4b15-4d14-8c4c-0444a8b0bddf"),
+                            Order = 5,
+                            Title = "Зачистка"
+                        });
+                });
+
             modelBuilder.Entity("ZMK.Domain.Entities.Employee", b =>
                 {
                     b.Property<Guid>("Id")
@@ -139,11 +198,92 @@ namespace ZMK.PostgresDAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("f778ab84-9aae-41eb-ad52-7cd97a206285"),
+                            Id = new Guid("7bae24db-1003-4031-8185-e22911524b8b"),
                             FullName = "Тестовый Сотрудник",
                             Post = "Тестовый Сотрудник",
                             Remark = "Создан исключительно в целях тестирования, рекомендуется удалить."
                         });
+                });
+
+            modelBuilder.Entity("ZMK.Domain.Entities.Project", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ClosingDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ContractNumber")
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Customer")
+                        .HasColumnType("text");
+
+                    b.Property<string>("FactoryNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset?>("ModifiedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Remark")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Vendor")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatorId");
+
+                    b.HasIndex("FactoryNumber")
+                        .IsUnique();
+
+                    b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("ZMK.Domain.Entities.ProjectArea", b =>
+                {
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AreaId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ProjectId", "AreaId");
+
+                    b.HasIndex("AreaId");
+
+                    b.ToTable("ProjectsAreas");
+                });
+
+            modelBuilder.Entity("ZMK.Domain.Entities.ProjectSettings", b =>
+                {
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("AllowMarksDeleting")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("AllowMarksModifying")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("AreExecutorsRequired")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsEditable")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("ProjectId");
+
+                    b.ToTable("ProjectsSettings");
                 });
 
             modelBuilder.Entity("ZMK.Domain.Entities.Role", b =>
@@ -178,24 +318,24 @@ namespace ZMK.PostgresDAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("26ecec29-d9a9-428d-8777-0efd98f79e2c"),
-                            ConcurrencyStamp = "ffc262fd-9beb-4fe8-85a1-1075185be82d",
+                            Id = new Guid("0bc0542d-c172-4288-aeba-592a7a45a001"),
+                            ConcurrencyStamp = "94dd7118-761b-46a7-8f8a-d90267e89b53",
                             Description = "Администратор системы имеет право добавлять/изменять любые настройки и проэкты. Определяет текущую базу и ее местоположение.",
                             Name = "Администратор",
                             NormalizedName = "АДМИНИСТРАТОР"
                         },
                         new
                         {
-                            Id = new Guid("2dca6dbb-ade8-4922-b2be-983f15033fd9"),
-                            ConcurrencyStamp = "24375cb8-4ab2-4afd-890b-a82f22432760",
+                            Id = new Guid("18784bfb-0050-4aec-8d68-bb5c26191913"),
+                            ConcurrencyStamp = "1f3d3b95-29e2-49b6-ae2b-69296e91d1d3",
                             Description = "Пользователь имеет право вносить выполнение по маркам, создавать и изменять отгрузки.",
                             Name = "Пользователь",
                             NormalizedName = "ПОЛЬЗОВАТЕЛЬ"
                         },
                         new
                         {
-                            Id = new Guid("450abc0e-8c58-4f72-9a69-14e255ae733e"),
-                            ConcurrencyStamp = "21d309c5-c0b6-45a5-abd7-57d0e6c86acd",
+                            Id = new Guid("10b53f1f-f04c-44da-8678-064db07c43c9"),
+                            ConcurrencyStamp = "2a1ac89a-6b5b-489e-a11c-cec6a7697f70",
                             Description = "Доступ к проэктам с правом просмотра данных.",
                             Name = "Читатель",
                             NormalizedName = "ЧИТАТЕЛЬ"
@@ -299,11 +439,11 @@ namespace ZMK.PostgresDAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("9f324120-86c5-4c45-ad0a-a9ce367c1982"),
+                            Id = new Guid("521975b4-74a3-45c4-82f5-4c62f26a8bec"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "92063e91-20d8-4b6c-9a56-e3d5db8cf0b0",
+                            ConcurrencyStamp = "2930e567-2d29-4f81-a6ca-4e96fb3ac9c6",
                             EmailConfirmed = false,
-                            EmployeeId = new Guid("f778ab84-9aae-41eb-ad52-7cd97a206285"),
+                            EmployeeId = new Guid("7bae24db-1003-4031-8185-e22911524b8b"),
                             LockoutEnabled = true,
                             NormalizedUserName = "TESTADMIN",
                             PhoneNumberConfirmed = false,
@@ -329,8 +469,8 @@ namespace ZMK.PostgresDAL.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = new Guid("9f324120-86c5-4c45-ad0a-a9ce367c1982"),
-                            RoleId = new Guid("26ecec29-d9a9-428d-8777-0efd98f79e2c")
+                            UserId = new Guid("521975b4-74a3-45c4-82f5-4c62f26a8bec"),
+                            RoleId = new Guid("0bc0542d-c172-4288-aeba-592a7a45a001")
                         });
                 });
 
@@ -366,6 +506,44 @@ namespace ZMK.PostgresDAL.Migrations
                     b.HasOne("ZMK.Domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ZMK.Domain.Entities.Project", b =>
+                {
+                    b.HasOne("ZMK.Domain.Entities.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatorId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Creator");
+                });
+
+            modelBuilder.Entity("ZMK.Domain.Entities.ProjectArea", b =>
+                {
+                    b.HasOne("ZMK.Domain.Entities.Area", "Area")
+                        .WithMany()
+                        .HasForeignKey("AreaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ZMK.Domain.Entities.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Area");
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("ZMK.Domain.Entities.ProjectSettings", b =>
+                {
+                    b.HasOne("ZMK.Domain.Entities.Project", null)
+                        .WithOne("Settings")
+                        .HasForeignKey("ZMK.Domain.Entities.ProjectSettings", "ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -409,6 +587,12 @@ namespace ZMK.PostgresDAL.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ZMK.Domain.Entities.Project", b =>
+                {
+                    b.Navigation("Settings")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ZMK.Domain.Entities.Role", b =>
