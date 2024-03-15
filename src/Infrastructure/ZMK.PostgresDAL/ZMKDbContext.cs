@@ -24,6 +24,8 @@ public class ZMKDbContext(DbContextOptions options) : IdentityDbContext<
 
     public DbSet<ProjectArea> ProjectsAreas { get; set; }
 
+    public DbSet<Mark> Marks { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

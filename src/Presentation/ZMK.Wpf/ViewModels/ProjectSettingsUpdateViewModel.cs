@@ -60,6 +60,7 @@ public partial class ProjectSettingsUpdateViewModel : DialogViewModel
         var areas = await dbContext
             .Areas
             .AsNoTracking()
+            .OrderBy(e => e.Order)
             .Select(e => new SelectableAreaViewModel { Id = e.Id, Title = e.Title, Order = e.Order })
             .ToListAsync();
 

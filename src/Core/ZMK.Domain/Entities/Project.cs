@@ -30,6 +30,8 @@ public class Project : Entity, IAuditable
 
     public IEnumerable<ProjectArea> Areas { get; set; } = new HashSet<ProjectArea>();
 
+    public IEnumerable<Mark> Marks { get; set; } = new HashSet<Mark>();
+
     #endregion
 }
 
