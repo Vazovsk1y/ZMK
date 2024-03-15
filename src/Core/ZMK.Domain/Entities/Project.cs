@@ -41,5 +41,7 @@ public class ProjectSettings
 
     public bool AllowMarksModifying { get; set; }
 
+    public bool AllowMarksAdding { get; set; }
+
     public bool AreExecutorsRequired { get; set; }
 }

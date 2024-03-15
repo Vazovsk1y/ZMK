@@ -274,6 +274,7 @@ namespace ZMK.PostgresDAL.Migrations
                     IsEditable = table.Column<bool>(type: "boolean", nullable: false),
                     AllowMarksDeleting = table.Column<bool>(type: "boolean", nullable: false),
                     AllowMarksModifying = table.Column<bool>(type: "boolean", nullable: false),
+                    AllowMarksAdding = table.Column<bool>(type: "boolean", nullable: false),
                     AreExecutorsRequired = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
@@ -292,11 +293,11 @@ namespace ZMK.PostgresDAL.Migrations
                 columns: new[] { "Id", "Order", "Remark", "Title" },
                 values: new object[,]
                 {
-                    { new Guid("1ba7e89d-6ba9-4456-80ad-b67bcb941282"), 2, null, "ЛСБ" },
-                    { new Guid("2eea0c0b-0c2c-4543-97c8-7fff39d768e5"), 1, null, "КМД" },
-                    { new Guid("65a8b624-b12c-4bb7-99f4-4811e1966429"), 3, null, "Сборка" },
-                    { new Guid("77dac39f-a0b6-4051-af8c-b989e5eede1e"), 4, null, "Сварка" },
-                    { new Guid("b25dc1ef-4b15-4d14-8c4c-0444a8b0bddf"), 5, null, "Зачистка" }
+                    { new Guid("1bf1ef16-6b30-4ca3-9179-5fb5c51aba82"), 5, null, "Зачистка" },
+                    { new Guid("6ec4fe65-8830-4269-901b-61a6c8bca959"), 3, null, "Сборка" },
+                    { new Guid("e6b216b0-e81f-46a1-a282-d7675986aa8f"), 1, null, "КМД" },
+                    { new Guid("ea859d6b-4a15-4cbe-a594-57e832c72399"), 2, null, "ЛСБ" },
+                    { new Guid("faa749b1-abd0-4fc9-b8b0-4dd45acc190e"), 4, null, "Сварка" }
                 });
 
             migrationBuilder.InsertData(
@@ -304,25 +305,25 @@ namespace ZMK.PostgresDAL.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Description", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { new Guid("0bc0542d-c172-4288-aeba-592a7a45a001"), "94dd7118-761b-46a7-8f8a-d90267e89b53", "Администратор системы имеет право добавлять/изменять любые настройки и проэкты. Определяет текущую базу и ее местоположение.", "Администратор", "АДМИНИСТРАТОР" },
-                    { new Guid("10b53f1f-f04c-44da-8678-064db07c43c9"), "2a1ac89a-6b5b-489e-a11c-cec6a7697f70", "Доступ к проэктам с правом просмотра данных.", "Читатель", "ЧИТАТЕЛЬ" },
-                    { new Guid("18784bfb-0050-4aec-8d68-bb5c26191913"), "1f3d3b95-29e2-49b6-ae2b-69296e91d1d3", "Пользователь имеет право вносить выполнение по маркам, создавать и изменять отгрузки.", "Пользователь", "ПОЛЬЗОВАТЕЛЬ" }
+                    { new Guid("30931c42-8f17-40dc-ab6f-3630a1252f9b"), "44cf8d87-1d43-4922-8398-6e36f2c50d7f", "Доступ к проэктам с правом просмотра данных.", "Читатель", "ЧИТАТЕЛЬ" },
+                    { new Guid("348e7cb2-46a9-45a4-a51f-29dbc705b728"), "def31970-97c1-4452-a1ef-13bffc71532e", "Администратор системы имеет право добавлять/изменять любые настройки и проэкты. Определяет текущую базу и ее местоположение.", "Администратор", "АДМИНИСТРАТОР" },
+                    { new Guid("e21aa51e-dcf7-4c63-a4b6-e46a29b338b9"), "447c0200-d200-4fb3-977d-ca697c0f34c2", "Пользователь имеет право вносить выполнение по маркам, создавать и изменять отгрузки.", "Пользователь", "ПОЛЬЗОВАТЕЛЬ" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Employees",
                 columns: new[] { "Id", "FullName", "Post", "Remark" },
-                values: new object[] { new Guid("7bae24db-1003-4031-8185-e22911524b8b"), "Тестовый Сотрудник", "Тестовый Сотрудник", "Создан исключительно в целях тестирования, рекомендуется удалить." });
+                values: new object[] { new Guid("4a96924a-5461-4268-aa27-c904eed602bb"), "Тестовый Сотрудник", "Тестовый Сотрудник", "Создан исключительно в целях тестирования, рекомендуется удалить." });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "EmployeeId", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("521975b4-74a3-45c4-82f5-4c62f26a8bec"), 0, "2930e567-2d29-4f81-a6ca-4e96fb3ac9c6", null, false, new Guid("7bae24db-1003-4031-8185-e22911524b8b"), true, null, null, "TESTADMIN", null, null, false, null, false, "TestAdmin" });
+                values: new object[] { new Guid("eb1f7fd7-045a-46cc-9e42-5c0860589bb4"), 0, "0da077e6-0643-4384-b181-564af132251a", null, false, new Guid("4a96924a-5461-4268-aa27-c904eed602bb"), true, null, null, "TESTADMIN", null, null, false, null, false, "TestAdmin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { new Guid("0bc0542d-c172-4288-aeba-592a7a45a001"), new Guid("521975b4-74a3-45c4-82f5-4c62f26a8bec") });
+                values: new object[] { new Guid("348e7cb2-46a9-45a4-a51f-29dbc705b728"), new Guid("eb1f7fd7-045a-46cc-9e42-5c0860589bb4") });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Areas_Order",
