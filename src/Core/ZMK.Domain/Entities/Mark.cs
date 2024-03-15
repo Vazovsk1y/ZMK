@@ -12,6 +12,8 @@ public class Mark : Entity, IAuditable
 
     public required double Weight { get; set; }
 
+    public required int Count { get; set; }
+
     public required Guid ProjectId { get; init; }
 
     public Project Project { get; set; } = null!;

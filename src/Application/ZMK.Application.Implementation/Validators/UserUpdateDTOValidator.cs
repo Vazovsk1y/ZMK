@@ -5,7 +5,7 @@ namespace ZMK.Application.Implementation.Validators;
 
 public class UserUpdateDTOValidator : AbstractValidator<UserUpdateDTO>
 {
-    public UserUpdateDTOValidator() 
+    public UserUpdateDTOValidator()
     {
         RuleFor(e => e.UserName).NotEmpty();
         RuleFor(e => e.EmployeeId).NotEmpty();
