@@ -2,5 +2,5 @@
 
 public interface IXlsxReader<T>
 {
-    IEnumerable<T> Read(string filePath);
+    IEnumerable<T> Read(string filePath, Guid ProjectId);
 }

@@ -7,7 +7,7 @@ public interface IMarkService
 {
     Task<Result<Guid>> AddMarkAsync(MarkAddDTO dTO, CancellationToken cancellationToken = default);
 
-    Task<Result<IReadOnlyCollection<Guid>>> AddFromXlsxAsync(string filePath, CancellationToken cancellationToken = default);
+    Task<Result<IReadOnlyCollection<Guid>>> AddFromXlsxAsync(string filePath, Guid projectId, CancellationToken cancellationToken = default);
 
     Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 

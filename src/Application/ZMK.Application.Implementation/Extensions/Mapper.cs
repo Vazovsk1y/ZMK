@@ -47,4 +47,30 @@ public static class Mapper
             AreExecutorsRequired = dto.AreExecutorsRequired
         };
     }
+
+    public static Mark ToEntity(this MarkAddDTO markAddDTO, IClock clock)
+    {
+        return new Mark
+        {
+            ProjectId = markAddDTO.ProjectId,
+            Code = markAddDTO.Code.Trim(),
+            Title = markAddDTO.Title.Trim(),
+            Order = markAddDTO.Order,
+            Weight = markAddDTO.Weight,
+            Count = markAddDTO.Count,
+            Remark = markAddDTO.Remark?.Trim(),
+            CreatedDate = clock.GetDateTimeOffsetUtcNow(),
+        };
+    }
+
+    public static void Update(this Mark mark, MarkUpdateDTO markUpdateDTO, IClock clock)
+    {
+        mark.Code = markUpdateDTO.Code.Trim();
+        mark.Title = markUpdateDTO.Title.Trim();
+        mark.Order = markUpdateDTO.Order;
+        mark.Weight = markUpdateDTO.Weight;
+        mark.Count = markUpdateDTO.Count;
+        mark.Remark = markUpdateDTO.Remark?.Trim();
+        mark.ModifiedDate = clock.GetDateTimeOffsetUtcNow();
+    }
 }
