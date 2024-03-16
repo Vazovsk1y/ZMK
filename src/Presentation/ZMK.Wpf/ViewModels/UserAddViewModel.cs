@@ -54,7 +54,7 @@ public partial class UserAddViewModel : DialogViewModel
         var result = await userService.AddAsync(new UserAddDTO(UserName, Password, SelectedRole!.Id, SelectedEmployee!.Id));
         if (result.IsSuccess)
         {
-            _dialogService.CloseDialog();
+            App.Current.Dispatcher.Invoke(() => _dialogService.CloseDialog());
             Messenger.Send(new UserAddedMessage(this.ToPanelViewModel(result.Value)));
         }
         else

@@ -1,4 +1,5 @@
-﻿using ZMK.Application.Contracts;
+﻿using System.Globalization;
+using ZMK.Application.Contracts;
 using ZMK.Domain.Entities;
 using ZMK.Wpf.ViewModels;
 using static ZMK.Wpf.ViewModels.ProjectViewModel;
@@ -7,6 +8,19 @@ namespace ZMK.Wpf.Extensions;
 
 public static class Mapper
 {
+    public static double? ParseInDifferentCultures(this string number)
+    {
+        if (!double.TryParse(number, NumberStyles.Any, CultureInfo.CurrentCulture, out double result) &&
+            //Then try in US english
+            !double.TryParse(number, NumberStyles.Any, CultureInfo.GetCultureInfo("en-US"), out result) &&
+            //Then in neutral language
+            !double.TryParse(number, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
+        {
+            return null;
+        }
+
+        return result;
+    }
     public static AreaViewModel ToViewModel(this Area area)
     {
         var viewModel = new AreaViewModel

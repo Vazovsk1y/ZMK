@@ -92,8 +92,8 @@ public partial class ProjectAddViewModel : DialogViewModel
             .SingleAsync(e => e.Id == result.Value)
             .ConfigureAwait(false);
 
-            Messenger.Send(new ProjectAddedMessage(project.ToViewModel()));
             App.Current.Dispatcher.Invoke(() => _dialogService.CloseDialog());
+            Messenger.Send(new ProjectAddedMessage(project.ToViewModel()));
         }
         else
         {

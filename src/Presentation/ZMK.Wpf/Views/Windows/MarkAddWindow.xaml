@@ -66,7 +66,6 @@
             <TextBox
                 Height="35"
                 Margin="30, 5, 30 ,0"
-                extensions:NumberOnlyBehaviour.Mode="PositiveWholeNumber"
                 Text="{Binding Count, UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
         <StackPanel Grid.Row="6">

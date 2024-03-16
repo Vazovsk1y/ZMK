@@ -2,10 +2,8 @@
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.Globalization;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
-using ZMK.Domain.Shared;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Messages;
@@ -35,7 +33,7 @@ public partial class MarkAddViewModel : DialogViewModel
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(AcceptCommand))]
-    private int _count;
+    private string _count;
 
     [ObservableProperty]
     private string? _remark;
@@ -61,11 +59,9 @@ public partial class MarkAddViewModel : DialogViewModel
             return;
         }
 
-        if (!double.TryParse(Weight, NumberStyles.Any, CultureInfo.CurrentCulture, out double weight) &&
-            //Then try in US english
-            !double.TryParse(Weight, NumberStyles.Any, CultureInfo.GetCultureInfo("en-US"), out weight) &&
-            //Then in neutral language
-            !double.TryParse(Weight, NumberStyles.Any, CultureInfo.InvariantCulture, out weight))
+        var weight = Weight.ParseInDifferentCultures();
+        var count = Count.ParseInDifferentCultures();
+        if (weight is null || count is null)
         {
             return;
         }
@@ -74,7 +70,7 @@ public partial class MarkAddViewModel : DialogViewModel
         var markService = scope.ServiceProvider.GetRequiredService<IMarkService>();
         var dbContext = scope.ServiceProvider.GetRequiredService<ZMKDbContext>();
 
-        var result = await markService.AddAsync(new MarkAddDTO(SelectedProject.Id, Code, Title, Order, weight, Count, Remark));
+        var result = await markService.AddAsync(new MarkAddDTO(SelectedProject.Id, Code, Title, Order, (double)weight, (double)count, Remark));
         if (result.IsSuccess)
         {
             var addedMark = await dbContext
@@ -82,8 +78,8 @@ public partial class MarkAddViewModel : DialogViewModel
                 .AsNoTracking()
                 .SingleAsync(e => e.Id == result.Value);
 
-            Messenger.Send(new MarksAddedMessage([ addedMark.ToViewModel() ]));
             App.Current.Dispatcher.Invoke(() => _dialogService.CloseDialog());
+            Messenger.Send(new MarksAddedMessage([ addedMark.ToViewModel() ]));
         }
         else
         {
@@ -94,7 +90,7 @@ public partial class MarkAddViewModel : DialogViewModel
     protected override bool CanAccept(object p) => 
         !string.IsNullOrWhiteSpace(Code)
         && !string.IsNullOrWhiteSpace(Title)
-        && Count > 0
         && !string.IsNullOrWhiteSpace(Weight)
+        && !string.IsNullOrWhiteSpace(Count)
         && Order > 0;
 }

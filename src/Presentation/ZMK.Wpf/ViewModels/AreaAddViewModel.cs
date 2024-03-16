@@ -48,8 +48,8 @@ public partial class AreaAddViewModel : DialogViewModel
                 .AsNoTracking()
                 .SingleAsync(e => e.Id == result.Value);
 
-            Messenger.Send(new AreaAddedMessage(addedArea.ToViewModel()));
             App.Current.Dispatcher.Invoke(() => _dialogService.CloseDialog());
+            Messenger.Send(new AreaAddedMessage(addedArea.ToViewModel()));
         }
         else
         {

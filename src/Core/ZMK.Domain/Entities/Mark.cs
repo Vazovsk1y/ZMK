@@ -4,6 +4,8 @@ namespace ZMK.Domain.Entities;
 
 public class Mark : Entity
 {
+    public const double CountMultiplicityNumber = 0.5d;
+
     public required string Code { get; set; }
 
     public required string Title { get; set; }
@@ -16,5 +18,5 @@ public class Mark : Entity
 
     public Project Project { get; set; } = null!;
 
-    public required int Count { get; set; }
+    public required double Count { get; set; }
 }
