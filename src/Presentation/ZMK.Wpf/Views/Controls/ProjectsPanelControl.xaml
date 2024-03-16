@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ZMK.Wpf.Views.Controls" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:viewmodels="clr-namespace:ZMK.Wpf.ViewModels" 
              d:DataContext="{d:DesignInstance Type=viewmodels:ProjectsPanelViewModel}"
              mc:Ignorable="d" 
@@ -56,7 +57,10 @@
                             Command="{Binding DeleteCommand}" 
                             Margin="10"/>
                     <Button Content="Настройки" 
-                            Command="{Binding ProjectSettingsCommand}" 
+                            Command="{Binding UpdateProjectSettingsCommand}" 
+                            Margin="10"/>
+                    <Button Content="Процесс выполнения"
+                            Command="{Binding ProcessingCommand}"
                             Margin="10"/>
                 </StackPanel>
             </StackPanel>

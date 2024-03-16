@@ -33,6 +33,7 @@ public static class Registrator
         services.AddSingleton<UsersPanelViewModel>();
         services.AddSingleton<EmployeesPanelViewModel>();
         services.AddSingleton<ProjectsPanelViewModel>();
+        services.AddTransient<MarksPanelViewModel>();
 
         services.AddWindowWithViewModelSingleton<MainWindow, MainWindowViewModel>();
         services.AddWindowWithViewModelTransient<LoginWindow, LoginWindowViewModel>();
@@ -40,6 +41,8 @@ public static class Registrator
         services.AddWindowWithViewModelTransient<EmployeeAddWindow, EmployeeAddViewModel>();
         services.AddWindowWithViewModelTransient<ProjectSettingsUpdateWindow, ProjectSettingsUpdateViewModel>();
         services.AddWindowWithViewModelTransient<ProjectAddWindow, ProjectAddViewModel>();
+        services.AddWindowWithViewModelTransient<ProjectProcessingWindow, ProjectProcessingWindowViewModel>();
+        services.AddWindowWithViewModelTransient<MarkAddWindow, MarkAddViewModel>();
     }
 
     private static IServiceCollection AddWindowWithViewModelTransient<TWindow, TViewModel>(this IServiceCollection services)

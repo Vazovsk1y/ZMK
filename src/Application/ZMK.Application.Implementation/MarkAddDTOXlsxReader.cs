@@ -5,7 +5,7 @@ using ZMK.Application.Services;
 
 namespace ZMK.Application.Implementation;
 
-public class MarkXlsxReader : IXlsxReader<MarkAddDTO>
+public class MarkAddDTOXlsxReader : IXlsxReader<MarkAddDTO>
 {
     private const int OrderColumnIndex = 0;
 
@@ -32,10 +32,11 @@ public class MarkXlsxReader : IXlsxReader<MarkAddDTO>
             var currentSheet = workbook.GetSheetAt(i);
             if (currentSheet.PhysicalNumberOfRows == 0)
             {
-                throw new InvalidDataException($"В листе {i} не обнаружено строк.");
+                throw new InvalidDataException("Документ содержит пустой лист.");
             }
 
-            for (int j = 0; j < currentSheet.PhysicalNumberOfRows; j++)
+            // skip columns titles
+            for (int j = 1; j < currentSheet.PhysicalNumberOfRows; j++)
             {
                 yield return ToMark(currentSheet.GetRow(j), i, j, projectId);
             }

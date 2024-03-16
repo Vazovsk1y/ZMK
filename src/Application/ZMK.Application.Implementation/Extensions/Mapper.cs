@@ -27,11 +27,6 @@ public static class Mapper
         project.Customer = dto.Customer?.Trim();
         project.Vendor = dto.Vendor?.Trim();
         project.Remark = dto.Remark?.Trim();
-        project.Settings.IsEditable = dto.IsEditable;
-        project.Settings.AllowMarksDeleting = dto.AllowMarksDeleting;
-        project.Settings.AllowMarksAdding = dto.AllowMarksAdding;
-        project.Settings.AllowMarksModifying = dto.AllowMarksModifying;
-        project.Settings.AreExecutorsRequired = dto.AreExecutorsRequired;
         project.ModifiedDate = clock.GetDateTimeOffsetUtcNow();
     }
 

@@ -6,11 +6,15 @@ public record ProjectUpdateDTO(
     string? ContractNumber,
     string? Customer,
     string? Vendor,
-    string? Remark,
+    string? Remark
+    );
+
+public record ProjectSettingsUpdateDTO(
+    Guid ProjectId,
     bool IsEditable,
     bool AllowMarksDeleting,
     bool AllowMarksAdding,
     bool AllowMarksModifying,
     bool AreExecutorsRequired,
-    IEnumerable<Guid> Areas);
-
+    IEnumerable<Guid> Areas
+    );

@@ -52,7 +52,7 @@ public class MarkService : BaseService, IMarkService
         }
 
         _logger.LogInformation("Попытка добавления марок из файла таблицы.");
-        IEnumerable<Mark> marks = [];
+        List<Mark> marks = [];
         try
         {
             var marksDTos = _xlsxMarksReader.Read(filePath, projectId);
@@ -63,9 +63,8 @@ public class MarkService : BaseService, IMarkService
                 {
                     return Result.Failure<IReadOnlyCollection<Guid>>(validationResult.Errors);
                 }
+                marks.Add(markDto.ToEntity(_clock));
             }
-
-            marks = marksDTos.Select(e => e.ToEntity(_clock));
         }
         catch (Exception ex)
         {
@@ -73,7 +72,13 @@ public class MarkService : BaseService, IMarkService
             return Result.Failure<IReadOnlyCollection<Guid>>(new Error(nameof(Exception), ex.Message));
         }
 
-        bool isAllMarksUnique = !await _dbContext.Marks.AsNoTracking().Select(e => e.Code).AnyAsync(e => marks.Select(e => e.Code).Contains(e), cancellationToken);
+        bool isAllMarksUnique = !await _dbContext
+            .Marks
+            .AsNoTracking()
+            .Where(e => e.ProjectId == projectId)
+            .Select(e => e.Code)
+            .AnyAsync(e => marks.Select(e => e.Code).Contains(e), cancellationToken);
+
         if (!isAllMarksUnique)
         {
             return Result.Failure<IReadOnlyCollection<Guid>>(new Error(nameof(Error), "Проверьте коды марок из файла, некоторые уже были добавлены ранее."));
@@ -85,7 +90,7 @@ public class MarkService : BaseService, IMarkService
         return marks.Select(e => e.Id).ToList();
     }
 
-    public async Task<Result<Guid>> AddMarkAsync(MarkAddDTO dTO, CancellationToken cancellationToken = default)
+    public async Task<Result<Guid>> AddAsync(MarkAddDTO dTO, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -109,7 +114,7 @@ public class MarkService : BaseService, IMarkService
 
         _logger.LogInformation("Попытка добавления новой марки.");
         var mark = dTO.ToEntity(_clock);
-        if (await _dbContext.Marks.AnyAsync(e => e.Code == mark.Code, cancellationToken))
+        if (await _dbContext.Marks.Where(e => e.ProjectId == mark.ProjectId).AnyAsync(e => e.Code == mark.Code, cancellationToken))
         {
             return Result.Failure<Guid>(new Error(nameof(Error), "Марка с таким кодом уже существует."));
         }

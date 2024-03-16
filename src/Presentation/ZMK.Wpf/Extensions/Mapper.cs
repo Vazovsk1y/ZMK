@@ -7,6 +7,26 @@ namespace ZMK.Wpf.Extensions;
 
 public static class Mapper
 {
+    public static MarkViewModel ToViewModel(this Mark mark)
+    {
+        var entity = new MarkViewModel
+        {
+            Id = mark.Id,
+            Code = mark.Code,
+            Title = mark.Title,
+            Order = mark.Order,
+            Weight = mark.Weight,
+            Count = mark.Count,
+            ProjectId = mark.ProjectId,
+            Remark = mark.Remark,
+            CreatedDate = mark.CreatedDate,
+            ModifiedDate = mark.ModifiedDate
+        };
+
+        entity.SaveState();
+        return entity;
+    }
+
     public static ProjectViewModel ToViewModel(this Project project)
     {
         var entity = new ProjectViewModel
@@ -36,13 +56,20 @@ public static class Mapper
             viewModel.ContractNumber,
             viewModel.Customer,
             viewModel.Vendor,
-            viewModel.Remark,
-            viewModel.Settings.IsEditable,
-            viewModel.Settings.AllowMarksDeleting,
-            viewModel.Settings.AllowMarksAdding,
-            viewModel.Settings.AllowMarksModifying,
-            viewModel.Settings.AreExecutorsRequired,
-            viewModel.Settings.Areas.Select(area => area.Id)
+            viewModel.Remark
+        );
+    }
+
+    public static ProjectSettingsUpdateDTO ToUpdateDTO(this ProjectSettingsViewModel viewModel)
+    {
+        return new ProjectSettingsUpdateDTO(
+            viewModel.ProjectId,
+            viewModel.IsEditable,
+            viewModel.AllowMarksDeleting,
+            viewModel.AllowMarksAdding,
+            viewModel.AllowMarksModifying,
+            viewModel.AreExecutorsRequired,
+            viewModel.Areas.Select(area => area.Id)
         );
     }
 

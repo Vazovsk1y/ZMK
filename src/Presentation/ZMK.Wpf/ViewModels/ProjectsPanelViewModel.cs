@@ -22,7 +22,8 @@ public partial class ProjectsPanelViewModel : ObservableRecipient,
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
-    [NotifyCanExecuteChangedFor(nameof(ProjectSettingsCommand))]
+    [NotifyCanExecuteChangedFor(nameof(UpdateProjectSettingsCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ProcessingCommand))]
     private ProjectViewModel? _selectedProject;
 
     [RelayCommand]
@@ -104,12 +105,36 @@ public partial class ProjectsPanelViewModel : ObservableRecipient,
     }
 
     [RelayCommand(CanExecute = nameof(CanProjectSettings))]
-    public void ProjectSettings()
+    public async Task UpdateProjectSettings()
     {
+        if (UpdateProjectSettingsCommand.IsRunning)
+        {
+            return;
+        }
+
         using var scope = App.Services.CreateScope();
         var dialogService = scope.ServiceProvider.GetRequiredService<IUserDialogService>();
         dialogService.ShowDialog<ProjectSettingsUpdateWindow>();
-        SelectedProject!.UpdatableSign = SelectedProject.Settings.IsModified() ? new UpdatableSign() : null;
+
+        if (SelectedProject!.Settings.IsModified())
+        {
+            var projectService = scope.ServiceProvider.GetRequiredService<IProjectService>();
+            var result = await projectService.UpdateSettingsAsync(SelectedProject.Settings.ToUpdateDTO());
+
+            await App.Current.Dispatcher.InvokeAsync(() =>
+            {
+                if (result.IsFailure)
+                {
+                    MessageBoxHelper.ShowErrorBox(result.Errors.Display());
+                    SelectedProject.Settings.RollBackChanges();
+                }
+                else
+                {
+                    MessageBoxHelper.ShowInfoBox("Настройки успешно сохранены.");
+                    SelectedProject.Settings.SaveState();
+                }
+            });
+        }
     }
 
     public bool CanProjectSettings() => SelectedProject is not null;
@@ -122,6 +147,14 @@ public partial class ProjectsPanelViewModel : ObservableRecipient,
             MessageBoxHelper.ShowInfoBox("Проэкт был успешно добавлен.");
         });
     }
+
+    [RelayCommand(CanExecute = nameof(CanProcessing))]
+    public void Processing(object selectedItem)
+    {
+        App.Services.GetRequiredService<ProjectProcessingWindow>().ShowDialog();
+    }
+
+    public bool CanProcessing() => SelectedProject is not null;
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {

@@ -56,7 +56,7 @@ public partial class ProjectViewModel : ModifiableViewModel<ProjectViewModel>
         Customer = PreviousState.Customer;
         Vendor = PreviousState.Vendor;
         Remark = PreviousState.Remark;
-        Settings = PreviousState.Settings;
+        Settings.RollBackChanges();
     }
 
     public record CreatorViewModel(Guid Id, string UserName);

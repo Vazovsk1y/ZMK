@@ -118,15 +118,54 @@ public class ProjectService : BaseService, IProjectService
             default:
                 {
                     project.Update(dTO, _clock);
-                    var previousProjectAreas = await _dbContext.ProjectsAreas.Where(e => e.ProjectId == project.Id).ToListAsync(cancellationToken);
-                    var newProjectAreas = dTO.Areas.Select(e => new ProjectArea { AreaId = e, ProjectId = project.Id }).ToList();
-
-                    _dbContext.ProjectsAreas.RemoveRange(previousProjectAreas);
-                    _dbContext.ProjectsAreas.AddRange(newProjectAreas);
                     await _dbContext.SaveChangesAsync(cancellationToken);
                     _logger.LogInformation("Проэкт был успешно обновлен.");
                     return Result.Success();
                 }
         }
+    }
+
+    public async Task<Result> UpdateSettingsAsync(ProjectSettingsUpdateDTO dTO, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var validationResult = Validate(dTO);
+        if (validationResult.IsFailure)
+        {
+            return Result.Failure(validationResult.Errors);
+        }
+
+        var isAbleResult = await IsAbleToPerformAction(DefaultRoles.Admin, cancellationToken).ConfigureAwait(false);
+        if (isAbleResult.IsFailure)
+        {
+            return Result.Failure(isAbleResult.Errors);
+        }
+
+        _logger.LogInformation("Попытка обновления настроек проэкта.");
+        var settings = await _dbContext
+            .ProjectsSettings
+            .SingleOrDefaultAsync(e => e.ProjectId == dTO.ProjectId, cancellationToken);
+
+        if (settings is null)
+        {
+            _logger.LogWarning("Настройки для указанного проэкта не найдены в базе данных.");
+            return Result.Success();
+        }
+
+        settings.IsEditable = dTO.IsEditable;
+        settings.AllowMarksDeleting = dTO.AllowMarksDeleting;
+        settings.AllowMarksAdding = dTO.AllowMarksAdding;
+        settings.AllowMarksModifying = dTO.AllowMarksModifying;
+        settings.AreExecutorsRequired = dTO.AreExecutorsRequired;
+
+        var previousProjectAreas = await _dbContext.ProjectsAreas.Where(e => e.ProjectId == dTO.ProjectId).ToListAsync(cancellationToken);
+        var newProjectAreas = dTO.Areas.Select(e => new ProjectArea { AreaId = e, ProjectId = dTO.ProjectId }).ToList();
+
+        _dbContext.ProjectsAreas.RemoveRange(previousProjectAreas);
+        _dbContext.ProjectsAreas.AddRange(newProjectAreas);
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("Настройки были успешно обновлены.");
+        return Result.Success();
     }
 }

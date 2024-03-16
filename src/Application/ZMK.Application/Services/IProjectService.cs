@@ -10,4 +10,6 @@ public interface IProjectService
     Task<Result<Guid>> AddAsync(ProjectAddDTO dTO, CancellationToken cancellationToken = default);
 
     Task<Result> UpdateAsync(ProjectUpdateDTO dTO, CancellationToken cancellationToken = default);
+
+    Task<Result> UpdateSettingsAsync(ProjectSettingsUpdateDTO dTO, CancellationToken cancellationToken = default);
 }
