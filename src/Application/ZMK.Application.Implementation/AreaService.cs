@@ -12,9 +12,9 @@ using ZMK.PostgresDAL;
 
 namespace ZMK.Application.Implementation;
 
-public class EmployeeService : BaseService, IEmployeeService
+public class AreaService : BaseService, IAreaService
 {
-    public EmployeeService(
+    public AreaService(
         IClock clock, 
         ILogger<BaseService> logger, 
         IServiceScopeFactory serviceScopeFactory, 
@@ -24,7 +24,7 @@ public class EmployeeService : BaseService, IEmployeeService
     {
     }
 
-    public async Task<Result<Guid>> AddAsync(EmployeeAddDTO dTO, CancellationToken cancellationToken = default)
+    public async Task<Result<Guid>> AddAsync(AreaAddDTO dTO, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -40,23 +40,28 @@ public class EmployeeService : BaseService, IEmployeeService
             return Result.Failure<Guid>(isAbleResult.Errors);
         }
 
-        _logger.LogInformation("Попытка добавления нового сотрудника.");
-        var employee = new Employee
+        _logger.LogInformation("Попытка добавления нового участка.");
+        var area = new Area
         {
-            FullName = dTO.FullName.Trim(),
-            Post = dTO.Post?.Trim(),
-            Remark = dTO.Remark?.Trim(),
+            Order = dTO.Order,
+            Remark = dTO.Remark,
+            Title = dTO.Title.Trim(),
         };
 
-        if (await _dbContext.Employees.AnyAsync(e => e.FullName == employee.FullName, cancellationToken))
+        switch (area)
         {
-            return Result.Failure<Guid>(new Error(nameof(Error), "Сотрудник с таким ФИО уже существует."));
+            case Area when await _dbContext.Areas.AnyAsync(e => e.Title == area.Title, cancellationToken):
+                return Result.Failure<Guid>(new Error(nameof(Error), "Участок с таким названием уже существует."));
+            case Area when await _dbContext.Areas.AnyAsync(e => e.Order == area.Order, cancellationToken):
+                return Result.Failure<Guid>(new Error(nameof(Error), "Участок с таким значением очередности уже существует."));
+            default:
+                {
+                    _dbContext.Areas.Add(area);
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+                    _logger.LogInformation("Участок был успешно добавлен.");
+                    return area.Id;
+                }
         }
-
-        _dbContext.Employees.Add(employee);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-        _logger.LogInformation("Сотрудник был успешно добавлен.");
-        return employee.Id;
     }
 
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
@@ -69,30 +74,25 @@ public class EmployeeService : BaseService, IEmployeeService
             return Result.Failure<Guid>(isAbleResult.Errors);
         }
 
-        _logger.LogInformation("Попытка удаления сотрудника.");
-        var employee = await _dbContext
-            .Employees
+        _logger.LogInformation("Попытка удаления участка.");
+        var area = await _dbContext
+            .Areas
             .SingleOrDefaultAsync(e => e.Id == id, cancellationToken);
 
-        if (employee is null)
+        if (area is null)
         {
-            _logger.LogWarning("Сотрудника с указанным айди нет в базе данных.");
+            _logger.LogWarning("Участка с указанным айди нет в базе данных.");
             return Result.Success();
         }
 
-        if (employee.Id == isAbleResult.Value.User!.Employee!.Id)
-        {
-            return Result.Failure(new Error(nameof(Error), "Зайдите с другого аккаунта чтобы иметь возможность удалить данного сотрудника."));
-        }
-
-        _dbContext.Employees.Remove(employee);
+        _dbContext.Areas.Remove(area);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Сотрудник был успешно удален.");
+        _logger.LogInformation("Участок был успешно удален.");
         return Result.Success();
     }
 
-    public async Task<Result> UpdateAsync(EmployeeUpdateDTO dTO, CancellationToken cancellationToken = default)
+    public async Task<Result> UpdateAsync(AreaUpdateDTO dTO, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -108,22 +108,22 @@ public class EmployeeService : BaseService, IEmployeeService
             return isAbleResult;
         }
 
-        _logger.LogInformation("Попытка обновления сотрудника.");
-        var employee = await _dbContext
-            .Employees
+        _logger.LogInformation("Попытка обновления участка.");
+        var area = await _dbContext
+            .Areas
             .SingleOrDefaultAsync(e => e.Id == dTO.Id, cancellationToken);
 
-        if (employee is null)
+        if (area is null)
         {
-            return Result.Failure(Errors.NotFound("Сотрудник"));
+            return Result.Failure(Errors.NotFound("Участок"));
         }
 
-        employee.FullName = dTO.FullName.Trim();
-        employee.Remark = dTO.Remark?.Trim();
-        employee.Post = dTO.Post?.Trim();
+        area.Order = dTO.Order;
+        area.Remark = dTO.Remark?.Trim();
+        area.Title = dTO.Title.Trim();
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        _logger.LogInformation("Сотрудник был успешно обновлен.");
+        _logger.LogInformation("Участок был успешно обновлен.");
         return Result.Success();
     }
 }
