@@ -90,4 +90,26 @@ public abstract class BaseService
                 }
         }
     }
+
+    protected async Task<Result<Session>> IsAbleToPerformAction(CancellationToken cancellationToken = default, params string[] enabledRoles)
+    {
+        var currentSession = await _dbContext.Sessions.LoadByIdAsync(_currentSessionProvider.GetCurrentSessionId(), cancellationToken);
+
+        switch (currentSession)
+        {
+            case null:
+                return Result.Failure<Session>(Errors.Auth.Unauthorized);
+            case Session { IsActive: false }:
+                return Result.Failure<Session>(Errors.Auth.Unauthorized);
+            default:
+                {
+                    if (currentSession.User!.Roles.Select(e => e.Role!.Name).Any(i => enabledRoles.Contains(i)))
+                    {
+                        return Result.Success(currentSession);
+                    }
+
+                    return Result.Failure<Session>(Errors.Auth.AccessDenied);
+                }
+        }
+    }
 }

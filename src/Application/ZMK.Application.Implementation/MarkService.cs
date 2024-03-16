@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Threading;
 using ZMK.Application.Contracts;
 using ZMK.Application.Implementation.Constants;
 using ZMK.Application.Implementation.Extensions;
@@ -29,6 +28,70 @@ public class MarkService : BaseService, IMarkService
         IXlsxReader<MarkAddDTO> xlsxMarksReader) : base(clock, logger, serviceScopeFactory, dbContext, currentSessionProvider, userManager)
     {
         _xlsxMarksReader = xlsxMarksReader;
+    }
+
+    public async Task<Result> FillExecutionAsync(MarkExecutionDTO dTO, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var validationResult = Validate(dTO);
+        if (validationResult.IsFailure)
+        {
+            return Result.Failure<Guid>(validationResult.Errors);
+        }
+
+        var isAbleResult = await IsAbleToPerformAction(cancellationToken, DefaultRoles.Admin, DefaultRoles.User).ConfigureAwait(false);
+        if (isAbleResult.IsFailure)
+        {
+            return Result.Failure<Guid>(isAbleResult.Errors);
+        }
+
+        _logger.LogInformation("Попытка заполненения выполнения марки.");
+        var mark = await _dbContext
+            .Marks
+            .Include(e => e.Project)
+            .ThenInclude(e => e.Settings)
+            .SingleOrDefaultAsync(e => e.Id == dTO.Id, cancellationToken);
+
+        switch (mark)
+        {
+            case null:
+                return Result.Failure(Errors.NotFound("Марка"));
+            case Mark when mark.Project.Settings.AreExecutorsRequired && dTO.AreasExecutions.Select(e => e.Executors).Any(e => !e.Any()):
+                return Result.Failure(new Error(nameof(Error), "Заполнение исполнителей обязательно. Указано в настройках проэкта."));
+            default:
+                {
+                    var completeEvents = new List<CompleteEvent>();
+                    var completeEventsEmployees = new List<CompleteEventEmployee>();
+
+                    foreach (var item in dTO.AreasExecutions)
+                    {
+                        if (item.Count > mark.Count)
+                        {
+                            Result.Failure(new Error(nameof(Error), $"Количество для заполения '{item.Count}' больше текущего значения количества марки '{mark.Count}'."));
+                        }
+
+                        var @event = new CompleteEvent
+                        {
+                            MarkId = mark.Id,
+                            AreaId = item.Id,
+                            Count = item.Count,
+                            CreatedDate = item.ExecutionDate,
+                            CreatorId = isAbleResult.Value.UserId,
+                            EventType = EventType.Complete,
+                        };
+                        completeEvents.Add(@event);
+                        completeEventsEmployees.AddRange(item.Executors.Select(e => new CompleteEventEmployee { EmployeeId = e, EventId = @event.Id }));
+                    }
+
+                    _dbContext.CompleteEvents.AddRange(completeEvents);
+                    _dbContext.CompleteEventsEmployees.AddRange(completeEventsEmployees);
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+
+                    _logger.LogInformation("Выполнение марки было успешно заполнено.");
+                    return Result.Success();
+                }
+        }
     }
 
     public async Task<Result<IReadOnlyCollection<Guid>>> AddFromXlsxAsync(string filePath, Guid projectId, CancellationToken cancellationToken = default)

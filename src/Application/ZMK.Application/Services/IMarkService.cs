@@ -11,5 +11,7 @@ public interface IMarkService
 
     Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 
+    Task<Result> FillExecutionAsync(MarkExecutionDTO dTO, CancellationToken cancellationToken = default); 
+
     Task<Result> UpdateAsync(MarkUpdateDTO dTO, CancellationToken cancellationToken = default);
 }
