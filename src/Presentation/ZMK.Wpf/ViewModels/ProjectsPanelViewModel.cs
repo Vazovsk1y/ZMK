@@ -38,15 +38,15 @@ public partial class ProjectsPanelViewModel : ObservableRecipient,
     [RelayCommand]
     public void RollbackChanges()
     {
+        var modifiedProjects = Projects.Where(e => e.IsModified()).ToList();
+        if (modifiedProjects.Count == 0)
+        {
+            return;
+        }
+
         var dialogResult = MessageBoxHelper.ShowDialogBoxYesNo($"Вы уверены, что желаете отменить все текущие изменения?");
         if (dialogResult == System.Windows.MessageBoxResult.Yes)
         {
-            var modifiedProjects = Projects.Where(e => e.IsModified()).ToList();
-            if (modifiedProjects.Count == 0)
-            {
-                return;
-            }
-
             modifiedProjects.ForEach(e => e.RollBackChanges());
         }
     }

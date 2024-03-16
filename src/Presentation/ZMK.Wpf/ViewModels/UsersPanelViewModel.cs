@@ -88,15 +88,15 @@ public partial class UsersPanelViewModel : ObservableRecipient,
     [RelayCommand]
     public void RollbackChanges()
     {
+        var modifiedUsers = Users.Where(e => e.IsModified()).ToList();
+        if (modifiedUsers.Count == 0)
+        {
+            return;
+        }
+
         var dialogResult = MessageBoxHelper.ShowDialogBoxYesNo($"Вы уверены, что желаете отменить все текущие изменения?");
         if (dialogResult == System.Windows.MessageBoxResult.Yes)
         {
-            var modifiedUsers = Users.Where(e => e.IsModified()).ToList();
-            if (modifiedUsers.Count == 0)
-            {
-                return;
-            }
-
             modifiedUsers.ForEach(e => e.RollBackChanges());
         }
     }

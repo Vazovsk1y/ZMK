@@ -173,15 +173,15 @@ public partial class MarksPanelViewModel : ObservableRecipient,
     [RelayCommand]
     public void RollbackChanges()
     {
+        var modifiedMarks = Marks.Where(e => e.IsModified()).ToList();
+        if (modifiedMarks.Count == 0)
+        {
+            return;
+        }
+
         var dialogResult = MessageBoxHelper.ShowDialogBoxYesNo($"Вы уверены, что желаете отменить все текущие изменения?");
         if (dialogResult == System.Windows.MessageBoxResult.Yes)
         {
-            var modifiedMarks = Marks.Where(e => e.IsModified()).ToList();
-            if (modifiedMarks.Count == 0)
-            {
-                return;
-            }
-
             modifiedMarks.ForEach(e => e.RollBackChanges());
         }
     }

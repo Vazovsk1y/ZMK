@@ -59,15 +59,15 @@ public partial class AreasPanelViewModel : ObservableRecipient, IRecipient<AreaA
     [RelayCommand]
     public void RollbackChanges()
     {
+        var modifiedAreas = Areas.Where(e => e.IsModified()).ToList();
+        if (modifiedAreas.Count == 0)
+        {
+            return;
+        }
+
         var dialogResult = MessageBoxHelper.ShowDialogBoxYesNo($"Вы уверены, что желаете отменить все текущие изменения?");
         if (dialogResult == System.Windows.MessageBoxResult.Yes)
         {
-            var modifiedAreas = Areas.Where(e => e.IsModified()).ToList();
-            if (modifiedAreas.Count == 0)
-            {
-                return;
-            }
-
             modifiedAreas.ForEach(e => e.RollBackChanges());
         }
     }

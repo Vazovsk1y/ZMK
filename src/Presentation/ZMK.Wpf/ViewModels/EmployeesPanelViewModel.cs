@@ -45,15 +45,15 @@ public partial class EmployeesPanelViewModel : ObservableRecipient,
     [RelayCommand]
     public void RollbackChanges()
     {
+        var modifiedEmployees = Employees.Where(e => e.IsModified()).ToList();
+        if (modifiedEmployees.Count == 0)
+        {
+            return;
+        }
+
         var dialogResult = MessageBoxHelper.ShowDialogBoxYesNo($"Вы уверены, что желаете отменить все текущие изменения?");
         if (dialogResult == System.Windows.MessageBoxResult.Yes)
         {
-            var modifiedEmployees = Employees.Where(e => e.IsModified()).ToList();
-            if (modifiedEmployees.Count == 0)
-            {
-                return;
-            }
-
             modifiedEmployees.ForEach(e => e.RollBackChanges());
         }
     }
