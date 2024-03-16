@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using ZMK.Domain.Common;
 using ZMK.Domain.Entities;
 using ZMK.PostgresDAL.Extensions;
 
@@ -25,6 +26,12 @@ public class ZMKDbContext(DbContextOptions options) : IdentityDbContext<
     public DbSet<ProjectArea> ProjectsAreas { get; set; }
 
     public DbSet<Mark> Marks { get; set; }
+
+    public DbSet<MarkEvent> MarksEvents { get; set; }
+
+    public DbSet<CompleteEvent> CompleteEvents { get; set; }
+
+    public DbSet<CompleteEventEmployee> CompleteEventsEmployees { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

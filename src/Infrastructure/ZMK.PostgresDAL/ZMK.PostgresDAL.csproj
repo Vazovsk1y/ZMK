@@ -20,8 +20,4 @@
     <ProjectReference Include="..\..\Core\ZMK.Domain\ZMK.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
-
 </Project>

@@ -63,7 +63,7 @@ public class MarkService : BaseService, IMarkService
                 {
                     return Result.Failure<IReadOnlyCollection<Guid>>(validationResult.Errors);
                 }
-                marks.Add(markDto.ToEntity(_clock));
+                marks.Add(markDto.ToEntity());
             }
         }
         catch (Exception ex)
@@ -113,7 +113,7 @@ public class MarkService : BaseService, IMarkService
         }
 
         _logger.LogInformation("Попытка добавления новой марки.");
-        var mark = dTO.ToEntity(_clock);
+        var mark = dTO.ToEntity();
         if (await _dbContext.Marks.Where(e => e.ProjectId == mark.ProjectId).AnyAsync(e => e.Code == mark.Code, cancellationToken))
         {
             return Result.Failure<Guid>(new Error(nameof(Error), "Марка с таким кодом уже существует."));
@@ -180,7 +180,7 @@ public class MarkService : BaseService, IMarkService
             .Marks
             .SingleOrDefaultAsync(e => e.Id == dTO.Id, cancellationToken);
 
-        mark?.Update(dTO, _clock);
+        mark?.Update(dTO);
         switch (mark)
         {
             case null:

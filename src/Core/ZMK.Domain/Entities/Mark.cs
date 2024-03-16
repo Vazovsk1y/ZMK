@@ -2,7 +2,7 @@
 
 namespace ZMK.Domain.Entities;
 
-public class Mark : Entity, IAuditable
+public class Mark : Entity
 {
     public required string Code { get; set; }
 
@@ -12,15 +12,9 @@ public class Mark : Entity, IAuditable
 
     public required double Weight { get; set; }
 
-    public required int Count { get; set; }
-
     public required Guid ProjectId { get; init; }
 
     public Project Project { get; set; } = null!;
 
-    public string? Remark { get; set; }
-
-    public required DateTimeOffset CreatedDate { get; init; }
-
-    public DateTimeOffset? ModifiedDate { get; set; }
+    public required int Count { get; set; }
 }

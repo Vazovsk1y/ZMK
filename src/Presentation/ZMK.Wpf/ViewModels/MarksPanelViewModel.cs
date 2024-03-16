@@ -145,7 +145,7 @@ public partial class MarksPanelViewModel : ObservableRecipient,
         var results = new List<Result>();
         foreach (var mark in modifiedMarks)
         {
-            var dto = new MarkUpdateDTO(mark.Id, mark.Code, mark.Title, mark.Order, mark.Weight, mark.Count, mark.Remark);
+            var dto = new MarkUpdateDTO(mark.Id, mark.Code, mark.Title, mark.Order, mark.Weight, mark.Count);
             var updateResult = await markService.UpdateAsync(dto);
 
             if (updateResult.IsFailure)

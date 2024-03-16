@@ -32,9 +32,6 @@ public static class Mapper
             Weight = mark.Weight,
             Count = mark.Count,
             ProjectId = mark.ProjectId,
-            Remark = mark.Remark,
-            CreatedDate = mark.CreatedDate,
-            ModifiedDate = mark.ModifiedDate
         };
 
         entity.SaveState();

@@ -8,10 +8,6 @@ public partial class MarkViewModel : ModifiableViewModel<MarkViewModel>
 
     public required Guid ProjectId { get; init; }
 
-    public required DateTimeOffset CreatedDate { get; init; }
-
-    public required DateTimeOffset? ModifiedDate { get; init; }
-
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(UpdatableSign))]
     private string _code = null!;
@@ -32,18 +28,13 @@ public partial class MarkViewModel : ModifiableViewModel<MarkViewModel>
     [NotifyPropertyChangedFor(nameof(UpdatableSign))]
     private int _count;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(UpdatableSign))]
-    private string? _remark;
-
     public override bool IsModified()
     {
         return Code != PreviousState.Code
             || Title != PreviousState.Title
             || Order != PreviousState.Order
             || Weight != PreviousState.Weight
-            || Count != PreviousState.Count
-            || Remark != PreviousState.Remark;
+            || Count != PreviousState.Count;
     }
 
     public override void RollBackChanges()
@@ -53,6 +44,5 @@ public partial class MarkViewModel : ModifiableViewModel<MarkViewModel>
         Order = PreviousState.Order;
         Weight = PreviousState.Weight;
         Count = PreviousState.Count;
-        Remark = PreviousState.Remark;
     }
 }
