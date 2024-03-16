@@ -24,9 +24,6 @@
                         <DataGridTextColumn Header="Название" Binding="{Binding Title}"/>
                         <DataGridTextColumn Header="Вес" Binding="{Binding Weight}"/>
                         <DataGridTextColumn Header="Количество" Binding="{Binding Count}"/>
-                        <DataGridTextColumn Header="Примечание" Binding="{Binding Remark}"/>
-                        <DataGridTextColumn Header="Дата создания" IsReadOnly="True" Binding="{Binding CreatedDate}"/>
-                        <DataGridTextColumn Header="Дата изменения" IsReadOnly="True" Binding="{Binding ModifiedDate}"/>
                         <DataGridTextColumn IsReadOnly="True" Binding="{Binding UpdatableSign.Value}"/>
                     </DataGrid.Columns>
 

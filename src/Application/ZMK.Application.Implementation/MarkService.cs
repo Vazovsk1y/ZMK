@@ -7,6 +7,7 @@ using ZMK.Application.Contracts;
 using ZMK.Application.Implementation.Constants;
 using ZMK.Application.Implementation.Extensions;
 using ZMK.Application.Services;
+using ZMK.Domain.Common;
 using ZMK.Domain.Constants;
 using ZMK.Domain.Entities;
 using ZMK.Domain.Shared;
@@ -52,7 +53,7 @@ public class MarkService : BaseService, IMarkService
         }
 
         _logger.LogInformation("Попытка добавления марок из файла таблицы.");
-        List<Mark> marks = [];
+        List<(Mark mark, string? remark)> marks = [];
         try
         {
             var marksDTos = _xlsxMarksReader.Read(filePath, projectId);
@@ -63,7 +64,7 @@ public class MarkService : BaseService, IMarkService
                 {
                     return Result.Failure<IReadOnlyCollection<Guid>>(validationResult.Errors);
                 }
-                marks.Add(markDto.ToEntity());
+                marks.Add((markDto.ToEntity(), markDto.Remark?.Trim()));
             }
         }
         catch (Exception ex)
@@ -77,17 +78,29 @@ public class MarkService : BaseService, IMarkService
             .AsNoTracking()
             .Where(e => e.ProjectId == projectId)
             .Select(e => e.Code)
-            .AnyAsync(e => marks.Select(e => e.Code).Contains(e), cancellationToken);
+            .AnyAsync(e => marks.Select(e => e.mark.Code).Contains(e), cancellationToken);
 
         if (!isAllMarksUnique)
         {
             return Result.Failure<IReadOnlyCollection<Guid>>(new Error(nameof(Error), "Проверьте коды марок из файла, некоторые уже были добавлены ранее."));
         }
 
-        _dbContext.Marks.AddRange(marks);
+        var currentDate = _clock.GetDateTimeOffsetUtcNow();
+        var addEvents = marks.Select(e => new MarkEvent
+        {
+            Count = e.mark.Count,
+            CreatedDate = currentDate,
+            CreatorId = isAbleResult.Value.UserId,
+            MarkId = e.mark.Id,
+            EventType = EventType.Create,
+            Remark = e.remark,
+        });
+
+        _dbContext.MarksEvents.AddRange(addEvents);
+        _dbContext.Marks.AddRange(marks.Select(e => e.mark));
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Все марки были успешно добавлены.");
-        return marks.Select(e => e.Id).ToList();
+        return marks.Select(e => e.mark.Id).ToList();
     }
 
     public async Task<Result<Guid>> AddAsync(MarkAddDTO dTO, CancellationToken cancellationToken = default)
@@ -119,7 +132,18 @@ public class MarkService : BaseService, IMarkService
             return Result.Failure<Guid>(new Error(nameof(Error), "Марка с таким кодом уже существует."));
         }
 
+        var addEvent = new MarkEvent
+        {
+            Count = mark.Count,
+            CreatedDate = _clock.GetDateTimeOffsetUtcNow(),
+            CreatorId = isAbleResult.Value.UserId,
+            EventType = EventType.Create,
+            MarkId = mark.Id,
+            Remark = dTO.Remark,
+        };
+
         _dbContext.Marks.Add(mark);
+        _dbContext.MarksEvents.Add(addEvent);
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Марка была успешно добавлена.");
         return mark.Id;
@@ -191,6 +215,17 @@ public class MarkService : BaseService, IMarkService
                 return Result.Failure(new Error(nameof(Error), "Марка с таким кодом уже существует."));
             default:
                 {
+                    var updateEvent = new MarkEvent
+                    {
+                        CreatedDate = _clock.GetDateTimeOffsetUtcNow(),
+                        MarkId = mark.Id,
+                        Count = mark.Count,
+                        CreatorId = isAbleResult.Value.UserId,
+                        EventType = EventType.Modify,
+                        Remark = "Произведено изменение марки.",
+                    };
+
+                    _dbContext.MarksEvents.Add(updateEvent);
                     await _dbContext.SaveChangesAsync(cancellationToken);
                     _logger.LogInformation("Марка была успешно обновлена.");
                     return Result.Success();

@@ -2,7 +2,7 @@
 
 namespace ZMK.Domain.Common;
 
-public class MarkEvent : Entity, IAuditable
+public class MarkEvent : Entity
 {
     public required Guid CreatorId { get; init; }
 
@@ -12,11 +12,9 @@ public class MarkEvent : Entity, IAuditable
 
     public required EventType EventType { get; init; }
 
-    public DateTimeOffset? ModifiedDate { get; set; }
+    public required double Count { get; init; }
 
-    public required double Count { get; set; }
-
-    public string? Remark { get; set; }
+    public string? Remark { get; init; }
 
     #region --Navigation--
 
