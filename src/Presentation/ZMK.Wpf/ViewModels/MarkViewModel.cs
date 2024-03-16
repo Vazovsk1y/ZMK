@@ -22,11 +22,15 @@ public partial class MarkViewModel : ModifiableViewModel<MarkViewModel>
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(UpdatableSign))]
+    [NotifyPropertyChangedFor(nameof(TotalWeight))]
     private double _weight;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(UpdatableSign))]
+    [NotifyPropertyChangedFor(nameof(TotalWeight))]
     private int _count;
+
+    public double TotalWeight => Weight * Count;
 
     public override bool IsModified()
     {
@@ -44,5 +48,6 @@ public partial class MarkViewModel : ModifiableViewModel<MarkViewModel>
         Order = PreviousState.Order;
         Weight = PreviousState.Weight;
         Count = PreviousState.Count;
+        OnPropertyChanged(nameof(TotalWeight));
     }
 }

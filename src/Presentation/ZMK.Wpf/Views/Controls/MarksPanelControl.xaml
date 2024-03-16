@@ -22,8 +22,9 @@
                         <DataGridTextColumn Header="Очередность" Binding="{Binding Order}"/>
                         <DataGridTextColumn Header="Код" Binding="{Binding Code}"/>
                         <DataGridTextColumn Header="Название" Binding="{Binding Title}"/>
-                        <DataGridTextColumn Header="Вес" Binding="{Binding Weight}"/>
                         <DataGridTextColumn Header="Количество" Binding="{Binding Count}"/>
+                        <DataGridTextColumn Header="Вес 1 шт, кг" Binding="{Binding Weight}"/>
+                        <DataGridTextColumn IsReadOnly="True" Header="Общий вес, кг" Binding="{Binding TotalWeight}"/>
                         <DataGridTextColumn IsReadOnly="True" Binding="{Binding UpdatableSign.Value}"/>
                     </DataGrid.Columns>
 
@@ -33,6 +34,7 @@
                     <Button Content="Добавить" Command="{Binding AddCommand}" Margin="10"/>
                     <Button Content="Импорт из Excel" Margin="10" Command="{Binding ImportFromExcelCommand}"/>
                     <Button Content="Сохранить изменения" Command="{Binding SaveChangesCommand}" Margin="10"/>
+                    <Button Content="Отменить изменения" Command="{Binding RollbackChangesCommand}" Margin="10"/>
                     <Button Content="Удалить" Command="{Binding DeleteCommand}" Margin="10"/>
                 </StackPanel>
             </StackPanel>

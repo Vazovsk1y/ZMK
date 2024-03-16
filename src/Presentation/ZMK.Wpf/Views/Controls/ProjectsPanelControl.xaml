@@ -54,6 +54,7 @@
                     <Button Content="Сохранить изменения" 
                             Command="{Binding SaveChangesCommand}" 
                             Margin="10"/>
+                    <Button Content="Отменить изменения" Command="{Binding RollbackChangesCommand}" Margin="10"/>
                     <Button Content="Удалить" 
                             Command="{Binding DeleteCommand}" 
                             Margin="10"/>

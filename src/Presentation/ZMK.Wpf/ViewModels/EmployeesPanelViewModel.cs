@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
+using ZMK.Domain.Entities;
 using ZMK.Domain.Shared;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
@@ -39,6 +40,22 @@ public partial class EmployeesPanelViewModel : ObservableRecipient,
         using var scope = App.Services.CreateScope();
         var dialogService = scope.ServiceProvider.GetRequiredService<IUserDialogService>();
         dialogService.ShowDialog<EmployeeAddWindow>();
+    }
+
+    [RelayCommand]
+    public void RollbackChanges()
+    {
+        var dialogResult = MessageBoxHelper.ShowDialogBoxYesNo($"Вы уверены, что желаете отменить все текущие изменения?");
+        if (dialogResult == System.Windows.MessageBoxResult.Yes)
+        {
+            var modifiedEmployees = Employees.Where(e => e.IsModified()).ToList();
+            if (modifiedEmployees.Count == 0)
+            {
+                return;
+            }
+
+            modifiedEmployees.ForEach(e => e.RollBackChanges());
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanDelete))]

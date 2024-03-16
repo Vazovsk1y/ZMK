@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
+using ZMK.Domain.Entities;
 using ZMK.Domain.Shared;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
@@ -53,6 +54,22 @@ public partial class AreasPanelViewModel : ObservableRecipient, IRecipient<AreaA
     public bool CanDelete()
     {
         return SelectedArea is not null;
+    }
+
+    [RelayCommand]
+    public void RollbackChanges()
+    {
+        var dialogResult = MessageBoxHelper.ShowDialogBoxYesNo($"Вы уверены, что желаете отменить все текущие изменения?");
+        if (dialogResult == System.Windows.MessageBoxResult.Yes)
+        {
+            var modifiedAreas = Areas.Where(e => e.IsModified()).ToList();
+            if (modifiedAreas.Count == 0)
+            {
+                return;
+            }
+
+            modifiedAreas.ForEach(e => e.RollBackChanges());
+        }
     }
 
     [RelayCommand]

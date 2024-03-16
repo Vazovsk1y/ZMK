@@ -31,6 +31,7 @@
                 <StackPanel Orientation="Horizontal">
                     <Button Margin="10" Command="{Binding AddCommand}" Content="Добавить"/>
                     <Button Margin="10" Command="{Binding SaveChangesCommand}" Content="Сохранить изменения"/>
+                    <Button Content="Отменить изменения" Command="{Binding RollbackChangesCommand}" Margin="10"/>
                     <Button Margin="10" Command="{Binding DeleteCommand}" Content="Удалить"/>
                 </StackPanel>
             </StackPanel>

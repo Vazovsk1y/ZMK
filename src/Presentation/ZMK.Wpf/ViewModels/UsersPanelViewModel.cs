@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
 using ZMK.Domain.Constants;
+using ZMK.Domain.Entities;
 using ZMK.Domain.Shared;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
@@ -82,6 +83,22 @@ public partial class UsersPanelViewModel : ObservableRecipient,
         using var scope = App.Services.CreateScope();
         var dialogService = scope.ServiceProvider.GetRequiredService<IUserDialogService>();
         dialogService.ShowDialog<UserAddWindow>();
+    }
+
+    [RelayCommand]
+    public void RollbackChanges()
+    {
+        var dialogResult = MessageBoxHelper.ShowDialogBoxYesNo($"Вы уверены, что желаете отменить все текущие изменения?");
+        if (dialogResult == System.Windows.MessageBoxResult.Yes)
+        {
+            var modifiedUsers = Users.Where(e => e.IsModified()).ToList();
+            if (modifiedUsers.Count == 0)
+            {
+                return;
+            }
+
+            modifiedUsers.ForEach(e => e.RollBackChanges());
+        }
     }
 
     [RelayCommand]
