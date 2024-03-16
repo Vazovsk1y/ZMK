@@ -41,6 +41,7 @@ public static class ModelBuilderEx
         NormalizedUserName = "TestAdmin".ToUpperInvariant(),
         EmployeeId = TestEmployee.Id,
         LockoutEnabled = true,
+        SecurityStamp = Guid.NewGuid().ToString(),
     };
 
     private static readonly UserRole TestUserRole = new()

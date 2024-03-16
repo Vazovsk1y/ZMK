@@ -175,31 +175,31 @@ namespace ZMK.PostgresDAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("53098605-ce73-4d79-ab66-b64c6c62035d"),
+                            Id = new Guid("2c22c999-38bc-4e80-a085-5474fbfdc89b"),
                             Order = 1,
                             Title = "КМД"
                         },
                         new
                         {
-                            Id = new Guid("7a768ad8-9b38-4d1b-bec3-7df5df0a40a1"),
+                            Id = new Guid("350b1eee-2159-49cd-99c0-1d416212ad61"),
                             Order = 2,
                             Title = "ЛСБ"
                         },
                         new
                         {
-                            Id = new Guid("a68fc0ed-88fd-4ce4-ac63-0f920194ca9f"),
+                            Id = new Guid("a5916aca-1011-45a1-8af6-ad913a9b244e"),
                             Order = 3,
                             Title = "Сборка"
                         },
                         new
                         {
-                            Id = new Guid("f5202cfe-d5c6-401f-a80d-443729fb7ef6"),
+                            Id = new Guid("68160c4d-fce1-4781-9b66-e7ff098b1e50"),
                             Order = 4,
                             Title = "Сварка"
                         },
                         new
                         {
-                            Id = new Guid("716d0b1d-badc-4145-9450-cf6de4be9d96"),
+                            Id = new Guid("da7ecdb1-20a9-496c-b42c-eae0625e3df2"),
                             Order = 5,
                             Title = "Зачистка"
                         });
@@ -246,7 +246,7 @@ namespace ZMK.PostgresDAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("fb71770b-909a-458e-b655-810b90ed5b77"),
+                            Id = new Guid("b382efa3-d49c-4f1d-8204-f73c3f8a2678"),
                             FullName = "Тестовый Сотрудник",
                             Post = "Тестовый Сотрудник",
                             Remark = "Создан исключительно в целях тестирования, рекомендуется удалить."
@@ -403,24 +403,24 @@ namespace ZMK.PostgresDAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("d831a435-3a9b-415b-b626-85137f802d32"),
-                            ConcurrencyStamp = "9952e0df-5df7-40d7-838d-f981ee852a17",
+                            Id = new Guid("f69a1a49-30df-42a8-8f62-1b8fa8321d51"),
+                            ConcurrencyStamp = "da01c747-467f-4e06-a58f-50ca8f967b20",
                             Description = "Администратор системы имеет право добавлять/изменять любые настройки и проэкты. Определяет текущую базу и ее местоположение.",
                             Name = "Администратор",
                             NormalizedName = "АДМИНИСТРАТОР"
                         },
                         new
                         {
-                            Id = new Guid("b1ef8ce6-c002-4225-b236-cc707ad39f1e"),
-                            ConcurrencyStamp = "e6955e36-8d67-4f6c-bd95-03af45866426",
+                            Id = new Guid("550f30eb-fa7f-4c81-ad69-1087f5561ba0"),
+                            ConcurrencyStamp = "d3b056b6-4930-4ee1-aea0-503fa1509c72",
                             Description = "Пользователь имеет право вносить выполнение по маркам, создавать и изменять отгрузки.",
                             Name = "Пользователь",
                             NormalizedName = "ПОЛЬЗОВАТЕЛЬ"
                         },
                         new
                         {
-                            Id = new Guid("8b90e527-64a0-4de7-8167-5062cb38bb40"),
-                            ConcurrencyStamp = "259b7553-4608-4dfd-bc45-6bac79d6f99b",
+                            Id = new Guid("c19383ec-e319-4a2b-a36e-9245c5400b88"),
+                            ConcurrencyStamp = "874e879f-fbbc-4dd5-8285-33063009d273",
                             Description = "Доступ к проэктам с правом просмотра данных.",
                             Name = "Читатель",
                             NormalizedName = "ЧИТАТЕЛЬ"
@@ -524,14 +524,15 @@ namespace ZMK.PostgresDAL.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("4993a6bf-4d44-43d4-9f86-c8ff9f7bf9d7"),
+                            Id = new Guid("cccf7313-31b7-406d-bc5b-174454d469b4"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "9e6de007-1f2a-4f0d-a5c7-98faa208828a",
+                            ConcurrencyStamp = "3db06f05-6400-4507-8596-d2358248e4d4",
                             EmailConfirmed = false,
-                            EmployeeId = new Guid("fb71770b-909a-458e-b655-810b90ed5b77"),
+                            EmployeeId = new Guid("b382efa3-d49c-4f1d-8204-f73c3f8a2678"),
                             LockoutEnabled = true,
                             NormalizedUserName = "TESTADMIN",
                             PhoneNumberConfirmed = false,
+                            SecurityStamp = "9e7e9da8-c440-4525-984c-703263945bb1",
                             TwoFactorEnabled = false,
                             UserName = "TestAdmin"
                         });
@@ -554,8 +555,8 @@ namespace ZMK.PostgresDAL.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = new Guid("4993a6bf-4d44-43d4-9f86-c8ff9f7bf9d7"),
-                            RoleId = new Guid("d831a435-3a9b-415b-b626-85137f802d32")
+                            UserId = new Guid("cccf7313-31b7-406d-bc5b-174454d469b4"),
+                            RoleId = new Guid("f69a1a49-30df-42a8-8f62-1b8fa8321d51")
                         });
                 });
 

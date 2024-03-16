@@ -134,11 +134,6 @@ public class UserService : BaseService, IUserService
         _logger.LogInformation("Попытка обновления пользователя. Начата транзакция.");
         try
         {
-            var newRole = await _dbContext.Roles.SingleAsync(e => e.Id == dTO.RoleId, cancellationToken);
-            var previousRoles = await _dbContext.UserRoles.Where(e => e.UserId == user.Id).ToListAsync(cancellationToken);
-            _dbContext.UserRoles.RemoveRange(previousRoles);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
             user.UserName = dTO.UserName.Trim();
             user.EmployeeId = dTO.EmployeeId;
 
@@ -171,8 +166,20 @@ public class UserService : BaseService, IUserService
                 return Result.Failure(updateResult.Errors.ToErrors());
             }
 
+            var newRole = await _dbContext.Roles.SingleAsync(e => e.Id == dTO.RoleId, cancellationToken);
+            if (newRole.Name != DefaultRoles.Admin && _dbContext.Users.Where(e => e.Roles.Select(e => e.Role!.Name).Contains(DefaultRoles.Admin)).Count() == 1)
+            {
+                return Result.Failure(new Error(nameof(Exception), "Невозможно сменить роль последенго администратора в системе."));
+            }
+
+            var previousRoles = await _dbContext.UserRoles.Where(e => e.UserId == user.Id).ToListAsync(cancellationToken);
+            _dbContext.UserRoles.RemoveRange(previousRoles);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
             _dbContext.UserRoles.Add(new UserRole { RoleId = newRole.Id, UserId = user.Id });
             await _dbContext.SaveChangesAsync(cancellationToken);
+
+            await _userManager.UpdateSecurityStampAsync(user);
             transaction.Commit();
         }
         catch (Exception ex)
