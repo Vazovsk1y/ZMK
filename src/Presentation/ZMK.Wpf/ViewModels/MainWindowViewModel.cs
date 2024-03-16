@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Reflection;
 
 namespace ZMK.Wpf.ViewModels;
 
@@ -14,6 +13,8 @@ public partial class MainWindowViewModel : TitledViewModel
 
     public ProjectsPanelViewModel ProjectsPanelViewModel { get; }
 
+    public AreasPanelViewModel AreasPanelViewModel { get; }
+
     [ObservableProperty]
     public IRefrashable? _selectedMenuItem;
 
@@ -23,13 +24,15 @@ public partial class MainWindowViewModel : TitledViewModel
         StatusPanelViewModel statusPanelViewModel,
         UsersPanelViewModel usersPanelViewModel,
         EmployeesPanelViewModel employeesPanelViewModel,
-        ProjectsPanelViewModel projectsPanelViewModel)
+        ProjectsPanelViewModel projectsPanelViewModel,
+        AreasPanelViewModel areasPanelViewModel)
     {
         ControlTitle = App.Title;
         StatusPanelViewModel = statusPanelViewModel;
         UsersPanelViewModel = usersPanelViewModel;
         EmployeesPanelViewModel = employeesPanelViewModel;
         ProjectsPanelViewModel = projectsPanelViewModel;
+        AreasPanelViewModel = areasPanelViewModel;
 
         ActivateAllRecipients();
     }

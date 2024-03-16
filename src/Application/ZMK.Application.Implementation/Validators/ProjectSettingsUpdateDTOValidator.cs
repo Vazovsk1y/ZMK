@@ -8,6 +8,6 @@ public class ProjectSettingsUpdateDTOValidator : AbstractValidator<ProjectSettin
     public ProjectSettingsUpdateDTOValidator()
     {
         RuleFor(e => e.ProjectId).NotEmpty();
-        RuleFor(e => e.Areas).NotEmpty().Must(e => e.Distinct().Count() == e.Count()).WithMessage("Участки не могут повторяться.");
+        RuleFor(e => e.Areas).NotEmpty().WithMessage("Необходимо выбрать хотя бы один участок.").Must(e => e.Distinct().Count() == e.Count()).WithMessage("Участки не могут повторяться.");
     }
 }

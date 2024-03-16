@@ -56,7 +56,7 @@ public partial class ProjectAddViewModel : DialogViewModel
     protected override async Task Accept(object action)
     {
         var selectedAreas = Areas.Where(e => e.IsSelected).ToList();
-        if (AcceptCommand.IsRunning || selectedAreas.Count == 0)
+        if (AcceptCommand.IsRunning)
         {
             return;
         }

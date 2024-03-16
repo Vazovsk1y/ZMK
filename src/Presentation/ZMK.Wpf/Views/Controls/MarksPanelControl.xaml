@@ -15,7 +15,8 @@
                           SelectedItem="{Binding SelectedMark}"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"
-                          CanUserDeleteRows="False">
+                          CanUserDeleteRows="False"
+                          SelectionMode="Single">
 
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Очередность" Binding="{Binding Order}"/>

@@ -109,15 +109,17 @@ public class ProjectService : BaseService, IProjectService
             .Include(e => e.Settings)
             .SingleOrDefaultAsync(e => e.Id == dTO.Id, cancellationToken);
 
-        switch(project)
+        project?.Update(dTO, _clock);
+        switch (project)
         {
             case null:
                 return Result.Failure(Errors.NotFound("Проэкт"));
             case Project { Settings.IsEditable: false }:
                 return Result.Failure(new Error(nameof(Error), "Функция редактирования не доступна для этого проэкта."));
+            case Project when await _dbContext.Projects.AnyAsync(e => e.Id != project.Id && e.FactoryNumber == project.FactoryNumber, cancellationToken):
+                return Result.Failure<Guid>(new Error(nameof(Error), "Проэкт с таким заводским номером уже существует."));
             default:
                 {
-                    project.Update(dTO, _clock);
                     await _dbContext.SaveChangesAsync(cancellationToken);
                     _logger.LogInformation("Проэкт был успешно обновлен.");
                     return Result.Success();

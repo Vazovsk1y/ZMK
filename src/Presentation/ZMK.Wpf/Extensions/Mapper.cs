@@ -7,6 +7,20 @@ namespace ZMK.Wpf.Extensions;
 
 public static class Mapper
 {
+    public static AreaViewModel ToViewModel(this Area area)
+    {
+        var viewModel = new AreaViewModel
+        {
+            Id = area.Id,
+            Title = area.Title,
+            Order = area.Order,
+            Remark = area.Remark
+        };
+
+        viewModel.SaveState();
+
+        return viewModel;
+    }
     public static MarkViewModel ToViewModel(this Mark mark)
     {
         var entity = new MarkViewModel

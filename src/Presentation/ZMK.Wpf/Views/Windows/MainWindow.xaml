@@ -21,7 +21,7 @@
 
         <!--// Menu Panel //-->
 
-        <StackPanel Background="#2E333A"
+        <StackPanel Background="Gray"
                     Orientation="Vertical"
                     HorizontalAlignment="Center">
 
@@ -74,6 +74,19 @@
                     </MenuItem.Icon>
                 </MenuItem>
 
+                <MenuItem Header="Участки"
+                          Template="{StaticResource MenuItem_Template}"
+                          DataContext="{Binding AreasPanelViewModel}"
+                                Command="{Binding DataContext.MenuItemChangedCommand, 
+                             RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
+                          CommandParameter="{Binding}">
+
+                    <MenuItem.Icon>
+                        <Image Source="/Assets/Icons/areas.png"
+                               Stretch="Fill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+
             </Menu>
 
         </StackPanel>
@@ -94,6 +107,9 @@
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type viewmodels:ProjectsPanelViewModel}">
                         <controls:ProjectsPanelControl DataContext="{Binding}"/>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type viewmodels:AreasPanelViewModel}">
+                        <controls:AreasPanelControl DataContext="{Binding}"/>
                     </DataTemplate>
                 </ContentControl.Resources>
             </ContentControl>

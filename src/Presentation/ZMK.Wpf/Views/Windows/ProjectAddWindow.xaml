@@ -17,7 +17,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0">
@@ -78,18 +78,21 @@
                         <CheckBox Content="Разрешить редактирование марок" IsChecked="{Binding AllowMarksModifying}"/>
                         <CheckBox Content="Проверять заполнение исполнителей" IsChecked="{Binding AreExecutorsRequired}"/>
                     </StackPanel>
-                    <ListBox Grid.Column="1" ItemsSource="{Binding Areas}" SelectionMode="Multiple">
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="ListBoxItem">
-                                <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Title}"/>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                    
+                    <ScrollViewer Grid.Column="1" >
+                        <ListBox ItemsSource="{Binding Areas}" SelectionMode="Multiple">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Title}"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </ScrollViewer>
                 </Grid>
             </Expander>
         </Grid>

@@ -122,8 +122,18 @@ public class AreaService : BaseService, IAreaService
         area.Remark = dTO.Remark?.Trim();
         area.Title = dTO.Title.Trim();
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
-        _logger.LogInformation("Участок был успешно обновлен.");
-        return Result.Success();
+        switch (area)
+        {
+            case Area when await _dbContext.Areas.AnyAsync(e => e.Id != area.Id && e.Title == area.Title, cancellationToken):
+                return Result.Failure<Guid>(new Error(nameof(Error), "Участок с таким названием уже существует."));
+            case Area when await _dbContext.Areas.AnyAsync(e => e.Id != area.Id && e.Order == area.Order, cancellationToken):
+                return Result.Failure<Guid>(new Error(nameof(Error), "Участок с таким значением очередности уже существует."));
+            default:
+                {
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+                    _logger.LogInformation("Участок был успешно обновлен.");
+                    return Result.Success();
+                }
+        }
     }
 }

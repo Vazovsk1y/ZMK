@@ -113,6 +113,7 @@ public class EmployeeService : BaseService, IEmployeeService
             .Employees
             .SingleOrDefaultAsync(e => e.Id == dTO.Id, cancellationToken);
 
+
         if (employee is null)
         {
             return Result.Failure(Errors.NotFound("Сотрудник"));
@@ -121,6 +122,11 @@ public class EmployeeService : BaseService, IEmployeeService
         employee.FullName = dTO.FullName.Trim();
         employee.Remark = dTO.Remark?.Trim();
         employee.Post = dTO.Post?.Trim();
+
+        if (await _dbContext.Employees.AnyAsync(e => e.Id != employee.Id && e.FullName == employee.FullName, cancellationToken))
+        {
+            return Result.Failure<Guid>(new Error(nameof(Error), "Сотрудник с таким ФИО уже существует."));
+        }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Сотрудник был успешно обновлен.");

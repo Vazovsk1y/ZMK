@@ -15,6 +15,7 @@
                           SelectedItem="{Binding SelectedUser}"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"
+                          SelectionMode="Single"
                           CanUserDeleteRows="False">
 
                     <DataGrid.Resources>

@@ -12,6 +12,9 @@
    Title="{Binding ControlTitle}"
     WindowStartupLocation="CenterScreen"
     ResizeMode="NoResize"
+    WindowStyle="None"
+    BorderThickness="2"
+    Background="#e6e6e6"
    mc:Ignorable="d">
     <Grid>
         <Grid.RowDefinitions>
@@ -36,7 +39,11 @@
             <CheckBox Content="Разрешить редактирование марок" IsChecked="{Binding ProjectSettingsViewModel.AllowMarksModifying}"/>
             <CheckBox Content="Проверять заполнение исполнителей" IsChecked="{Binding ProjectSettingsViewModel.AreExecutorsRequired}"/>
         </StackPanel>
-        <ListBox Grid.Row="2" ItemsSource="{Binding Areas}" SelectionMode="Multiple" Focusable="False">
+        <ListBox Background="Transparent" 
+                 Grid.Row="2" 
+                 ItemsSource="{Binding Areas}" 
+                 SelectionMode="Multiple"
+                 BorderThickness="0">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
                     <Setter Property="IsSelected" Value="{Binding IsSelected}"/>

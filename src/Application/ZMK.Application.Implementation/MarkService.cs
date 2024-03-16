@@ -30,7 +30,7 @@ public class MarkService : BaseService, IMarkService
         _xlsxMarksReader = xlsxMarksReader;
     }
 
-    public async Task<Result<IReadOnlyCollection<Guid>>> AddFromXlsxAsync(string filePath, Guid projectId,  CancellationToken cancellationToken = default)
+    public async Task<Result<IReadOnlyCollection<Guid>>> AddFromXlsxAsync(string filePath, Guid projectId, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -180,19 +180,17 @@ public class MarkService : BaseService, IMarkService
             .Marks
             .SingleOrDefaultAsync(e => e.Id == dTO.Id, cancellationToken);
 
+        mark?.Update(dTO, _clock);
         switch (mark)
         {
             case null:
                 return Result.Failure(Errors.NotFound("Марка"));
+            case Mark when await IsAbleToModifyMark(mark.ProjectId) is Result result && result.IsFailure:
+                return result;
+            case Mark when await _dbContext.Marks.Where(e => e.ProjectId == mark.ProjectId).AnyAsync(e => e.Id != mark.Id && e.Code == mark.Code, cancellationToken):
+                return Result.Failure(new Error(nameof(Error), "Марка с таким кодом уже существует."));
             default:
                 {
-                    var isAbleToModifyMark = await IsAbleToModifyMark(mark.ProjectId);
-                    if (isAbleToModifyMark.IsFailure)
-                    {
-                        return Result.Failure<Guid>(isAbleToModifyMark.Errors);
-                    }
-
-                    mark.Update(dTO, _clock);
                     await _dbContext.SaveChangesAsync(cancellationToken);
                     _logger.LogInformation("Марка была успешно обновлена.");
                     return Result.Success();

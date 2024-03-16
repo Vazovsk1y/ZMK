@@ -12,6 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\Icons\areas.png" />
     <None Remove="Assets\Icons\employees.png" />
     <None Remove="Assets\Icons\projects.png" />
     <None Remove="Assets\Icons\users.png" />
@@ -31,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Assets\Icons\areas.png" />
     <Resource Include="Assets\Icons\employees.png" />
     <Resource Include="Assets\Icons\projects.png" />
     <Resource Include="Assets\Icons\users.png" />

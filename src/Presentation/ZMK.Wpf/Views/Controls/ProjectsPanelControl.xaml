@@ -16,6 +16,7 @@
                           SelectedItem="{Binding SelectedProject}"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"
+                          SelectionMode="Single"
                           CanUserDeleteRows="False">
 
                     <DataGrid.Columns>
