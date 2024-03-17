@@ -14,7 +14,7 @@ public class Project : Entity, IAuditable
 
     public string? Remark { get; set; }
 
-    public required Guid? CreatorId { get; set; }
+    public required Guid CreatorId { get; set; }
 
     public DateTimeOffset? ClosingDate { get; set; }
 
@@ -24,7 +24,7 @@ public class Project : Entity, IAuditable
 
     #region --Navigation--
 
-    public User? Creator { get; set; }
+    public User Creator { get; set; } = null!;
 
     public ProjectSettings Settings { get; set; } = null!;
 

@@ -49,7 +49,7 @@ public class ProjectService : BaseService, IProjectService
         }
 
         var projectSettings = dTO.ToSettingsEntity(project.Id);
-        var projectAreas = dTO.Areas.Select(e => new ProjectArea { AreaId = e, ProjectId = project.Id }).ToArray();
+        var projectAreas = dTO.Areas.Select(e => new ProjectArea { AreaId = e, ProjectId = project.Id }).ToList();
 
         _dbContext.Projects.Add(project);
         _dbContext.ProjectsSettings.Add(projectSettings);
