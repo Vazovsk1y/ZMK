@@ -19,12 +19,13 @@
                CanUserDeleteRows="False"
                ItemsSource="{Binding Areas}"
                SelectedItem="{Binding SelectedArea}"
+                    ColumnWidth="*"
                     SelectionMode="Single">
                     <DataGrid.Columns>
                         <DataGridTextColumn Binding="{Binding Order}" Header="Очередность"/>
                         <DataGridTextColumn Binding="{Binding Title}" Header="Название"/>
                         <DataGridTextColumn Binding="{Binding Remark}" Header="Примечание"/>
-                        <DataGridTextColumn Binding="{Binding UpdatableSign.Value}" IsReadOnly="True"/>
+                        <DataGridTextColumn Binding="{Binding UpdatableSign.Value}" Width="20" IsReadOnly="True"/>
                     </DataGrid.Columns>
                 </DataGrid>
                 

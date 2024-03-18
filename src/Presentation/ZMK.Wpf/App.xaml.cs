@@ -56,6 +56,7 @@ public partial class App : System.Windows.Application
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<App>>();
             var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
 
+            authService.Logout();
             logger.LogError(e.Exception, MessageTemplate, nameof(DispatcherUnhandledException));
             e.Handled = true;
 

@@ -9,6 +9,7 @@
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         Title="{Binding ControlTitle}" 
+        ResizeMode="NoResize"
         Height="400" 
         Width="400">
     <Grid>

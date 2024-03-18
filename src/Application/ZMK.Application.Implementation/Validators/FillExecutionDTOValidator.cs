@@ -3,13 +3,14 @@ using ZMK.Application.Contracts;
 
 namespace ZMK.Application.Implementation.Validators;
 
-public class MarkExecutionDTOValidator : AbstractValidator<MarkExecutionDTO>
+public class FillExecutionDTOValidator : AbstractValidator<FillExecutionDTO>
 {
-    public MarkExecutionDTOValidator(IValidator<AreaExecutionDTO> validator)
+    public FillExecutionDTOValidator(IValidator<AreaExecutionDTO> validator)
     {
-        RuleFor(e => e.Id).NotEmpty();
+        RuleFor(e => e.MarkId).NotEmpty();
         RuleFor(e => e.AreasExecutions)
-            .Must(e => e.DistinctBy(i => i.Id).Count() == e.Count())
+            .NotEmpty()
+            .Must(e => e.DistinctBy(i => i.AreaId).Count() == e.Count())
             .WithMessage("Среди участков не должно быть повторов.");
 
         RuleForEach(e => e.AreasExecutions).SetValidator(validator);

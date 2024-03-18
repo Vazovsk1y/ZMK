@@ -25,6 +25,7 @@ public partial class MarksPanelViewModel : ObservableRecipient,
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
+    [NotifyCanExecuteChangedFor(nameof(FillExecutionCommand))]
     private MarkViewModel? _selectedMark;
 
     public MarksPanelViewModel(ProjectsPanelViewModel projectsPanelViewModel)
@@ -185,6 +186,20 @@ public partial class MarksPanelViewModel : ObservableRecipient,
             modifiedMarks.ForEach(e => e.RollBackChanges());
         }
     }
+
+    [RelayCommand(CanExecute = nameof(CanFillExecution))]
+    public void FillExecution()
+    {
+        using var scope = App.Services.CreateScope();
+        var viewModel = scope.ServiceProvider.GetRequiredService<MarkFillExecutionWindowViewModel>();
+        viewModel.SelectedMark = SelectedMark!;
+        viewModel.IsActive = true;
+
+        var dialogService = scope.ServiceProvider.GetRequiredService<IUserDialogService>();
+        dialogService.ShowDialog<MarkFillExecutionWindow, MarkFillExecutionWindowViewModel>(viewModel);
+    }
+
+    public bool CanFillExecution() => SelectedMark is not null;
 
     public void Receive(MarksAddedMessage message)
     {

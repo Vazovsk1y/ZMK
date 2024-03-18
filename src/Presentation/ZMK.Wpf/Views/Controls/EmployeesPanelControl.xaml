@@ -16,6 +16,7 @@
                   AutoGenerateColumns="False"
                   CanUserAddRows="False"
                   CanUserDeleteRows="False"
+                          ColumnWidth="*"
                           SelectionMode="Single">
 
                     <DataGrid.Columns>
@@ -27,6 +28,7 @@
                                             Binding="{Binding Remark}"/>
                         <DataGridTextColumn  
                                     Binding="{Binding UpdatableSign.Value}" 
+                            Width="20"
                                     IsReadOnly="True"/>
                     </DataGrid.Columns>
                 </DataGrid>

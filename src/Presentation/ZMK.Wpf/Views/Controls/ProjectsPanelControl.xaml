@@ -43,6 +43,7 @@
                                             IsReadOnly="True"
                                             Binding="{Binding ClosingDate}"/>
                         <DataGridTextColumn IsReadOnly="True"
+                                            Width="20"
                                             Binding="{Binding UpdatableSign.Value}"/>
                     </DataGrid.Columns>
                 </DataGrid>

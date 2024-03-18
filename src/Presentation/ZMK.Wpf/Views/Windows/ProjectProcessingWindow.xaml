@@ -9,6 +9,7 @@
         d:DataContext="{d:DesignInstance Type=viewmodels:ProjectProcessingWindowViewModel}"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
         Title="{Binding ControlTitle}" Height="450" Width="800">
     <Grid>
         <StackPanel>

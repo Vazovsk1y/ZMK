@@ -38,6 +38,9 @@ public static class Registrator
 
         services.AddTransient<MarksPanelViewModel>();
 
+        services.AddTransient<MarkFillExecutionWindow>();
+        services.AddTransient<MarkFillExecutionWindowViewModel>();
+
 
         services.AddWindowWithViewModelSingleton<MainWindow, MainWindowViewModel>();
         services.AddWindowWithViewModelTransient<LoginWindow, LoginWindowViewModel>();

@@ -16,6 +16,7 @@
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"
                           CanUserDeleteRows="False"
+                          ColumnWidth="*"
                           SelectionMode="Single">
 
                     <DataGrid.Columns>
@@ -25,12 +26,13 @@
                         <DataGridTextColumn Header="Количество" Binding="{Binding Count}"/>
                         <DataGridTextColumn Header="Вес 1 шт, кг" Binding="{Binding Weight}"/>
                         <DataGridTextColumn IsReadOnly="True" Header="Общий вес, кг" Binding="{Binding TotalWeight}"/>
-                        <DataGridTextColumn IsReadOnly="True" Binding="{Binding UpdatableSign.Value}"/>
+                        <DataGridTextColumn IsReadOnly="True" Width="20" Binding="{Binding UpdatableSign.Value}"/>
                     </DataGrid.Columns>
 
                 </DataGrid>
 
                 <StackPanel Orientation="Horizontal">
+                    <Button Content="Заполнить выполнение" Command="{Binding FillExecutionCommand}" Margin="10"/>
                     <Button Content="Добавить" Command="{Binding AddCommand}" Margin="10"/>
                     <Button Content="Импорт из Excel" Margin="10" Command="{Binding ImportFromExcelCommand}"/>
                     <Button Content="Сохранить изменения" Command="{Binding SaveChangesCommand}" Margin="10"/>

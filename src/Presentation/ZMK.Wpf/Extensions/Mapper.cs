@@ -8,6 +8,21 @@ namespace ZMK.Wpf.Extensions;
 
 public static class Mapper
 {
+    public static CompleteEventViewModel ToViewModel(this CompleteEvent @event)
+    {
+        var entity = new CompleteEventViewModel()
+        {
+            Id = @event.Id,
+            MarkId = @event.MarkId,
+            CreatedDate = @event.CreatedDate,
+            Area = @event.Area.ToViewModel(),
+            Count = @event.Count,
+            CreatorUserNameAndEmployeeName = $"{@event.Creator.UserName} - {@event.Creator.Employee!.FullName}",
+            Remark = @event.Remark,
+            Executors = @event.Executors.Select(e => new ExecutorInfo(e.EmployeeId, e.Employee.FullName)).ToList(),
+        };
+        return entity;
+    }
     public static double? ParseInDifferentCultures(this string number)
     {
         if (!double.TryParse(number, NumberStyles.Any, CultureInfo.CurrentCulture, out double result) &&
@@ -108,7 +123,7 @@ public static class Mapper
             AllowMarksModifying = settings.AllowMarksModifying,
             AllowMarksAdding = settings.AllowMarksAdding,
             AreExecutorsRequired = settings.AreExecutorsRequired,
-            Areas = new (project.Areas.Select(e => new ProjectSettingsViewModel.AreaViewModel(e.AreaId, e.Area.Title, e.Area.Order))),
+            Areas = new (project.Areas.Select(e => new ProjectSettingsViewModel.AreaViewModel(e.AreaId, e.Area.Title, e.Area.Order)).ToList()),
         };
 
         entity.SaveState();

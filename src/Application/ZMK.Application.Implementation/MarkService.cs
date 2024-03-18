@@ -16,7 +16,7 @@ namespace ZMK.Application.Implementation;
 
 public class MarkService : BaseService, IMarkService
 {
-    public static readonly IReadOnlyCollection<string> AllowedExtensions = [".xlsx", ".xls"];
+    public static readonly IReadOnlyCollection<string> AllowedFilesExtensions = [ ".xlsx", ".xls" ];
 
     private readonly IXlsxReader<MarkAddDTO> _xlsxMarksReader;
     public MarkService(IClock clock,
@@ -30,7 +30,7 @@ public class MarkService : BaseService, IMarkService
         _xlsxMarksReader = xlsxMarksReader;
     }
 
-    public async Task<Result> FillExecutionAsync(MarkExecutionDTO dTO, CancellationToken cancellationToken = default)
+    public async Task<Result> FillExecutionAsync(FillExecutionDTO dTO, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -51,7 +51,8 @@ public class MarkService : BaseService, IMarkService
             .Marks
             .Include(e => e.Project)
             .ThenInclude(e => e.Settings)
-            .SingleOrDefaultAsync(e => e.Id == dTO.Id, cancellationToken);
+            .Include(e => e.Project.Areas)
+            .SingleOrDefaultAsync(e => e.Id == dTO.MarkId, cancellationToken);
 
         switch (mark)
         {
@@ -59,6 +60,8 @@ public class MarkService : BaseService, IMarkService
                 return Result.Failure(Errors.NotFound("Марка"));
             case Mark when mark.Project.Settings.AreExecutorsRequired && dTO.AreasExecutions.Select(e => e.Executors).Any(e => !e.Any()):
                 return Result.Failure(new Error(nameof(Error), "Заполнение исполнителей обязательно. Указано в настройках проэкта."));
+            case Mark when dTO.AreasExecutions.Select(e => e.AreaId).Any(i => !mark.Project.Areas.Select(e => e.AreaId).Contains(i)):
+                throw new InvalidOperationException($"Один из переданных участков не определен для проэкта с id '{mark.Project.Id}'.");
             default:
                 {
                     var completeEvents = new List<CompleteEvent>();
@@ -66,19 +69,27 @@ public class MarkService : BaseService, IMarkService
 
                     foreach (var item in dTO.AreasExecutions)
                     {
-                        if (item.Count > mark.Count)
+                        double completeCount = await _dbContext
+                            .CompleteEvents
+                            .Where(e => e.MarkId == dTO.MarkId && e.AreaId == item.AreaId)
+                            .SumAsync(e => e.Count, cancellationToken);
+
+                        double leftCount = mark.Count - completeCount;
+                        if (item.Count > leftCount)
                         {
-                            Result.Failure(new Error(nameof(Error), $"Количество для заполения '{item.Count}' больше текущего значения количества марки '{mark.Count}'."));
+                            return Result.Failure(new Error(nameof(Error), $"Количество для заполения '{item.Count}' больше текущего остатка на этом участке '{leftCount}'."));
                         }
 
+                        var currentDate = _clock.GetDateTimeOffsetUtcNow();
                         var @event = new CompleteEvent
                         {
                             MarkId = mark.Id,
-                            AreaId = item.Id,
+                            AreaId = item.AreaId,
                             Count = item.Count,
-                            CreatedDate = item.ExecutionDate,
+                            CreatedDate = new DateTimeOffset(item.Date.Year, item.Date.Month, item.Date.Day, currentDate.Hour, currentDate.Minute, currentDate.Second, TimeSpan.Zero), // UTC
                             CreatorId = isAbleResult.Value.UserId,
                             EventType = EventType.Complete,
+                            Remark = item.Remark?.Trim(),
                         };
                         completeEvents.Add(@event);
                         completeEventsEmployees.AddRange(item.Executors.Select(e => new CompleteEventEmployee { EmployeeId = e, EventId = @event.Id }));
@@ -98,7 +109,7 @@ public class MarkService : BaseService, IMarkService
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!AllowedExtensions.Contains(Path.GetExtension(filePath), StringComparer.OrdinalIgnoreCase))
+        if (!AllowedFilesExtensions.Contains(Path.GetExtension(filePath), StringComparer.OrdinalIgnoreCase))
         {
             return Result.Failure<IReadOnlyCollection<Guid>>(new Error(nameof(Error), "Некорректное разрешение файла."));
         }

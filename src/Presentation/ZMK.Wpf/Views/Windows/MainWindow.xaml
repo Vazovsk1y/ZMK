@@ -10,8 +10,9 @@
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         MinHeight="450"
+        ResizeMode="NoResize"
         MinWidth="900"
-        Title="{Binding ControlTitle}" Height="450" Width="900">
+        Title="{Binding ControlTitle}" Height="500" Width="1000">
     <Grid>
 
         <Grid.ColumnDefinitions>
