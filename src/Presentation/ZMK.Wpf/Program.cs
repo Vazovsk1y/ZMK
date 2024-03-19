@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
+using Serilog;
+using System.IO;
 using ZMK.Wpf.Extensions;
 
 namespace ZMK.Wpf;
@@ -12,16 +14,19 @@ internal class Program
     [STAThread]
     public static void Main(string[] args)
     {
+
+#if DEBUG
+        IsInDebug = true;
+#endif
+
+        Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", IsInDebug ? "Development" : "Production");
+
         _mutex = new Mutex(true, App.Title, out bool createdNew);
         if (!createdNew)
         {
             MessageBoxHelper.ShowErrorBox("Приложение уже запущено.");
             return;
         }
-
-#if DEBUG
-        IsInDebug = true;
-#endif
 
         App app = new();
         app.StartGlobalExceptionsHandling();
@@ -32,14 +37,37 @@ internal class Program
 
     public static IHostBuilder CreateHostBuilder(string[] args)
     {
-        Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", IsInDebug ? "Development" : "Production");
-
         return Host
             .CreateDefaultBuilder(args)
+            .CreateApplicationAssociatedFolder()
             .ConfigureAppConfiguration((appConfig, _) =>
             {
                 appConfig.HostingEnvironment.ApplicationName = App.Title;
                 appConfig.HostingEnvironment.ContentRootPath = Environment.CurrentDirectory;
+            })
+            .UseSerilog((host, loggingConfiguration) =>
+            {
+                if (host.HostingEnvironment.IsDevelopment())
+                {
+                    loggingConfiguration.MinimumLevel.Debug();
+                    loggingConfiguration.WriteTo.Debug();
+                    return;
+                }
+
+                const string logFileName = "log.txt";
+                const string logsFolderName = "logs";
+
+                string logDirectory = Path.Combine(App.AssociatedFolder, logsFolderName);
+                if (!Directory.Exists(logDirectory))
+                {
+                    Directory.CreateDirectory(logDirectory);
+                }
+
+                string logFileFullPath = Path.Combine(logDirectory, logFileName);
+
+                loggingConfiguration.MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", Serilog.Events.LogEventLevel.Error);
+                loggingConfiguration.MinimumLevel.Information();
+                loggingConfiguration.WriteTo.File(logFileFullPath, rollingInterval: RollingInterval.Day);
             })
             .ConfigureServices(Registrator.ConfigureServices);
     }

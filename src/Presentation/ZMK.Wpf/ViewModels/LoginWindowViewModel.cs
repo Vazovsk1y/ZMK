@@ -15,10 +15,10 @@ internal partial class LoginWindowViewModel : DialogViewModel
 {
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(AcceptCommand))]
-    private string _userName;
+    private string? _userName;
 
     [ObservableProperty]
-    private string _password = string.Empty;
+    private string? _password;
 
     public ObservableCollection<string> Logins { get; } = [];
 
@@ -45,7 +45,7 @@ internal partial class LoginWindowViewModel : DialogViewModel
         var authService = scope.ServiceProvider.GetRequiredService<IAuthService>();
         var dbContext = scope.ServiceProvider.GetRequiredService<ZMKDbContext>();
 
-        var result = await authService.LoginAsync(new UserLoginDTO(UserName, Password)).ConfigureAwait(false);
+        var result = await authService.LoginAsync(new UserLoginDTO(UserName!, Password)).ConfigureAwait(false);
         if (result.IsSuccess)
         {
             Guid sessionId = result.Value;

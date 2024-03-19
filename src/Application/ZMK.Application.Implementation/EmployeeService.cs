@@ -108,7 +108,7 @@ public class EmployeeService : BaseService, IEmployeeService
             return isAbleResult;
         }
 
-        _logger.LogInformation("Попытка обновления сотрудника.");
+        _logger.LogInformation("Попытка обновления данных сотрудника.");
         var employee = await _dbContext
             .Employees
             .SingleOrDefaultAsync(e => e.Id == dTO.Id, cancellationToken);
@@ -129,7 +129,7 @@ public class EmployeeService : BaseService, IEmployeeService
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        _logger.LogInformation("Сотрудник был успешно обновлен.");
+        _logger.LogInformation("Данные сотрудника были успешно обновлены.");
         return Result.Success();
     }
 }

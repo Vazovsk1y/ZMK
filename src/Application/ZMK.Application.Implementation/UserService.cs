@@ -131,7 +131,7 @@ public class UserService : BaseService, IUserService
         }
 
         using var transaction = _dbContext.Database.BeginTransaction();
-        _logger.LogInformation("Попытка обновления пользователя. Начата транзакция.");
+        _logger.LogInformation("Попытка обновления информации о пользователе. Начата транзакция.");
         try
         {
             user.UserName = dTO.UserName.Trim();
@@ -189,7 +189,7 @@ public class UserService : BaseService, IUserService
             return Result.Failure(new Error(nameof(Exception), "Что-то пошло не так во время обновления пользователя. Транзакция не была зафиксирована."));
         }
 
-        _logger.LogInformation("Пользователь был успешно обновлен.");
+        _logger.LogInformation("Информация о пользователе была успешно обновлена.");
         return Result.Success();
     }
 }

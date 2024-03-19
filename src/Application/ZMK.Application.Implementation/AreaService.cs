@@ -108,22 +108,22 @@ public class AreaService : BaseService, IAreaService
             return isAbleResult;
         }
 
-        _logger.LogInformation("Попытка обновления участка.");
+        _logger.LogInformation("Попытка обновления информации об участке.");
         var area = await _dbContext
             .Areas
             .SingleOrDefaultAsync(e => e.Id == dTO.Id, cancellationToken);
 
-        if (area is null)
+        if (area is not null)
         {
-            return Result.Failure(Errors.NotFound("Участок"));
+            area.Order = dTO.Order;
+            area.Remark = dTO.Remark?.Trim();
+            area.Title = dTO.Title.Trim();
         }
-
-        area.Order = dTO.Order;
-        area.Remark = dTO.Remark?.Trim();
-        area.Title = dTO.Title.Trim();
 
         switch (area)
         {
+            case null:
+                return Result.Failure(Errors.NotFound("Участок"));
             case Area when await _dbContext.Areas.AnyAsync(e => e.Id != area.Id && e.Title == area.Title, cancellationToken):
                 return Result.Failure<Guid>(new Error(nameof(Error), "Участок с таким названием уже существует."));
             case Area when await _dbContext.Areas.AnyAsync(e => e.Id != area.Id && e.Order == area.Order, cancellationToken):
@@ -131,7 +131,7 @@ public class AreaService : BaseService, IAreaService
             default:
                 {
                     await _dbContext.SaveChangesAsync(cancellationToken);
-                    _logger.LogInformation("Участок был успешно обновлен.");
+                    _logger.LogInformation("Информация об участке была успешно обновлена.");
                     return Result.Success();
                 }
         }

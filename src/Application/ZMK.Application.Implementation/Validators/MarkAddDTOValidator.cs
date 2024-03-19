@@ -13,7 +13,7 @@ public class MarkAddDTOValidator : AbstractValidator<MarkAddDTO>
         RuleFor(e => e.Weight).NotEmpty().GreaterThanOrEqualTo(1);
         RuleFor(e => e.Code).NotEmpty();
         RuleFor(e => e.Count)
-            .Must(e => (e > 0 && e % 1 == 0) || (e > 0 && e % Mark.CountMultiplicityNumber == 0))
+            .Must(e => Mark.IsValidCount(e))
             .WithMessage($"Количество должно быть больше нуля или кратное '{Mark.CountMultiplicityNumber}'.");
         RuleFor(e => e.Order).NotEmpty().GreaterThanOrEqualTo(1);
     }

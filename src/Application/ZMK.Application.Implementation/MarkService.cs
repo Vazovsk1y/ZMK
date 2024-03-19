@@ -126,7 +126,7 @@ public class MarkService : BaseService, IMarkService
             return Result.Failure<IReadOnlyCollection<Guid>>(isAbleToAddMark.Errors);
         }
 
-        _logger.LogInformation("Попытка добавления марок из файла таблицы.");
+        _logger.LogInformation("Попытка добавления марок из файла таблицы эксель {fileExtension}.", Path.GetExtension(filePath));
         List<(Mark mark, string? remark)> marks = [];
         try
         {
@@ -173,7 +173,7 @@ public class MarkService : BaseService, IMarkService
         _dbContext.MarksEvents.AddRange(addEvents);
         _dbContext.Marks.AddRange(marks.Select(e => e.mark));
         await _dbContext.SaveChangesAsync(cancellationToken);
-        _logger.LogInformation("Все марки были успешно добавлены.");
+        _logger.LogInformation("Марки были успешно добавлены.");
         return marks.Select(e => e.mark.Id).ToList();
     }
 
@@ -273,7 +273,7 @@ public class MarkService : BaseService, IMarkService
             return Result.Failure(isAbleResult.Errors);
         }
 
-        _logger.LogInformation("Попытка обновления марки.");
+        _logger.LogInformation("Попытка обновления информации о марке.");
         var mark = await _dbContext
             .Marks
             .SingleOrDefaultAsync(e => e.Id == dTO.Id, cancellationToken);
@@ -301,7 +301,7 @@ public class MarkService : BaseService, IMarkService
 
                     _dbContext.MarksEvents.Add(updateEvent);
                     await _dbContext.SaveChangesAsync(cancellationToken);
-                    _logger.LogInformation("Марка была успешно обновлена.");
+                    _logger.LogInformation("Информация о марке была успешно обновлена.");
                     return Result.Success();
                 }
         }

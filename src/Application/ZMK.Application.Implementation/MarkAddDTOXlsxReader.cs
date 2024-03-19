@@ -2,6 +2,7 @@
 using NPOI.XSSF.UserModel;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
+using ZMK.Domain.Entities;
 
 namespace ZMK.Application.Implementation;
 
@@ -52,8 +53,8 @@ public class MarkAddDTOXlsxReader : IXlsxReader<MarkAddDTO>
             ? cells[CodeColumnIndex].StringCellValue : throw new InvalidDataException($"Неккоректные данные. Страница: {sheetIndex}, строка: {rowIndex}, колонка: {CodeColumnIndex}.");
         string title = !string.IsNullOrWhiteSpace(cells[TitleColumnIndex].StringCellValue)
             ? cells[TitleColumnIndex].StringCellValue : throw new InvalidDataException($"Неккоректные данные. Страница: {sheetIndex}, строка: {rowIndex}, колонка: {TitleColumnIndex}.");
-        int count = int.TryParse(cells[CountColumnIndex].NumericCellValue.ToString(), out var result2)
-            ? result2 : throw new InvalidDataException($"Неккоректные данные. Страница: {sheetIndex}, строка: {rowIndex}, колонка: {CountColumnIndex}.");
+        double count = cells[CountColumnIndex].NumericCellValue is double number && Mark.IsValidCount(number)
+            ? cells[CountColumnIndex].NumericCellValue : throw new InvalidDataException($"Неккоректные данные. Страница: {sheetIndex}, строка: {rowIndex}, колонка: {CountColumnIndex}.");
         double weight = cells[WeightColumnIndex].NumericCellValue > 0
             ? cells[WeightColumnIndex].NumericCellValue : throw new InvalidDataException($"Неккоректные данные. Страница: {sheetIndex}, строка: {rowIndex}, колонка: {WeightColumnIndex}.");
         const string REMARK = "Марка была импортирована из таблицы эксель.";

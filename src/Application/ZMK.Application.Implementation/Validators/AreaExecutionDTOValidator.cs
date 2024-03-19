@@ -11,7 +11,7 @@ public class AreaExecutionDTOValidator : AbstractValidator<AreaExecutionDTO>
         RuleFor(e => e.AreaId).NotEmpty();
         RuleFor(e => e.Date).NotEmpty();
         RuleFor(e => e.Count)
-            .Must(e => (e > 0 && e % 1 == 0) || (e > 0 && e % Mark.CountMultiplicityNumber == 0))
+            .Must(e => Mark.IsValidCount(e))
             .WithMessage($"Количество должно быть больше нуля или кратное '{Mark.CountMultiplicityNumber}'.");
 
         RuleFor(e => e.Executors).Must(e => e.Distinct().Count() == e.Count()).WithMessage("Среди исполнителей не должно быть повторов.");

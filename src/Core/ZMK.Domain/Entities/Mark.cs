@@ -19,4 +19,9 @@ public class Mark : Entity
     public Project Project { get; set; } = null!;
 
     public required double Count { get; set; }
+
+    public static bool IsValidCount(double number)
+    {
+        return (number > 0 && number % 1 == 0) || (number > 0 && number % CountMultiplicityNumber == 0);
+    }
 }

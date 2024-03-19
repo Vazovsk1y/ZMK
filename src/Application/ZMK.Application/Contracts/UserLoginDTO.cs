@@ -1,3 +1,3 @@
 ﻿namespace ZMK.Application.Contracts;
 
-public record UserLoginDTO(string UserName, string Password);
+public record UserLoginDTO(string UserName, string? Password);

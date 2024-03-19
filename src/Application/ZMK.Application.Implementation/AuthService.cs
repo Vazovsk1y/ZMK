@@ -108,6 +108,7 @@ public class AuthService : BaseService, IAuthService
             };
 
             _dbContext.Sessions.Add(session);
+            _logger.LogInformation("Создана новая сессия.");
         }
         else
         {

@@ -103,7 +103,7 @@ public class ProjectService : BaseService, IProjectService
             return Result.Failure(isAbleResult.Errors);
         }
 
-        _logger.LogInformation("Попытка обновления проэкта.");
+        _logger.LogInformation("Попытка обновления информации о проэкте.");
         var project = await _dbContext
             .Projects
             .Include(e => e.Settings)
@@ -121,7 +121,7 @@ public class ProjectService : BaseService, IProjectService
             default:
                 {
                     await _dbContext.SaveChangesAsync(cancellationToken);
-                    _logger.LogInformation("Проэкт был успешно обновлен.");
+                    _logger.LogInformation("Информация о проэкте была успешно обновлена.");
                     return Result.Success();
                 }
         }
@@ -167,7 +167,7 @@ public class ProjectService : BaseService, IProjectService
         _dbContext.ProjectsAreas.AddRange(newProjectAreas);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        _logger.LogInformation("Настройки были успешно обновлены.");
+        _logger.LogInformation("Настройки проэкта были успешно обновлены.");
         return Result.Success();
     }
 }

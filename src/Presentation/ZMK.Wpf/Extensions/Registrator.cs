@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.IO;
 using System.Windows;
 using ZMK.Application.Implementation.Extensions;
 using ZMK.Application.Services;
@@ -18,7 +19,7 @@ public static class Registrator
     private record DatabaseOptions(string ConnectionString) : IDatabaseOptions;
     internal static void ConfigureServices(HostBuilderContext context, IServiceCollection collection)
     {
-        var databaseOptions = new DatabaseOptions(context.Configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Connection string not defined."));
+        var databaseOptions = new DatabaseOptions(context.Configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Строка подключения к базе данных не определена."));
 
         collection.AddDataAccessLayer(databaseOptions);
         collection.AddApplicationLayer();
@@ -51,6 +52,16 @@ public static class Registrator
         services.AddWindowWithViewModelTransient<ProjectProcessingWindow, ProjectProcessingWindowViewModel>();
         services.AddWindowWithViewModelTransient<MarkAddWindow, MarkAddViewModel>();
         services.AddWindowWithViewModelTransient<AreaAddWindow, AreaAddViewModel>();
+    }
+
+    public static IHostBuilder CreateApplicationAssociatedFolder(this IHostBuilder hostBuilder)
+    {
+        if (!Directory.Exists(App.AssociatedFolder))
+        {
+            Directory.CreateDirectory(App.AssociatedFolder);
+        }
+
+        return hostBuilder;
     }
 
     private static IServiceCollection AddWindowWithViewModelTransient<TWindow, TViewModel>(this IServiceCollection services)
