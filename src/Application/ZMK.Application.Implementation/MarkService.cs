@@ -289,6 +289,19 @@ public class MarkService : BaseService, IMarkService
                 return Result.Failure(new Error(nameof(Error), "Марка с таким кодом уже существует."));
             default:
                 {
+                    var completeForEachArea = await _dbContext
+                        .CompleteEvents
+                        .AsNoTracking()
+                        .Include(e => e.Area)
+                        .Where(e => e.MarkId == mark.Id)
+                        .GroupBy(e => e.Area)
+                        .ToDictionaryAsync(e => e.Key, e => e.Sum(c => c.Count), cancellationToken);
+
+                    if (completeForEachArea.FirstOrDefault(e => e.Value > mark.Count) is KeyValuePair<Area, double> value && value.Key is not null)
+                    {
+                        return Result.Failure(new Error(nameof(Error), $"Текущее кол-во '{value.Value}' выполненных марок для '{value.Key.Title}' больше чем то количество которое вы пытаетесь установить '{mark.Count}'."));
+                    }
+
                     var updateEvent = new MarkEvent
                     {
                         CreatedDate = _clock.GetDateTimeOffsetUtcNow(),

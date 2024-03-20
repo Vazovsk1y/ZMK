@@ -335,7 +335,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
                     {
                         double completeInPercents = (item.Count == 0 ? 0 : (completeCount * 100) / item.Count).RoundForDisplay();
                         item.Complete = completeInPercents;
-                        item.Left = 100 - completeInPercents;
+                        item.Left = (100 - completeInPercents).RoundForDisplay();
                         break;
                     }
                 default:
