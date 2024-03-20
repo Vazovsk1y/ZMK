@@ -42,6 +42,8 @@ public static class Registrator
         services.AddTransient<MarkFillExecutionWindow>();
         services.AddTransient<MarkFillExecutionWindowViewModel>();
 
+        services.AddTransient<ProjectProcessingWindow>();
+        services.AddTransient<ProjectProcessingWindowViewModel>();
 
         services.AddWindowWithViewModelSingleton<MainWindow, MainWindowViewModel>();
         services.AddWindowWithViewModelTransient<LoginWindow, LoginWindowViewModel>();
@@ -49,7 +51,6 @@ public static class Registrator
         services.AddWindowWithViewModelTransient<EmployeeAddWindow, EmployeeAddViewModel>();
         services.AddWindowWithViewModelTransient<ProjectSettingsUpdateWindow, ProjectSettingsUpdateViewModel>();
         services.AddWindowWithViewModelTransient<ProjectAddWindow, ProjectAddViewModel>();
-        services.AddWindowWithViewModelTransient<ProjectProcessingWindow, ProjectProcessingWindowViewModel>();
         services.AddWindowWithViewModelTransient<MarkAddWindow, MarkAddViewModel>();
         services.AddWindowWithViewModelTransient<AreaAddWindow, AreaAddViewModel>();
     }

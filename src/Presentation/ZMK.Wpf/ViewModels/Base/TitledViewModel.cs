@@ -26,4 +26,18 @@ public partial class TitledViewModel : ObservableRecipient
             }
         }
     }
+
+    protected void DeactivateAllRecipients()
+    {
+        var type = GetType();
+        var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        foreach (var property in properties)
+        {
+            if (property.GetValue(this) is ObservableRecipient observableRecipient)
+            {
+                observableRecipient.IsActive = false;
+            }
+        }
+    }
 }

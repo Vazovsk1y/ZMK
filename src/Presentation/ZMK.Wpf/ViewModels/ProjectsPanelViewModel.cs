@@ -167,7 +167,13 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
     [RelayCommand(CanExecute = nameof(CanProcessing))]
     public void Processing(object selectedItem)
     {
-        App.Services.GetRequiredService<ProjectProcessingWindow>().ShowDialog();
+        using var scope = App.Services.CreateScope();
+        var window = scope.ServiceProvider.GetRequiredService<ProjectProcessingWindow>();
+        var viewModel = scope.ServiceProvider.GetRequiredService<ProjectProcessingWindowViewModel>();
+        viewModel.IsActive = true;
+        window.DataContext = viewModel;
+        window.ShowDialog();
+        viewModel.IsActive = false;
     }
 
     public bool CanProcessing() => SelectedProject is not null;

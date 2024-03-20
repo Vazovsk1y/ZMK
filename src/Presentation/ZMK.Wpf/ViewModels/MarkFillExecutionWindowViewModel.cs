@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
@@ -7,6 +8,7 @@ using ZMK.Application.Contracts;
 using ZMK.Application.Services;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
+using ZMK.Wpf.Messages;
 using ZMK.Wpf.Services;
 
 namespace ZMK.Wpf.ViewModels;
@@ -45,14 +47,14 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
         var vms = FillExecutionViewModels.Where(e => e.IsNotFinished).ToList();
         if (vms.Count == 0)
         {
-            MessageBoxHelper.ShowInfoBox("Марка уже выполнена.");
+            MessageBoxHelper.ShowInfoBox("Марка уже выполнена на каждом из доступных участков.");
             return;
         }
 
         var counts = vms.ToDictionary(e => e.Area.Id, e => e.Count?.ParseInDifferentCultures());
         if (counts.Any(e => e.Value is null) || vms.Any(e => e.Date is null))
         {
-            MessageBoxHelper.ShowErrorBox("Заполнение даты и количества обязательно.");
+            MessageBoxHelper.ShowErrorBox("Заполнение даты и количества выполнения обязательно.");
             return;
         }
 
@@ -65,8 +67,8 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
         var result = await markService.FillExecutionAsync(dto);
         if (result.IsSuccess)
         {
+            Messenger.Send(new MarkExecutionFilledMessage(dto.MarkId, dto.AreasExecutions.ToDictionary(e => e.AreaId, e => e.Count)));
             _dialogService.CloseDialog();
-            MessageBoxHelper.ShowInfoBox("Выполнение марки успешно сохранено.");
         }
         else
         {

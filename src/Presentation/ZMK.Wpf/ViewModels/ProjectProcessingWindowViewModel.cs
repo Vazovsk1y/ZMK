@@ -11,4 +11,10 @@ public class ProjectProcessingWindowViewModel : TitledViewModel
 
         ActivateAllRecipients();
     }
+
+    protected override void OnDeactivated()
+    {
+        base.OnDeactivated();
+        DeactivateAllRecipients();
+    }
 }

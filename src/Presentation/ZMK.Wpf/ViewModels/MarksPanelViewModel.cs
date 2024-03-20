@@ -17,7 +17,7 @@ using ZMK.Wpf.Views.Windows;
 namespace ZMK.Wpf.ViewModels;
 
 public partial class MarksPanelViewModel : TitledViewModel,
-        IRecipient<MarksAddedMessage>
+        IRecipient<MarksAddedMessage>, IRecipient<MarkExecutionFilledMessage>
 {
     public const string ByKg = "В Килограммах";
     public const string ByUnits = "В штуках";
@@ -254,6 +254,22 @@ public partial class MarksPanelViewModel : TitledViewModel,
             Marks.AddRange(message.Marks);
             CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
             MessageBoxHelper.ShowInfoBox("Марки были успешно добавлены.");
+        });
+    }
+
+    public void Receive(MarkExecutionFilledMessage message)
+    {
+        App.Current.Dispatcher.Invoke(() =>
+        {
+            foreach (var item in message.AreasCounts)
+            {
+                var data = Executions[item.Key];
+                data.TryGetValue(message.MarkId, out double previousCompleteCount);
+                data[message.MarkId] = previousCompleteCount + item.Value;
+            }
+
+            CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
+            MessageBoxHelper.ShowInfoBox("Выполнение марки успешно сохранено.");
         });
     }
 
