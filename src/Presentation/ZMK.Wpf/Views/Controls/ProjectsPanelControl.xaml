@@ -8,6 +8,7 @@
              xmlns:viewmodels="clr-namespace:ZMK.Wpf.ViewModels" 
              d:DataContext="{d:DesignInstance Type=viewmodels:ProjectsPanelViewModel}"
              mc:Ignorable="d" 
+             IsEnabled="{Binding IsEnabled}"
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <ScrollViewer>

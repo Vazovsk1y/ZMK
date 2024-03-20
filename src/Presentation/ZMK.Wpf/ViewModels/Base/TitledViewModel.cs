@@ -3,17 +3,15 @@ using System.Reflection;
 
 namespace ZMK.Wpf.ViewModels;
 
-public class TitledViewModel : ObservableRecipient
+public partial class TitledViewModel : ObservableRecipient
 {
     public CurrentSessionViewModel? CurrentSession { get; } = App.CurrentSession;
 
+    [ObservableProperty]
     private string? _controlTitle = "Undefined";
 
-    public string? ControlTitle
-    {
-        get => _controlTitle;
-        set => SetProperty(ref _controlTitle, value);
-    }
+    [ObservableProperty]
+    private bool _isEnabled = true;
 
     protected void ActivateAllRecipients()
     {

@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using MathNet.Numerics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
@@ -15,18 +16,63 @@ using ZMK.Wpf.Views.Windows;
 
 namespace ZMK.Wpf.ViewModels;
 
-public partial class MarksPanelViewModel : ObservableRecipient,
-        IRecipient<MarksAddedMessage>,
-        IRefrashable
+public partial class MarksPanelViewModel : TitledViewModel,
+        IRecipient<MarksAddedMessage>
 {
+    public const string ByKg = "В Килограммах";
+    public const string ByUnits = "В штуках";
+    public const string ByPercents = "В процентах";
+
     public ObservableCollection<MarkViewModel> Marks { get; } = [];
 
+    public ObservableCollection<AreaViewModel> AvailableAreas { get; } = [];
+
     public ProjectViewModel SelectedProject { get; }
+
+    public Dictionary<Guid, Dictionary<Guid, double>> Executions { get; private set; } = [];
+
+    public ObservableCollection<string> DisplayExecutionInOptions { get; } = [ByUnits, ByKg, ByPercents];
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
     [NotifyCanExecuteChangedFor(nameof(FillExecutionCommand))]
     private MarkViewModel? _selectedMark;
+
+    private string _selectedDisplayInOption = null!;
+
+    public string SelectedDisplayInOption
+    {
+        get => _selectedDisplayInOption;
+        set
+        {
+            if (value is not null && SetProperty(ref _selectedDisplayInOption, value))
+            {
+                CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
+            }
+        }
+    }
+
+    private AreaViewModel _selectedArea = null!;
+
+    public AreaViewModel SelectedArea
+    {
+        get => _selectedArea;
+        set
+        {
+            if (value is not null && SetProperty(ref _selectedArea, value))
+            {
+                CalculateExecutionForEachMark(value.Id, SelectedDisplayInOption);
+            }
+        }
+    }
+
+    public double TotalCount => Marks.Sum(e => e.Count).RoundForDisplay();
+
+    public double TotalWeight => Marks.Sum(e => e.TotalWeight).RoundForDisplay();
+
+    public double TotalComplete => CalculateTotalComplete().RoundForDisplay();
+
+    public double TotalLeft => CalculateTotalLeft().RoundForDisplay();
 
     public MarksPanelViewModel(ProjectsPanelViewModel projectsPanelViewModel)
     {
@@ -52,6 +98,7 @@ public partial class MarksPanelViewModel : ObservableRecipient,
             if (result.IsSuccess)
             {
                 App.Current.Dispatcher.Invoke(() => Marks.Remove(SelectedMark));
+                NotifyTotalProperties();
                 MessageBoxHelper.ShowInfoBox("Марка успешно удалена.");
             }
             else
@@ -61,10 +108,7 @@ public partial class MarksPanelViewModel : ObservableRecipient,
         }
     }
 
-    public bool CanDelete()
-    {
-        return SelectedMark is not null;
-    }
+    public bool CanDelete() => SelectedMark is not null;
 
     [RelayCommand]
     public void Add()
@@ -122,6 +166,7 @@ public partial class MarksPanelViewModel : ObservableRecipient,
             await App.Current.Dispatcher.InvokeAsync(() =>
             {
                 Marks.AddRange(addedMarks);
+                CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
                 MessageBoxHelper.ShowInfoBox($"{result.Value.Count} марок было успешно добавлено.");
             });
         }
@@ -163,7 +208,8 @@ public partial class MarksPanelViewModel : ObservableRecipient,
 
         if (results.Where(e => e.IsSuccess).Any())
         {
-            MessageBoxHelper.ShowInfoBox($"Информация об {results.Where(e => e.IsSuccess).Count()} марках была обновлена успешно.");
+            CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
+            MessageBoxHelper.ShowInfoBox($"Информация о {results.Where(e => e.IsSuccess).Count()} марках была обновлена успешно.");
         }
         else
         {
@@ -206,6 +252,7 @@ public partial class MarksPanelViewModel : ObservableRecipient,
         App.Current.Dispatcher.Invoke(() =>
         {
             Marks.AddRange(message.Marks);
+            CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
             MessageBoxHelper.ShowInfoBox("Марки были успешно добавлены.");
         });
     }
@@ -213,17 +260,8 @@ public partial class MarksPanelViewModel : ObservableRecipient,
     protected override async void OnActivated()
     {
         base.OnActivated();
-        await RefreshAsync();
-    }
 
-    public async Task RefreshAsync(CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        if (SelectedProject is null)
-        {
-            return;
-        }
+        IsEnabled = false;
 
         using var scope = App.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ZMKDbContext>();
@@ -231,17 +269,130 @@ public partial class MarksPanelViewModel : ObservableRecipient,
         var marks = await dbContext
             .Marks
             .AsNoTracking()
-            .OrderBy(e => e.Title)
             .Where(e => e.ProjectId == SelectedProject.Id)
+            .OrderBy(e => e.Order)
+            .ThenBy(e => e.Title)
             .Select(e => e.ToViewModel())
-            .ToListAsync(cancellationToken)
+            .ToListAsync()
             .ConfigureAwait(false);
+
+        var areas = await dbContext
+            .Areas
+            .AsNoTracking()
+            .OrderBy(e => e.Order)
+            .Select(e => e.ToViewModel())
+            .ToListAsync();
+
+        var completeEvents = await dbContext
+            .CompleteEvents
+            .AsNoTracking()
+            .Where(e => marks.Select(e => e.Id).Contains(e.MarkId))
+            .ToListAsync();
 
         await App.Current.Dispatcher.InvokeAsync(() =>
         {
-            Marks.Clear();
-            SelectedMark = null;
+            Executions = areas.ToDictionary(
+                e => e.Id,
+                e => completeEvents.Where(i => i.AreaId == e.Id).GroupBy(e => e.MarkId).ToDictionary(e => e.Key, e => e.Sum(e => e.Count)));
             Marks.AddRange(marks);
+            AvailableAreas.AddRange(areas);
+
+            SelectedArea = AvailableAreas.First();
+            SelectedDisplayInOption = ByUnits;
+            IsEnabled = true;
         });
+    }
+
+    private void CalculateExecutionForEachMark(Guid areaId, string displayInOption)
+    {
+        bool isExists = Executions.TryGetValue(areaId, out var data);
+        if (!isExists || data is null)
+        {
+            return;
+        }
+
+        IsEnabled = false;
+        foreach (var item in Marks.Where(e => !e.IsModified()))
+        {
+            data.TryGetValue(item.Id, out double completeCount);
+
+            switch (displayInOption)
+            {
+                case string when ByUnits == displayInOption:
+                    {
+                        item.Complete = completeCount;
+                        item.Left = item.Count - completeCount;
+                        break;
+                    }
+                case string when ByKg == displayInOption:
+                    {
+                        double completeInKg = (completeCount * item.Weight).RoundForDisplay();
+                        item.Complete = completeInKg;
+                        item.Left = ((item.Count - completeCount) * item.Weight).RoundForDisplay();
+                        break;
+                    }
+                case string when ByPercents == displayInOption:
+                    {
+                        double completeInPercents = (item.Count == 0 ? 0 : (completeCount * 100) / item.Count).RoundForDisplay();
+                        item.Complete = completeInPercents;
+                        item.Left = 100 - completeInPercents;
+                        break;
+                    }
+                default:
+                    {
+                        item.Complete = completeCount;
+                        item.Left = item.Count - completeCount;
+                        break;
+                    }
+            }
+        }
+
+        NotifyTotalProperties();
+        IsEnabled = true;
+    }
+
+    private void NotifyTotalProperties()
+    {
+        OnPropertyChanged(nameof(TotalCount));
+        OnPropertyChanged(nameof(TotalWeight));
+        OnPropertyChanged(nameof(TotalComplete));
+        OnPropertyChanged(nameof(TotalLeft));
+    }
+
+    private double CalculateTotalComplete()
+    {
+        if (SelectedDisplayInOption == ByPercents)
+        {
+            return CalculateTotalCompleteInPercents();
+        }
+
+        return Marks.Sum(e => e.Complete).Round(2);
+    }
+
+    private double CalculateTotalCompleteInPercents()
+    {
+        bool isExists = Executions.TryGetValue(SelectedArea.Id, out var data);
+        double totalCount = TotalCount;
+        if (!isExists || data is null || totalCount == 0)
+        {
+            return 0;
+        }
+
+        double totalCompleteCount = 0;
+        foreach (var item in Marks)
+        {
+            data.TryGetValue(item.Id, out double completeCount);
+            totalCompleteCount += completeCount;
+        }
+
+        return totalCompleteCount * 100 / totalCount;
+    }
+
+    private double CalculateTotalLeft()
+    {
+        return SelectedDisplayInOption == ByPercents ? 
+            (100 - CalculateTotalCompleteInPercents()) is double n && n == 100 && Marks.Count == 0 ? 0 : n 
+            :
+            Marks.Sum(e => e.Left);
     }
 }

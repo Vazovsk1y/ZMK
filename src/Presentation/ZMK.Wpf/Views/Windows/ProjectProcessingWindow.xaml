@@ -10,10 +10,11 @@
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        Title="{Binding ControlTitle}" Height="450" Width="800">
+        Title="{Binding ControlTitle}" Height="450" Width="1000"
+        IsEnabled="{Binding MarksPanelViewModel.IsEnabled}">
+
     <Grid>
         <StackPanel>
-            <TextBlock Text="{Binding MarksPanelViewModel.SelectedProject.FactoryNumber}"/>
             <controls:MarksPanelControl DataContext="{Binding MarksPanelViewModel}"/>
         </StackPanel>
     </Grid>

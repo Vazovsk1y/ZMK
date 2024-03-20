@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using ZMK.Application.Services;
-using ZMK.Domain.Entities;
 using ZMK.Domain.Shared;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
@@ -15,7 +14,7 @@ using ZMK.Wpf.Views.Windows;
 
 namespace ZMK.Wpf.ViewModels;
 
-public partial class ProjectsPanelViewModel : ObservableRecipient,
+public partial class ProjectsPanelViewModel : TitledViewModel,
     IRecipient<ProjectAddedMessage>,
     IRefrashable
 {
@@ -113,7 +112,7 @@ public partial class ProjectsPanelViewModel : ObservableRecipient,
 
         if (results.Where(e => e.IsSuccess).Any())
         {
-            MessageBoxHelper.ShowInfoBox($"Информация об {results.Where(e => e.IsSuccess).Count()} проэктах была обновлена успешно.");
+            MessageBoxHelper.ShowInfoBox($"Информация о {results.Where(e => e.IsSuccess).Count()} проэктах была обновлена успешно.");
         }
         else
         {
@@ -147,7 +146,7 @@ public partial class ProjectsPanelViewModel : ObservableRecipient,
                 }
                 else
                 {
-                    MessageBoxHelper.ShowInfoBox("Настройки успешно сохранены.");
+                    MessageBoxHelper.ShowInfoBox("Настройки проэкта успешно сохранены.");
                     SelectedProject.Settings.SaveState();
                 }
             });
@@ -177,6 +176,8 @@ public partial class ProjectsPanelViewModel : ObservableRecipient,
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        IsEnabled = false;
+
         using var scope = App.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ZMKDbContext>();
 
@@ -196,6 +197,7 @@ public partial class ProjectsPanelViewModel : ObservableRecipient,
             Projects.Clear();
             SelectedProject = null;
             Projects.AddRange(projects);
+            IsEnabled = true;
         });
     }
 }

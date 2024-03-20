@@ -16,6 +16,7 @@
    ResizeMode="NoResize"
    Title="{Binding ControlTitle}"
    WindowStartupLocation="CenterScreen"
+    IsEnabled="{Binding IsEnabled}"
    mc:Ignorable="d">
     <Window.Resources>
         <Style x:Key="nonSelected" TargetType="{x:Type ListBoxItem}">
@@ -136,7 +137,7 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding CreatedDate}" Header="Дата"/>
                     <DataGridTextColumn Binding="{Binding Count}" Header="Количество"/>
-                    <DataGridTextColumn Binding="{Binding Area.Title}" Header="Участок"/>
+                    <DataGridTextColumn Binding="{Binding AreaTitle}" Header="Участок"/>
                     <DataGridTemplateColumn Header="Исполнители">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

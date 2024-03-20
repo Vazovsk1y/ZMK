@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
 using ZMK.Domain.Constants;
-using ZMK.Domain.Entities;
 using ZMK.Domain.Shared;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
@@ -17,7 +16,7 @@ using ZMK.Wpf.Views.Windows;
 
 namespace ZMK.Wpf.ViewModels;
 
-public partial class UsersPanelViewModel : ObservableRecipient,
+public partial class UsersPanelViewModel : TitledViewModel,
     IRecipient<UserAddedMessage>,
     IRefrashable
 {
@@ -165,6 +164,8 @@ public partial class UsersPanelViewModel : ObservableRecipient,
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        IsEnabled = false;
+
         using var scope = App.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ZMKDbContext>();
 
@@ -206,6 +207,7 @@ public partial class UsersPanelViewModel : ObservableRecipient,
             Users.AddRange(users);
             AvailableRoles.AddRange(roles);
             AvailableEmployees.AddRange(employees);
+            IsEnabled = true;
         });
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using ZMK.Wpf.Extensions;
 
 namespace ZMK.Wpf.ViewModels;
 
@@ -30,7 +31,13 @@ public partial class MarkViewModel : ModifiableViewModel<MarkViewModel>
     [NotifyPropertyChangedFor(nameof(TotalWeight))]
     private double _count;
 
-    public double TotalWeight => Weight * Count;
+    [ObservableProperty]
+    private double _left;
+
+    [ObservableProperty]
+    private double _complete;
+
+    public double TotalWeight => (Weight * Count).RoundForDisplay();
 
     public override bool IsModified()
     {

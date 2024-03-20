@@ -1,11 +1,10 @@
-﻿using System.Collections.ObjectModel;
-using ZMK.Domain.Shared;
+﻿using ZMK.Domain.Shared;
 
 namespace ZMK.Wpf.Extensions;
 
 public static class CollectionsEx
 {
-    public static void AddRange<T>(this ObservableCollection<T> values, IEnumerable<T> valuesToAdd)
+    public static void AddRange<T>(this IList<T> values, IEnumerable<T> valuesToAdd)
     {
         foreach (var item in valuesToAdd)
         {

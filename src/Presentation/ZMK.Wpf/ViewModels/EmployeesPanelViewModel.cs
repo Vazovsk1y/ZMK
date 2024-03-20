@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
-using ZMK.Domain.Entities;
 using ZMK.Domain.Shared;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
@@ -16,7 +15,7 @@ using ZMK.Wpf.Views.Windows;
 
 namespace ZMK.Wpf.ViewModels;
 
-public partial class EmployeesPanelViewModel : ObservableRecipient, 
+public partial class EmployeesPanelViewModel : TitledViewModel, 
     IRecipient<EmployeeAddedMessage>,
     IRefrashable
 {
@@ -153,6 +152,8 @@ public partial class EmployeesPanelViewModel : ObservableRecipient,
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        IsEnabled = false;
+
         using var scope = App.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ZMKDbContext>();
 
@@ -168,6 +169,7 @@ public partial class EmployeesPanelViewModel : ObservableRecipient,
             Employees.Clear();
             SelectedEmployee = null;
             Employees.AddRange(employees);
+            IsEnabled = true;
         });
     }
 }

@@ -15,7 +15,7 @@ public static class Mapper
             Id = @event.Id,
             MarkId = @event.MarkId,
             CreatedDate = @event.CreatedDate,
-            Area = @event.Area.ToViewModel(),
+            AreaTitle = @event.Area.Title,
             Count = @event.Count,
             CreatorUserNameAndEmployeeName = $"{@event.Creator.UserName} - {@event.Creator.Employee!.FullName}",
             Remark = @event.Remark,

@@ -84,8 +84,19 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
     {
         base.OnActivated();
 
+        IsEnabled = false;
+
         using var scope = App.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ZMKDbContext>();
+
+        var enabledAreas = await dbContext
+            .Projects
+            .AsNoTracking()
+            .Where(e => e.Id == SelectedMark.ProjectId)
+            .SelectMany(e => e.Areas)
+            .Select(e => e.Area)
+            .OrderBy(e => e.Order)
+            .ToListAsync();
 
         var completeEvents = await dbContext
             .CompleteEvents
@@ -98,15 +109,6 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
             .Where(e => e.MarkId == SelectedMark.Id)
             .ToListAsync();
 
-        var areas = await dbContext
-            .Projects
-            .AsNoTracking()
-            .Where(e => e.Id == SelectedMark.ProjectId)
-            .SelectMany(e => e.Areas)
-            .Select(e => e.Area)
-            .OrderBy(e => e.Order)
-            .ToListAsync();
-
         var executors = await dbContext
             .Employees
             .AsNoTracking()
@@ -114,9 +116,9 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
             .Select(e => new ExecutorInfo(e.Id, string.IsNullOrWhiteSpace(e.Post) ? e.FullName : $"{e.FullName} ({e.Post})"))
             .ToListAsync();
 
-        App.Current.Dispatcher.Invoke(() =>
+        await App.Current.Dispatcher.InvokeAsync(() =>
         {
-            var fillExecutionVms = areas
+            var fillExecutionVms = enabledAreas
             .ToDictionary(e => e, i => completeEvents.Where(e => e.AreaId == i.Id).Sum(e => e.Count))
             .Select(e => new FillExecutionViewModel { Area = e.Key.ToViewModel(), Left = SelectedMark.Count - e.Value })
             .ToList();
@@ -124,6 +126,7 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
             FillExecutionViewModels.AddRange(fillExecutionVms);
             AvailableExecutors.AddRange(executors);
             ExecutionHistory.AddRange(completeEvents.Select(e => e.ToViewModel()));
+            IsEnabled = true;
         });
     }
 }
@@ -162,8 +165,6 @@ public partial class FillExecutionViewModel : ObservableObject
                 {
                     Executors.Add(value);
                 }
-
-                OnPropertyChanged(nameof(SelectedExecutor));
             }
         }
     }
@@ -193,7 +194,7 @@ public class CompleteEventViewModel
 
     public required double Count { get; init; }
 
-    public required AreaViewModel Area { get; init; }
+    public required string AreaTitle { get; init; }
 
     public required string CreatorUserNameAndEmployeeName { get; init; }
 

@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
-using ZMK.Domain.Entities;
 using ZMK.Domain.Shared;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
@@ -16,7 +15,7 @@ using ZMK.Wpf.Views.Windows;
 
 namespace ZMK.Wpf.ViewModels;
 
-public partial class AreasPanelViewModel : ObservableRecipient, IRecipient<AreaAddedMessage>, IRefrashable
+public partial class AreasPanelViewModel : TitledViewModel, IRecipient<AreaAddedMessage>, IRefrashable
 {
     public ObservableCollection<AreaViewModel> Areas { get; } = [];
 
@@ -124,6 +123,8 @@ public partial class AreasPanelViewModel : ObservableRecipient, IRecipient<AreaA
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        IsEnabled = false;
+
         using var scope = App.Services.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ZMKDbContext>();
 
@@ -139,6 +140,7 @@ public partial class AreasPanelViewModel : ObservableRecipient, IRecipient<AreaA
             Areas.Clear();
             SelectedArea = null;
             Areas.AddRange(areas);
+            IsEnabled = true;
         });
     }
 
