@@ -29,9 +29,9 @@ public class ZMKDbContext(DbContextOptions options) : IdentityDbContext<
 
     public DbSet<MarkEvent> MarksEvents { get; set; }
 
-    public DbSet<CompleteEvent> CompleteEvents { get; set; }
+    public DbSet<MarkCompleteEvent> MarkCompleteEvents { get; set; }
 
-    public DbSet<CompleteEventEmployee> CompleteEventsEmployees { get; set; }
+    public DbSet<MarkCompleteEventEmployee> MarkCompleteEventsEmployees { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

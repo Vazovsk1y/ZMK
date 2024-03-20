@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
+using ZMK.Domain.Entities;
 using ZMK.Domain.Shared;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
@@ -32,6 +33,11 @@ public partial class MarksPanelViewModel : TitledViewModel,
     public Dictionary<Guid, Dictionary<Guid, double>> Executions { get; private set; } = [];
 
     public ObservableCollection<string> DisplayExecutionInOptions { get; } = [ByUnits, ByKg, ByPercents];
+
+    public Dictionary<Guid, ObservableCollection<MarkEventViewModel>> MarkEventsCache { get; } = [];
+
+    [ObservableProperty]
+    private ObservableCollection<MarkEventViewModel>? _selectedMarkEvents;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
@@ -97,7 +103,12 @@ public partial class MarksPanelViewModel : TitledViewModel,
             var result = await markService.DeleteAsync(SelectedMark.Id).ConfigureAwait(false);
             if (result.IsSuccess)
             {
-                App.Current.Dispatcher.Invoke(() => Marks.Remove(SelectedMark));
+                MarkEventsCache.Remove(SelectedMark.Id);
+                App.Current.Dispatcher.Invoke(() => 
+                {
+                    SelectedMarkEvents = null;
+                    Marks.Remove(SelectedMark); 
+                });
                 NotifyTotalProperties();
                 MessageBoxHelper.ShowInfoBox("Марка успешно удалена.");
             }
@@ -109,6 +120,32 @@ public partial class MarksPanelViewModel : TitledViewModel,
     }
 
     public bool CanDelete() => SelectedMark is not null;
+
+
+    [RelayCommand]
+    public async Task MarkSelectionChanged(object param)
+    {
+        if (param is not MarkViewModel mark)
+        {
+            return;
+        }
+
+        IsEnabled = false;
+
+        if (MarkEventsCache.TryGetValue(mark.Id, out var events))
+        {
+            SelectedMarkEvents = events;
+            SelectedMark = mark;
+            IsEnabled = true;
+            return;
+        }
+
+        events = await GetEventsFor(mark.Id);
+        MarkEventsCache[mark.Id] = events;
+        SelectedMarkEvents = events;
+        SelectedMark = mark;
+        IsEnabled = true;
+    }
 
     [RelayCommand]
     public void Add()
@@ -189,6 +226,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
         var markService = scope.ServiceProvider.GetRequiredService<IMarkService>();
 
         var results = new List<Result>();
+        bool selectedMarkModified = false;
         foreach (var mark in modifiedMarks)
         {
             var dto = new MarkUpdateDTO(mark.Id, mark.Code, mark.Title, mark.Order, mark.Weight, mark.Count);
@@ -200,10 +238,16 @@ public partial class MarksPanelViewModel : TitledViewModel,
             }
             else
             {
+                selectedMarkModified = mark.Id == SelectedMark?.Id;
                 mark.SaveState();
             }
 
             results.Add(updateResult);
+        }
+
+        if (selectedMarkModified)
+        {
+            await RefreshSelectedMarkEvents();
         }
 
         if (results.Where(e => e.IsSuccess).Any())
@@ -259,13 +303,19 @@ public partial class MarksPanelViewModel : TitledViewModel,
 
     public void Receive(MarkExecutionFilledMessage message)
     {
-        App.Current.Dispatcher.Invoke(() =>
+        App.Current.Dispatcher.Invoke(async () =>
         {
             foreach (var item in message.AreasCounts)
             {
                 var data = Executions[item.Key];
                 data.TryGetValue(message.MarkId, out double previousCompleteCount);
                 data[message.MarkId] = previousCompleteCount + item.Value;
+            }
+
+            MarkEventsCache.Remove(message.MarkId);
+            if (SelectedMark?.Id == message.MarkId)
+            {
+                await RefreshSelectedMarkEvents();
             }
 
             CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
@@ -300,7 +350,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
             .ToListAsync();
 
         var completeEvents = await dbContext
-            .CompleteEvents
+            .MarkCompleteEvents
             .AsNoTracking()
             .Where(e => marks.Select(e => e.Id).Contains(e.MarkId))
             .ToListAsync();
@@ -309,7 +359,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
         {
             Executions = areas.ToDictionary(
                 e => e.Id,
-                e => completeEvents.Where(i => i.AreaId == e.Id).GroupBy(e => e.MarkId).ToDictionary(e => e.Key, e => e.Sum(e => e.Count)));
+                e => completeEvents.Where(i => i.AreaId == e.Id).GroupBy(e => e.MarkId).ToDictionary(e => e.Key, e => e.Sum(e => e.CompleteCount)));
             Marks.AddRange(marks);
             AvailableAreas.AddRange(areas);
 
@@ -411,4 +461,55 @@ public partial class MarksPanelViewModel : TitledViewModel,
             :
             Marks.Sum(e => e.Left);
     }
+
+    private async Task RefreshSelectedMarkEvents()
+    {
+        if (SelectedMark is null)
+        {
+            return;
+        }
+
+        IsEnabled = false;
+        var events = await GetEventsFor(SelectedMark.Id);
+        MarkEventsCache[SelectedMark.Id] = events;
+        SelectedMarkEvents = events;
+        IsEnabled = true;
+    }
+
+    private static async Task<ObservableCollection<MarkEventViewModel>> GetEventsFor(Guid markId)
+    {
+        using var scope = App.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ZMKDbContext>();
+
+        var events = new ObservableCollection<MarkEventViewModel>(await dbContext
+            .MarksEvents
+            .Include(e => e.Mark)
+            .Include(e => ((MarkCompleteEvent)e).Area)
+            .Include(e => e.Creator)
+            .ThenInclude(e => e.Employee)
+            .AsNoTracking()
+            .Where(e => e.MarkId == markId)
+            .OrderByDescending(e => e.CreatedDate)
+            .Select(e => e.ToViewModel())
+            .ToListAsync());
+
+        return events;
+    }
+}
+
+public record MarkEventViewModel
+{
+    public required Guid Id { get; init; }
+
+    public required DateTimeOffset CreatedDate { get; init; }
+
+    public required double Count { get; init; }
+
+    public required string Title { get; init; }
+
+    public required string EventType { get; init; }
+
+    public string? Remark { get; init; }
+
+    public required string CreatorUserNameAndEmployeeFullName { get; init; }
 }

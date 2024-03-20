@@ -2,7 +2,7 @@
 
 namespace ZMK.Domain.Common;
 
-public class MarkEvent : Entity
+public class MarkEvent : Entity, IMarkAuditable
 {
     public required Guid CreatorId { get; init; }
 
@@ -12,7 +12,15 @@ public class MarkEvent : Entity
 
     public required EventType EventType { get; init; }
 
-    public required double Count { get; init; }
+    public required double MarkCount { get; init; }
+
+    public required string MarkTitle { get; init; }
+
+    public required string MarkCode { get; init; }
+
+    public required int MarkOrder { get; init; }
+
+    public required double MarkWeight { get; init; }
 
     public string? Remark { get; init; }
 

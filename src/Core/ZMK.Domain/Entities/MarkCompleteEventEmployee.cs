@@ -1,6 +1,6 @@
 ﻿namespace ZMK.Domain.Entities;
 
-public class CompleteEventEmployee
+public class MarkCompleteEventEmployee
 {
     public required Guid EmployeeId { get; init; }
 
@@ -8,5 +8,5 @@ public class CompleteEventEmployee
 
     public Employee Employee { get; set; } = null!;
 
-    public CompleteEvent CompleteEvent { get; set; } = null!;
+    public MarkCompleteEvent MarkCompleteEvent { get; set; } = null!;
 }

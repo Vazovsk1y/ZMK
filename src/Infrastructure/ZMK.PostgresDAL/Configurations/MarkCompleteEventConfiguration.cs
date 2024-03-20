@@ -4,9 +4,9 @@ using ZMK.Domain.Entities;
 
 namespace ZMK.PostgresDAL.Configurations;
 
-internal class CompleteEventConfiguration : IEntityTypeConfiguration<CompleteEvent>
+internal class MarkCompleteEventConfiguration : IEntityTypeConfiguration<MarkCompleteEvent>
 {
-    public void Configure(EntityTypeBuilder<CompleteEvent> builder)
+    public void Configure(EntityTypeBuilder<MarkCompleteEvent> builder)
     {
         builder.UseTptMappingStrategy();
 

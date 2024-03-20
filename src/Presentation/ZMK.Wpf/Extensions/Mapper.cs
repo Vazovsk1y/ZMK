@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using ZMK.Application.Contracts;
+using ZMK.Domain.Common;
 using ZMK.Domain.Entities;
 using ZMK.Wpf.ViewModels;
 using static ZMK.Wpf.ViewModels.ProjectViewModel;
@@ -8,15 +9,37 @@ namespace ZMK.Wpf.Extensions;
 
 public static class Mapper
 {
-    public static CompleteEventViewModel ToViewModel(this CompleteEvent @event)
+    public static MarkEventViewModel ToViewModel(this MarkEvent @event)
     {
-        var entity = new CompleteEventViewModel()
+        var completeEvent = @event as MarkCompleteEvent;
+        var entity = new MarkEventViewModel
+        {
+            Id = @event.Id,
+            CreatorUserNameAndEmployeeFullName = $"{@event.Creator.UserName} - {@event.Creator.Employee!.FullName}",
+            Count = completeEvent is not null ? completeEvent.CompleteCount : @event.MarkCount,
+            CreatedDate = @event.CreatedDate,
+            EventType = @event.EventType switch
+            {
+                EventType.Complete => "Выполнено",
+                EventType.Create => "Создано",
+                EventType.Modify => "Обновлено",
+                _ => throw new KeyNotFoundException(),
+            },
+            Title = completeEvent is not null ? completeEvent.Area.Title : $"{@event.MarkCode} - {@event.MarkTitle}",
+            Remark = @event.Remark,
+        };
+
+        return entity;
+    }
+    public static MarkCompleteEventViewModel ToViewModel(this MarkCompleteEvent @event)
+    {
+        var entity = new MarkCompleteEventViewModel()
         {
             Id = @event.Id,
             MarkId = @event.MarkId,
             CreatedDate = @event.CreatedDate,
             AreaTitle = @event.Area.Title,
-            Count = @event.Count,
+            Count = @event.CompleteCount,
             CreatorUserNameAndEmployeeName = $"{@event.Creator.UserName} - {@event.Creator.Employee!.FullName}",
             Remark = @event.Remark,
             Executors = @event.Executors.Select(e => new ExecutorInfo(e.EmployeeId, e.Employee.FullName)).ToList(),

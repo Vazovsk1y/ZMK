@@ -26,7 +26,7 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
         set => _selectedMark = value;
     }
 
-    public ObservableCollection<CompleteEventViewModel> ExecutionHistory { get; } = [];
+    public ObservableCollection<MarkCompleteEventViewModel> ExecutionHistory { get; } = [];
 
     public ObservableCollection<FillExecutionViewModel> FillExecutionViewModels { get; } = [];
 
@@ -101,7 +101,7 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
             .ToListAsync();
 
         var completeEvents = await dbContext
-            .CompleteEvents
+            .MarkCompleteEvents
             .Include(e => e.Creator)
             .ThenInclude(e => e.Employee)
             .Include(e => e.Executors)
@@ -121,7 +121,7 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
         await App.Current.Dispatcher.InvokeAsync(() =>
         {
             var fillExecutionVms = enabledAreas
-            .ToDictionary(e => e, i => completeEvents.Where(e => e.AreaId == i.Id).Sum(e => e.Count))
+            .ToDictionary(e => e, i => completeEvents.Where(e => e.AreaId == i.Id).Sum(e => e.CompleteCount))
             .Select(e => new FillExecutionViewModel { Area = e.Key.ToViewModel(), Left = SelectedMark.Count - e.Value })
             .ToList();
 
@@ -186,7 +186,7 @@ public partial class FillExecutionViewModel : ObservableObject
 
 public record ExecutorInfo(Guid Id, string FullNameAndPost);
 
-public class CompleteEventViewModel
+public class MarkCompleteEventViewModel
 {
     public required Guid Id { get; init; }
 

@@ -320,7 +320,11 @@ namespace ZMK.PostgresDAL.Migrations
                     MarkId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedDate = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     EventType = table.Column<string>(type: "text", nullable: false),
-                    Count = table.Column<double>(type: "double precision", nullable: false),
+                    MarkCount = table.Column<double>(type: "double precision", nullable: false),
+                    MarkTitle = table.Column<string>(type: "text", nullable: false),
+                    MarkCode = table.Column<string>(type: "text", nullable: false),
+                    MarkOrder = table.Column<int>(type: "integer", nullable: false),
+                    MarkWeight = table.Column<double>(type: "double precision", nullable: false),
                     Remark = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -341,23 +345,24 @@ namespace ZMK.PostgresDAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CompleteEvents",
+                name: "MarkCompleteEvents",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    AreaId = table.Column<Guid>(type: "uuid", nullable: false)
+                    AreaId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CompleteCount = table.Column<double>(type: "double precision", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CompleteEvents", x => x.Id);
+                    table.PrimaryKey("PK_MarkCompleteEvents", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CompleteEvents_Areas_AreaId",
+                        name: "FK_MarkCompleteEvents_Areas_AreaId",
                         column: x => x.AreaId,
                         principalTable: "Areas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CompleteEvents_MarksEvents_Id",
+                        name: "FK_MarkCompleteEvents_MarksEvents_Id",
                         column: x => x.Id,
                         principalTable: "MarksEvents",
                         principalColumn: "Id",
@@ -365,7 +370,7 @@ namespace ZMK.PostgresDAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CompleteEventsEmployees",
+                name: "MarkCompleteEventsEmployees",
                 columns: table => new
                 {
                     EmployeeId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -373,17 +378,17 @@ namespace ZMK.PostgresDAL.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CompleteEventsEmployees", x => new { x.EventId, x.EmployeeId });
+                    table.PrimaryKey("PK_MarkCompleteEventsEmployees", x => new { x.EventId, x.EmployeeId });
                     table.ForeignKey(
-                        name: "FK_CompleteEventsEmployees_CompleteEvents_EventId",
-                        column: x => x.EventId,
-                        principalTable: "CompleteEvents",
+                        name: "FK_MarkCompleteEventsEmployees_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CompleteEventsEmployees_Employees_EmployeeId",
-                        column: x => x.EmployeeId,
-                        principalTable: "Employees",
+                        name: "FK_MarkCompleteEventsEmployees_MarkCompleteEvents_EventId",
+                        column: x => x.EventId,
+                        principalTable: "MarkCompleteEvents",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -393,11 +398,11 @@ namespace ZMK.PostgresDAL.Migrations
                 columns: new[] { "Id", "Order", "Remark", "Title" },
                 values: new object[,]
                 {
-                    { new Guid("2098efd2-046a-4930-8e97-becfa9785715"), 2, null, "ЛСБ" },
-                    { new Guid("78247efc-f594-4a76-b649-acbf76d5a521"), 5, null, "Зачистка" },
-                    { new Guid("93c7aeb0-83ab-4244-a9f3-3188710a4f2f"), 1, null, "КМД" },
-                    { new Guid("ae07d3b6-aa9f-4495-8ec1-b508827acbf7"), 3, null, "Сборка" },
-                    { new Guid("dacb2e9e-1d24-4175-9a17-b253ba2f7b88"), 4, null, "Сварка" }
+                    { new Guid("28da9925-30b1-404f-be57-0224256e66ad"), 5, null, "Зачистка" },
+                    { new Guid("4083deec-6aa1-4072-ab9b-11524bc01ee5"), 3, null, "Сборка" },
+                    { new Guid("7c791c85-d09d-4ee6-89f9-056a21743434"), 2, null, "ЛСБ" },
+                    { new Guid("adf9422b-1e6f-4c7a-a41d-759f806e9429"), 1, null, "КМД" },
+                    { new Guid("fd6f850e-14bb-462d-a9c5-1aca65424956"), 4, null, "Сварка" }
                 });
 
             migrationBuilder.InsertData(
@@ -405,25 +410,25 @@ namespace ZMK.PostgresDAL.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Description", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { new Guid("07ad6703-0896-480b-a6ee-94876621b380"), "e32f7129-87b8-4f4d-ab12-cda03006b0c0", "Доступ к проэктам с правом просмотра данных.", "Читатель", "ЧИТАТЕЛЬ" },
-                    { new Guid("0bd1414f-75bc-48fa-a4fd-75357627016b"), "da6c4436-a9f1-42df-b9fb-b6fe4bed2ee7", "Пользователь имеет право вносить выполнение по маркам, создавать и изменять отгрузки.", "Пользователь", "ПОЛЬЗОВАТЕЛЬ" },
-                    { new Guid("ad9d252f-a922-44ca-bf83-f63ff52c5781"), "76233710-893c-43e0-8bd6-d1c6ff564c4d", "Администратор системы имеет право добавлять/изменять любые настройки и проэкты. Определяет текущую базу и ее местоположение.", "Администратор", "АДМИНИСТРАТОР" }
+                    { new Guid("94675b6e-f3ff-47bb-8532-f91e2e31e55f"), "dc929dae-0608-47b6-bc65-a8fef30492d5", "Пользователь имеет право вносить выполнение по маркам, создавать и изменять отгрузки.", "Пользователь", "ПОЛЬЗОВАТЕЛЬ" },
+                    { new Guid("96206f7f-8ea8-486d-ab3b-bd19d745c350"), "bc9d5de5-15d3-4e0a-8a72-4ec8552b416e", "Доступ к проэктам с правом просмотра данных.", "Читатель", "ЧИТАТЕЛЬ" },
+                    { new Guid("b2bc1ca1-7ba5-45b6-ab62-d00aea6177ba"), "fc4d41a0-e882-4226-978e-15f2da370356", "Администратор системы имеет право добавлять/изменять любые настройки и проэкты. Определяет текущую базу и ее местоположение.", "Администратор", "АДМИНИСТРАТОР" }
                 });
 
             migrationBuilder.InsertData(
                 table: "Employees",
                 columns: new[] { "Id", "FullName", "Post", "Remark" },
-                values: new object[] { new Guid("0f2c13e9-45bc-425b-a2ad-c029be37480b"), "Тестовый Сотрудник", "Тестовый Сотрудник", "Создан исключительно в целях тестирования, рекомендуется удалить." });
+                values: new object[] { new Guid("c1c8db59-00b0-4c00-8a79-0021b3b3d14e"), "Тестовый Сотрудник", "Тестовый Сотрудник", "Создан исключительно в целях тестирования, рекомендуется удалить." });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "EmployeeId", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { new Guid("a1018c44-66e7-42d3-9948-e8c157862f98"), 0, "862fb9c4-c2ac-4d05-8eae-b10bb7f25b2d", null, false, new Guid("0f2c13e9-45bc-425b-a2ad-c029be37480b"), true, null, null, "TESTADMIN", null, null, false, "1eaf2ee0-6c09-4b33-9536-423e148e02fb", false, "TestAdmin" });
+                values: new object[] { new Guid("6416bea0-8a55-431a-8b8c-bb85f49375d8"), 0, "8d43d803-db2e-4c34-b340-3ee1267b4375", null, false, new Guid("c1c8db59-00b0-4c00-8a79-0021b3b3d14e"), true, null, null, "TESTADMIN", null, null, false, "2feb39da-0f6c-4319-8e2d-445bc5c013f7", false, "TestAdmin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { new Guid("ad9d252f-a922-44ca-bf83-f63ff52c5781"), new Guid("a1018c44-66e7-42d3-9948-e8c157862f98") });
+                values: new object[] { new Guid("b2bc1ca1-7ba5-45b6-ab62-d00aea6177ba"), new Guid("6416bea0-8a55-431a-8b8c-bb85f49375d8") });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Areas_Order",
@@ -480,20 +485,20 @@ namespace ZMK.PostgresDAL.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_CompleteEvents_AreaId",
-                table: "CompleteEvents",
-                column: "AreaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CompleteEventsEmployees_EmployeeId",
-                table: "CompleteEventsEmployees",
-                column: "EmployeeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Employees_FullName",
                 table: "Employees",
                 column: "FullName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MarkCompleteEvents_AreaId",
+                table: "MarkCompleteEvents",
+                column: "AreaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MarkCompleteEventsEmployees_EmployeeId",
+                table: "MarkCompleteEventsEmployees",
+                column: "EmployeeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Marks_ProjectId_Code",
@@ -552,7 +557,7 @@ namespace ZMK.PostgresDAL.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "CompleteEventsEmployees");
+                name: "MarkCompleteEventsEmployees");
 
             migrationBuilder.DropTable(
                 name: "ProjectsAreas");
@@ -567,7 +572,7 @@ namespace ZMK.PostgresDAL.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "CompleteEvents");
+                name: "MarkCompleteEvents");
 
             migrationBuilder.DropTable(
                 name: "Areas");

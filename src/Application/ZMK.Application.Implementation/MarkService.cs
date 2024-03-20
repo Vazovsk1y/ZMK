@@ -64,15 +64,15 @@ public class MarkService : BaseService, IMarkService
                 throw new InvalidOperationException($"Один из переданных участков не определен для проэкта с id '{mark.Project.Id}'.");
             default:
                 {
-                    var completeEvents = new List<CompleteEvent>();
-                    var completeEventsEmployees = new List<CompleteEventEmployee>();
+                    var completeEvents = new List<MarkCompleteEvent>();
+                    var completeEventsEmployees = new List<MarkCompleteEventEmployee>();
 
                     foreach (var item in dTO.AreasExecutions)
                     {
                         double completeCount = await _dbContext
-                            .CompleteEvents
+                            .MarkCompleteEvents
                             .Where(e => e.MarkId == dTO.MarkId && e.AreaId == item.AreaId)
-                            .SumAsync(e => e.Count, cancellationToken);
+                            .SumAsync(e => e.CompleteCount, cancellationToken);
 
                         double leftCount = mark.Count - completeCount;
                         if (item.Count > leftCount)
@@ -81,22 +81,27 @@ public class MarkService : BaseService, IMarkService
                         }
 
                         var currentDate = _clock.GetDateTimeOffsetUtcNow();
-                        var @event = new CompleteEvent
+                        var @event = new MarkCompleteEvent
                         {
                             MarkId = mark.Id,
                             AreaId = item.AreaId,
-                            Count = item.Count,
+                            CompleteCount = item.Count,
                             CreatedDate = new DateTimeOffset(item.Date.Year, item.Date.Month, item.Date.Day, currentDate.Hour, currentDate.Minute, currentDate.Second, TimeSpan.Zero), // UTC
                             CreatorId = isAbleResult.Value.UserId,
                             EventType = EventType.Complete,
                             Remark = item.Remark?.Trim(),
+                            MarkCode = mark.Code,
+                            MarkCount = mark.Count,
+                            MarkOrder = mark.Order,
+                            MarkTitle = mark.Title,
+                            MarkWeight = mark.Weight,
                         };
                         completeEvents.Add(@event);
-                        completeEventsEmployees.AddRange(item.Executors.Select(e => new CompleteEventEmployee { EmployeeId = e, EventId = @event.Id }));
+                        completeEventsEmployees.AddRange(item.Executors.Select(e => new MarkCompleteEventEmployee { EmployeeId = e, EventId = @event.Id }));
                     }
 
-                    _dbContext.CompleteEvents.AddRange(completeEvents);
-                    _dbContext.CompleteEventsEmployees.AddRange(completeEventsEmployees);
+                    _dbContext.MarkCompleteEvents.AddRange(completeEvents);
+                    _dbContext.MarkCompleteEventsEmployees.AddRange(completeEventsEmployees);
                     await _dbContext.SaveChangesAsync(cancellationToken);
 
                     _logger.LogInformation("Выполнение марки было успешно заполнено.");
@@ -162,7 +167,11 @@ public class MarkService : BaseService, IMarkService
         var currentDate = _clock.GetDateTimeOffsetUtcNow();
         var addEvents = marks.Select(e => new MarkEvent
         {
-            Count = e.mark.Count,
+            MarkCount = e.mark.Count,
+            MarkCode = e.mark.Code,
+            MarkOrder = e.mark.Order,
+            MarkTitle = e.mark.Title,
+            MarkWeight = e.mark.Weight,
             CreatedDate = currentDate,
             CreatorId = isAbleResult.Value.UserId,
             MarkId = e.mark.Id,
@@ -208,7 +217,11 @@ public class MarkService : BaseService, IMarkService
 
         var addEvent = new MarkEvent
         {
-            Count = mark.Count,
+            MarkCount = mark.Count,
+            MarkCode = mark.Code,
+            MarkOrder = mark.Order,
+            MarkTitle = mark.Title, 
+            MarkWeight = mark.Weight,
             CreatedDate = _clock.GetDateTimeOffsetUtcNow(),
             CreatorId = isAbleResult.Value.UserId,
             EventType = EventType.Create,
@@ -290,12 +303,12 @@ public class MarkService : BaseService, IMarkService
             default:
                 {
                     var completeForEachArea = await _dbContext
-                        .CompleteEvents
+                        .MarkCompleteEvents
                         .AsNoTracking()
                         .Include(e => e.Area)
                         .Where(e => e.MarkId == mark.Id)
                         .GroupBy(e => e.Area)
-                        .ToDictionaryAsync(e => e.Key, e => e.Sum(c => c.Count), cancellationToken);
+                        .ToDictionaryAsync(e => e.Key, e => e.Sum(c => c.CompleteCount), cancellationToken);
 
                     if (completeForEachArea.FirstOrDefault(e => e.Value > mark.Count) is KeyValuePair<Area, double> value && value.Key is not null)
                     {
@@ -306,10 +319,14 @@ public class MarkService : BaseService, IMarkService
                     {
                         CreatedDate = _clock.GetDateTimeOffsetUtcNow(),
                         MarkId = mark.Id,
-                        Count = mark.Count,
+                        MarkCount = mark.Count,
+                        MarkCode = mark.Code,
+                        MarkOrder = mark.Order,
+                        MarkTitle = mark.Title,
+                        MarkWeight = mark.Weight,
                         CreatorId = isAbleResult.Value.UserId,
                         EventType = EventType.Modify,
-                        Remark = "Произведено изменение марки.",
+                        Remark = "Произведено изменение данных о марке.",
                     };
 
                     _dbContext.MarksEvents.Add(updateEvent);
