@@ -88,6 +88,7 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
             return;
         }
 
+        IsEnabled = false;
         using var scope = App.Services.CreateScope();
         var projectService = scope.ServiceProvider.GetRequiredService<IProjectService>();
 
@@ -118,6 +119,7 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
         {
             MessageBoxHelper.ShowErrorBox(results.Where(e => e.IsFailure).SelectMany(e => e.Errors).Display());
         }
+        IsEnabled = true;
     }
 
     [RelayCommand(CanExecute = nameof(CanProjectSettings))]

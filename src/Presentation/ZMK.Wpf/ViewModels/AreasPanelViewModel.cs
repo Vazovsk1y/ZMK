@@ -88,6 +88,7 @@ public partial class AreasPanelViewModel : TitledViewModel, IRecipient<AreaAdded
             return;
         }
 
+        IsEnabled = false;
         using var scope = App.Services.CreateScope();
         var areaService = scope.ServiceProvider.GetRequiredService<IAreaService>();
 
@@ -117,6 +118,7 @@ public partial class AreasPanelViewModel : TitledViewModel, IRecipient<AreaAdded
         {
             MessageBoxHelper.ShowErrorBox(results.Where(e => e.IsFailure).SelectMany(e => e.Errors).Display());
         }
+        IsEnabled = true;
     }
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)

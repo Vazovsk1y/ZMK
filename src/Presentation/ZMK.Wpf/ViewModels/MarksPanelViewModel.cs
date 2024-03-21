@@ -104,10 +104,10 @@ public partial class MarksPanelViewModel : TitledViewModel,
             if (result.IsSuccess)
             {
                 MarkEventsCache.Remove(SelectedMark.Id);
-                App.Current.Dispatcher.Invoke(() => 
+                App.Current.Dispatcher.Invoke(() =>
                 {
                     SelectedMarkEvents = null;
-                    Marks.Remove(SelectedMark); 
+                    Marks.Remove(SelectedMark);
                 });
                 NotifyTotalProperties();
                 MessageBoxHelper.ShowInfoBox("Марка успешно удалена.");
@@ -222,11 +222,12 @@ public partial class MarksPanelViewModel : TitledViewModel,
             return;
         }
 
+        IsEnabled = false;
         using var scope = App.Services.CreateScope();
         var markService = scope.ServiceProvider.GetRequiredService<IMarkService>();
 
         var results = new List<Result>();
-        bool selectedMarkModified = false;
+        List<Guid> modifiedMarksIds = [];
         foreach (var mark in modifiedMarks)
         {
             var dto = new MarkUpdateDTO(mark.Id, mark.Code, mark.Title, mark.Order, mark.Weight, mark.Count);
@@ -238,16 +239,16 @@ public partial class MarksPanelViewModel : TitledViewModel,
             }
             else
             {
-                selectedMarkModified = mark.Id == SelectedMark?.Id;
+                modifiedMarksIds.Add(mark.Id);
                 mark.SaveState();
             }
 
             results.Add(updateResult);
         }
 
-        if (selectedMarkModified)
+        foreach (var item in modifiedMarksIds)
         {
-            await RefreshSelectedMarkEvents();
+            await RefreshMarkEventsFor(item);
         }
 
         if (results.Where(e => e.IsSuccess).Any())
@@ -259,6 +260,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
         {
             MessageBoxHelper.ShowErrorBox(results.Where(e => e.IsFailure).SelectMany(e => e.Errors).Display());
         }
+        IsEnabled = true;
     }
 
     [RelayCommand]
@@ -312,11 +314,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
                 data[message.MarkId] = previousCompleteCount + item.Value;
             }
 
-            MarkEventsCache.Remove(message.MarkId);
-            if (SelectedMark?.Id == message.MarkId)
-            {
-                await RefreshSelectedMarkEvents();
-            }
+            await RefreshMarkEventsFor(message.MarkId);
 
             CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
             MessageBoxHelper.ShowInfoBox("Выполнение марки успешно сохранено.");
@@ -456,23 +454,22 @@ public partial class MarksPanelViewModel : TitledViewModel,
 
     private double CalculateTotalLeft()
     {
-        return SelectedDisplayInOption == ByPercents ? 
-            (100 - CalculateTotalCompleteInPercents()) is double n && n == 100 && Marks.Count == 0 ? 0 : n 
+        return SelectedDisplayInOption == ByPercents ?
+            (100 - CalculateTotalCompleteInPercents()) is double n && n == 100 && Marks.Count == 0 ? 0 : n
             :
             Marks.Sum(e => e.Left);
     }
 
-    private async Task RefreshSelectedMarkEvents()
+    private async Task RefreshMarkEventsFor(Guid markId)
     {
-        if (SelectedMark is null)
-        {
-            return;
-        }
-
         IsEnabled = false;
-        var events = await GetEventsFor(SelectedMark.Id);
-        MarkEventsCache[SelectedMark.Id] = events;
-        SelectedMarkEvents = events;
+        var events = await GetEventsFor(markId);
+        MarkEventsCache[markId] = events;
+
+        if (SelectedMark?.Id == markId)
+        {
+            SelectedMarkEvents = events;
+        }
         IsEnabled = true;
     }
 

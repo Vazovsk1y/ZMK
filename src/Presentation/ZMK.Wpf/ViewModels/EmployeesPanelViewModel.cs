@@ -97,6 +97,7 @@ public partial class EmployeesPanelViewModel : TitledViewModel,
             return;
         }
 
+        IsEnabled = false;
         using var scope = App.Services.CreateScope();
         var employeeService = scope.ServiceProvider.GetRequiredService<IEmployeeService>();
 
@@ -131,6 +132,7 @@ public partial class EmployeesPanelViewModel : TitledViewModel,
         {
             MessageBoxHelper.ShowErrorBox(results.Where(e => e.IsFailure).SelectMany(e => e.Errors).Display());
         }
+        IsEnabled = true;
 
         if (currentEmployeeUpdated)
         {

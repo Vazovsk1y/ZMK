@@ -109,6 +109,7 @@ public partial class UsersPanelViewModel : TitledViewModel,
             return;
         }
 
+        IsEnabled = false;
         using var scope = App.Services.CreateScope();
         var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
 
@@ -143,6 +144,7 @@ public partial class UsersPanelViewModel : TitledViewModel,
         {
             MessageBoxHelper.ShowErrorBox(results.Where(e => e.IsFailure).SelectMany(e => e.Errors).Display());
         }
+        IsEnabled = true;
 
         if (currentUserUpdated)
         {
