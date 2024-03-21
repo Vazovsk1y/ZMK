@@ -183,24 +183,3 @@ public partial class FillExecutionViewModel : ObservableObject
         SelectedExecutor = null;
     }
 }
-
-public record ExecutorInfo(Guid Id, string FullNameAndPost);
-
-public class MarkCompleteEventViewModel
-{
-    public required Guid Id { get; init; }
-
-    public required Guid MarkId { get; init; }
-
-    public required DateTimeOffset CreatedDate { get; init; }
-
-    public required double Count { get; init; }
-
-    public required string AreaTitle { get; init; }
-
-    public required string CreatorUserNameAndEmployeeName { get; init; }
-
-    public required IReadOnlyCollection<ExecutorInfo> Executors { get; init; }
-
-    public string? Remark { get; init; }
-}

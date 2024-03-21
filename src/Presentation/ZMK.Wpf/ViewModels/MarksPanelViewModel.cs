@@ -34,6 +34,8 @@ public partial class MarksPanelViewModel : TitledViewModel,
 
     public ObservableCollection<string> DisplayExecutionInOptions { get; } = [ByUnits, ByKg, ByPercents];
 
+    public ObservableCollection<string> EventTypesOptions { get; } = [MarkEventViewModel.CreateEventType, MarkEventViewModel.ModifyEventType, MarkEventViewModel.CompleteEventType, MarkEventViewModel.CommonEventType];
+
     public Dictionary<Guid, ObservableCollection<MarkEventViewModel>> MarkEventsCache { get; } = [];
 
     [ObservableProperty]
@@ -54,6 +56,21 @@ public partial class MarksPanelViewModel : TitledViewModel,
             if (value is not null && SetProperty(ref _selectedDisplayInOption, value))
             {
                 CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
+            }
+        }
+    }
+
+    private string _selectedEventTypeOption = MarkEventViewModel.CommonEventType;
+
+    public string SelectedEventTypeOption
+    {
+        get => _selectedEventTypeOption;
+        set 
+        {
+            SetProperty(ref _selectedEventTypeOption, value);
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                RefreshMarkEventsForSelectedMark(value);
             }
         }
     }
@@ -121,29 +138,28 @@ public partial class MarksPanelViewModel : TitledViewModel,
 
     public bool CanDelete() => SelectedMark is not null;
 
-
     [RelayCommand]
     public async Task MarkSelectionChanged(object param)
     {
         if (param is not MarkViewModel mark)
         {
+            SelectedMark = null;
             return;
         }
 
         IsEnabled = false;
 
-        if (MarkEventsCache.TryGetValue(mark.Id, out var events))
+        if (MarkEventsCache.TryGetValue(mark.Id, out var _))
         {
-            SelectedMarkEvents = events;
             SelectedMark = mark;
+            SelectedEventTypeOption = MarkEventViewModel.CommonEventType;
             IsEnabled = true;
             return;
         }
 
-        events = await GetEventsFor(mark.Id);
-        MarkEventsCache[mark.Id] = events;
-        SelectedMarkEvents = events;
+        await RefreshCacheMarkEventsFor(mark.Id);
         SelectedMark = mark;
+        SelectedEventTypeOption = MarkEventViewModel.CommonEventType;
         IsEnabled = true;
     }
 
@@ -227,7 +243,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
         var markService = scope.ServiceProvider.GetRequiredService<IMarkService>();
 
         var results = new List<Result>();
-        List<Guid> modifiedMarksIds = [];
+        List<Guid> updatedMarksIds = [];
         foreach (var mark in modifiedMarks)
         {
             var dto = new MarkUpdateDTO(mark.Id, mark.Code, mark.Title, mark.Order, mark.Weight, mark.Count);
@@ -239,18 +255,23 @@ public partial class MarksPanelViewModel : TitledViewModel,
             }
             else
             {
-                modifiedMarksIds.Add(mark.Id);
+                updatedMarksIds.Add(mark.Id);
                 mark.SaveState();
             }
 
             results.Add(updateResult);
         }
 
-        foreach (var item in modifiedMarksIds)
+        foreach (var id in updatedMarksIds)
         {
-            await RefreshMarkEventsFor(item);
+            await RefreshCacheMarkEventsFor(id);
         }
 
+        if (SelectedMark is not null && updatedMarksIds.Contains(SelectedMark.Id))
+        {
+            RefreshMarkEventsForSelectedMark(SelectedEventTypeOption);
+        }
+        
         if (results.Where(e => e.IsSuccess).Any())
         {
             CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
@@ -314,7 +335,8 @@ public partial class MarksPanelViewModel : TitledViewModel,
                 data[message.MarkId] = previousCompleteCount + item.Value;
             }
 
-            await RefreshMarkEventsFor(message.MarkId);
+            await RefreshCacheMarkEventsFor(message.MarkId);
+            RefreshMarkEventsForSelectedMark(SelectedEventTypeOption);
 
             CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
             MessageBoxHelper.ShowInfoBox("Выполнение марки успешно сохранено.");
@@ -460,16 +482,11 @@ public partial class MarksPanelViewModel : TitledViewModel,
             Marks.Sum(e => e.Left);
     }
 
-    private async Task RefreshMarkEventsFor(Guid markId)
+    private async Task RefreshCacheMarkEventsFor(Guid markId)
     {
         IsEnabled = false;
         var events = await GetEventsFor(markId);
         MarkEventsCache[markId] = events;
-
-        if (SelectedMark?.Id == markId)
-        {
-            SelectedMarkEvents = events;
-        }
         IsEnabled = true;
     }
 
@@ -482,6 +499,8 @@ public partial class MarksPanelViewModel : TitledViewModel,
             .MarksEvents
             .Include(e => e.Mark)
             .Include(e => ((MarkCompleteEvent)e).Area)
+            .Include(e => ((MarkCompleteEvent)e).Executors)
+            .ThenInclude(e => e.Employee)
             .Include(e => e.Creator)
             .ThenInclude(e => e.Employee)
             .AsNoTracking()
@@ -492,21 +511,66 @@ public partial class MarksPanelViewModel : TitledViewModel,
 
         return events;
     }
+
+    private void RefreshMarkEventsForSelectedMark(string eventType)
+    {
+        if (SelectedMark is null || !MarkEventsCache.TryGetValue(SelectedMark.Id, out var data))
+        {
+            return;
+        }
+
+        if (eventType == MarkEventViewModel.CommonEventType)
+        {
+            SelectedMarkEvents = data;
+        }
+        else
+        {
+            SelectedMarkEvents = new(data.Where(e => e.EventType == eventType));
+        }
+    }
 }
 
-public record MarkEventViewModel
+public abstract record MarkEventViewModel
 {
+    public const string CompleteEventType = "Выполнено";
+
+    public const string CreateEventType = "Создано";
+
+    public const string ModifyEventType = "Изменено";
+
+    public const string CommonEventType = "Общий";
+
     public required Guid Id { get; init; }
 
     public required DateTimeOffset CreatedDate { get; init; }
 
-    public required double Count { get; init; }
+    public required double MarkCount { get; init; }
 
-    public required string Title { get; init; }
+    public required string CommonTitle { get; init; }
 
     public required string EventType { get; init; }
 
-    public string? Remark { get; init; }
-
     public required string CreatorUserNameAndEmployeeFullName { get; init; }
+
+    public string? Remark { get; init; }
 }
+
+public record MarkCreateOrModifyEventViewModel : MarkEventViewModel
+{
+    public required string MarkCode { get; init; }
+
+    public required string MarkTitle { get; init; }
+
+    public required double MarkWeight { get; init; }
+
+    public required int MarkOrder { get; init; }
+}
+
+public record MarkCompleteEventViewModel : MarkEventViewModel
+{
+    public required string AreaTitle { get; init; }
+
+    public required IReadOnlyCollection<ExecutorInfo> Executors { get; init; }
+}
+
+public record ExecutorInfo(Guid Id, string FullNameAndPost);

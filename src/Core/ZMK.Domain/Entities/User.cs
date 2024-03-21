@@ -16,7 +16,7 @@ public class User : IdentityUser<Guid>, IHasId
 
     public IEnumerable<UserRole> Roles { get; set; } = new HashSet<UserRole>();
 
-    public Employee? Employee { get; set; }
+    public Employee Employee { get; set; } = null!;
 
     #endregion
 

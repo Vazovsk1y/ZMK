@@ -11,38 +11,62 @@ public static class Mapper
 {
     public static MarkEventViewModel ToViewModel(this MarkEvent @event)
     {
-        var completeEvent = @event as MarkCompleteEvent;
-        var entity = new MarkEventViewModel
-        {
-            Id = @event.Id,
-            CreatorUserNameAndEmployeeFullName = $"{@event.Creator.UserName} - {@event.Creator.Employee!.FullName}",
-            Count = completeEvent is not null ? completeEvent.CompleteCount : @event.MarkCount,
-            CreatedDate = @event.CreatedDate,
-            EventType = @event.EventType switch
-            {
-                EventType.Complete => "Выполнено",
-                EventType.Create => "Создано",
-                EventType.Modify => "Обновлено",
-                _ => throw new KeyNotFoundException(),
-            },
-            Title = completeEvent is not null ? completeEvent.Area.Title : $"{@event.MarkCode} - {@event.MarkTitle}",
-            Remark = @event.Remark,
-        };
+        string creatorInfo = $"{@event.Creator.UserName} - {@event.Creator.Employee.FullName}";
+        string commonTitle = $"{@event.MarkCode} - {@event.MarkTitle}";
 
-        return entity;
+        switch (@event.EventType)
+        {
+            case EventType.Create:
+                return new MarkCreateOrModifyEventViewModel 
+                {
+                    Id = @event.Id,
+                    CreatorUserNameAndEmployeeFullName = creatorInfo,
+                    MarkCount = @event.MarkCount,
+                    CreatedDate = @event.CreatedDate,
+                    EventType = MarkEventViewModel.CreateEventType,
+                    MarkTitle = @event.MarkTitle,
+                    MarkCode = @event.MarkCode,
+                    Remark = @event.Remark,
+                    MarkOrder = @event.MarkOrder,
+                    CommonTitle = commonTitle,
+                    MarkWeight = @event.MarkWeight,
+                };
+            case EventType.Modify:
+                return new MarkCreateOrModifyEventViewModel
+                {
+                    Id = @event.Id,
+                    CreatorUserNameAndEmployeeFullName = creatorInfo,
+                    MarkCount = @event.MarkCount,
+                    CreatedDate = @event.CreatedDate,
+                    EventType = MarkEventViewModel.ModifyEventType,
+                    MarkTitle = @event.MarkTitle,
+                    MarkCode = @event.MarkCode,
+                    Remark = @event.Remark,
+                    MarkOrder = @event.MarkOrder,
+                    CommonTitle = commonTitle,
+                    MarkWeight = @event.MarkWeight,
+                };
+            case EventType.Complete:
+                {
+                    var completeEvent = (MarkCompleteEvent)@event;
+                    return completeEvent.ToViewModel();
+                }
+            default: throw new KeyNotFoundException();
+        }
     }
     public static MarkCompleteEventViewModel ToViewModel(this MarkCompleteEvent @event)
     {
         var entity = new MarkCompleteEventViewModel()
         {
             Id = @event.Id,
-            MarkId = @event.MarkId,
             CreatedDate = @event.CreatedDate,
             AreaTitle = @event.Area.Title,
-            Count = @event.CompleteCount,
-            CreatorUserNameAndEmployeeName = $"{@event.Creator.UserName} - {@event.Creator.Employee!.FullName}",
+            MarkCount = @event.CompleteCount,
+            CreatorUserNameAndEmployeeFullName = $"{@event.Creator.UserName} - {@event.Creator.Employee.FullName}",
             Remark = @event.Remark,
             Executors = @event.Executors.Select(e => new ExecutorInfo(e.EmployeeId, e.Employee.FullName)).ToList(),
+            CommonTitle = @event.Area.Title,
+            EventType = MarkEventViewModel.CompleteEventType,
         };
         return entity;
     }
