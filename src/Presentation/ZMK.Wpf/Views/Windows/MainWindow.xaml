@@ -6,6 +6,8 @@
         xmlns:controls="clr-namespace:ZMK.Wpf.Views.Controls"
         xmlns:local="clr-namespace:ZMK.Wpf.Views.Windows" 
         xmlns:viewmodels="clr-namespace:ZMK.Wpf.ViewModels" 
+        xmlns:extensions="clr-namespace:ZMK.Wpf.Extensions"
+        xmlns:constants="clr-namespace:ZMK.Domain.Constants;assembly=ZMK.Domain"
         d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel, IsDesignTimeCreatable=True}"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
@@ -13,6 +15,9 @@
         ResizeMode="NoResize"
         MinWidth="900"
         Title="{Binding ControlTitle}" Height="500" Width="1000">
+    <Window.Resources>
+        <extensions:RoleNameVisibilityConverter x:Key="RoleNameVisibilityConverter"/>
+    </Window.Resources>
     <Grid>
 
         <Grid.ColumnDefinitions>
@@ -50,11 +55,12 @@
                 </MenuItem>
 
                 <MenuItem Header="Сотрудники"
-                          Template="{StaticResource MenuItem_Template}"
+                Template="{StaticResource MenuItem_Template}"
                           DataContext="{Binding EmployeesPanelViewModel}"
                                 Command="{Binding DataContext.MenuItemChangedCommand, 
                              RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                          CommandParameter="{Binding}">
+                          CommandParameter="{Binding}"
+                          Visibility="{Binding CurrentSession.User.Role.Name, Converter={StaticResource RoleNameVisibilityConverter}, ConverterParameter={x:Static constants:DefaultRoles.Admin}}">
 
                     <MenuItem.Icon>
                         <Image Source="/Assets/Icons/employees.png"
@@ -67,7 +73,8 @@
                     RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
                           CommandParameter="{Binding}"
                           DataContext="{Binding UsersPanelViewModel}"
-                          Template="{StaticResource MenuItem_Template}">
+                          Template="{StaticResource MenuItem_Template}"
+                          Visibility="{Binding CurrentSession.User.Role.Name, Converter={StaticResource RoleNameVisibilityConverter}, ConverterParameter={x:Static constants:DefaultRoles.Admin}}">
 
                     <MenuItem.Icon>
                         <Image Source="/Assets/Icons/users.png"
@@ -80,7 +87,8 @@
                           DataContext="{Binding AreasPanelViewModel}"
                                 Command="{Binding DataContext.MenuItemChangedCommand, 
                              RelativeSource={RelativeSource AncestorType={x:Type Window}}}"
-                          CommandParameter="{Binding}">
+                          CommandParameter="{Binding}"
+                          Visibility="{Binding CurrentSession.User.Role.Name, Converter={StaticResource RoleNameVisibilityConverter}, ConverterParameter={x:Static constants:DefaultRoles.Admin}}">
 
                     <MenuItem.Icon>
                         <Image Source="/Assets/Icons/areas.png"

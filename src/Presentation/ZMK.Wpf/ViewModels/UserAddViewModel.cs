@@ -40,6 +40,7 @@ public partial class UserAddViewModel : DialogViewModel
 
     public UserAddViewModel(IUserDialogService userDialogService) : base(userDialogService)
     {
+        ControlTitle = "Добавление пользователя";
     }
 
     protected override async Task Accept(object action)

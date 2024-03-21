@@ -13,6 +13,9 @@
    Title="{Binding ControlTitle}"
    WindowStartupLocation="CenterScreen"
    mc:Ignorable="d">
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding AcceptCommand}" Key="Return"/>
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

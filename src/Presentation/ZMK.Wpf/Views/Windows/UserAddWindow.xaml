@@ -7,8 +7,12 @@
         xmlns:viewmodels="clr-namespace:ZMK.Wpf.ViewModels" 
         d:DataContext="{d:DesignInstance Type=viewmodels:UserAddViewModel}"
         mc:Ignorable="d"
+        ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
         Title="{Binding ControlTitle}" Height="400" Width="400">
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding AcceptCommand}" Key="Return"/>
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>

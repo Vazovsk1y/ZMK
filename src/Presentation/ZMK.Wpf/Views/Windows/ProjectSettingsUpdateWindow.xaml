@@ -16,6 +16,9 @@
     BorderThickness="2"
     Background="#e6e6e6"
    mc:Ignorable="d">
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding AcceptCommand}" Key="Return"/>
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

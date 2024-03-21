@@ -11,6 +11,9 @@
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
         Title="{Binding ControlTitle}" Height="400" Width="400">
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding AcceptCommand}" Key="Return"/>
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
