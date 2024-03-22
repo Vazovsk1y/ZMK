@@ -29,6 +29,61 @@ public class MarkService : BaseService, IMarkService
     {
         _xlsxMarksReader = xlsxMarksReader;
     }
+    public async Task<Result> UpdateCompleteEventAsync(MarkCompleteEventUpdateDTO dTO, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var validationResult = Validate(dTO);
+        if (validationResult.IsFailure)
+        {
+            return Result.Failure(validationResult.Errors);
+        }
+
+        var isAbleResult = await IsAbleToPerformAction(cancellationToken, DefaultRoles.Admin, DefaultRoles.User).ConfigureAwait(false);
+        if (isAbleResult.IsFailure)
+        {
+            return Result.Failure(isAbleResult.Errors);
+        }
+
+        _logger.LogInformation("Попытка обновления записи о выполнении марки.");
+        var completeEvent = await _dbContext
+            .MarkCompleteEvents
+            .Include(e => e.Mark)
+            .ThenInclude(e => e.Project)
+            .ThenInclude(e => e.Settings)
+            .SingleOrDefaultAsync(e => e.Id == dTO.EventId, cancellationToken);
+
+        switch (completeEvent)
+        {
+            case null:
+                return Result.Failure(Errors.NotFound("Событие выполнения"));
+            case MarkCompleteEvent when completeEvent.Mark.Project.Settings.AreExecutorsRequired && !dTO.Executors.Any():
+                return Result.Failure(new Error(nameof(Error), "Заполнение исполнителей обязательно. Указано в настройках проэкта."));
+            case MarkCompleteEvent when isAbleResult.Value.UserId != completeEvent.CreatorId:
+                return Result.Failure(new Error(nameof(Error), "Только создатель может изменять информацию о событии."));
+            case MarkCompleteEvent
+                when (await _dbContext
+                .MarkCompleteEvents
+                .Where(e => e.MarkId == completeEvent.MarkId && e.AreaId == dTO.AreaId && e.Id != completeEvent.Id)
+                .SumAsync(e => e.CompleteCount, cancellationToken)) + dTO.Count > completeEvent.Mark.Count:
+                return Result.Failure(new Error(nameof(Error), "Кол-во выполненных марок на выбранном участке с учетом изменений превышает общее кол-во данной марки."));
+            default:
+                {
+                    var previousExecutors = await _dbContext.MarkCompleteEventsEmployees.Where(e => e.EventId == completeEvent.Id).ToListAsync(cancellationToken);
+                    var newExecutors = dTO.Executors.Select(e => new MarkCompleteEventEmployee { EmployeeId = e, EventId = completeEvent.Id });
+
+                    completeEvent.CompleteDate = dTO.Date.ToUniversalTime();
+                    completeEvent.CompleteCount = dTO.Count;
+                    completeEvent.Remark = dTO.Remark?.Trim();
+                    completeEvent.AreaId = dTO.AreaId;
+
+                    _dbContext.MarkCompleteEventsEmployees.RemoveRange(previousExecutors);
+                    _dbContext.MarkCompleteEventsEmployees.AddRange(newExecutors);
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+                    return Result.Success();
+                }
+        }
+    }
 
     public async Task<Result> FillExecutionAsync(FillExecutionDTO dTO, CancellationToken cancellationToken = default)
     {
@@ -86,7 +141,7 @@ public class MarkService : BaseService, IMarkService
                             MarkId = mark.Id,
                             AreaId = item.AreaId,
                             CompleteCount = item.Count,
-                            CreatedDate = new DateTimeOffset(item.Date.Year, item.Date.Month, item.Date.Day, currentDate.Hour, currentDate.Minute, currentDate.Second, TimeSpan.Zero), // UTC
+                            CreatedDate = currentDate, // UTC
                             CreatorId = isAbleResult.Value.UserId,
                             EventType = EventType.Complete,
                             Remark = item.Remark?.Trim(),
@@ -95,6 +150,7 @@ public class MarkService : BaseService, IMarkService
                             MarkOrder = mark.Order,
                             MarkTitle = mark.Title,
                             MarkWeight = mark.Weight,
+                            CompleteDate = item.Date,
                         };
                         completeEvents.Add(@event);
                         completeEventsEmployees.AddRange(item.Executors.Select(e => new MarkCompleteEventEmployee { EmployeeId = e, EventId = @event.Id }));

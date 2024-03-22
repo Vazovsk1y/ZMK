@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using MathNet.Numerics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using NPOI.SS.Formula.Functions;
 using System.Collections.ObjectModel;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
@@ -26,7 +27,9 @@ public partial class MarksPanelViewModel : TitledViewModel,
 
     public ObservableCollection<MarkViewModel> Marks { get; } = [];
 
-    public ObservableCollection<AreaViewModel> AvailableAreas { get; } = [];
+    public ObservableCollection<AreaInfo> AvailableAreas { get; } = [];
+
+    public ObservableCollection<ExecutorInfo> AvailableExecutors { get; } = [];
 
     public ProjectViewModel SelectedProject { get; }
 
@@ -39,6 +42,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
     public Dictionary<Guid, ObservableCollection<MarkEventViewModel>> MarkEventsCache { get; } = [];
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SaveCompleteMarkEventsChangesCommand))]
     private ObservableCollection<MarkEventViewModel>? _selectedMarkEvents;
 
     [ObservableProperty]
@@ -65,19 +69,20 @@ public partial class MarksPanelViewModel : TitledViewModel,
     public string SelectedEventTypeOption
     {
         get => _selectedEventTypeOption;
-        set 
+        set
         {
             SetProperty(ref _selectedEventTypeOption, value);
             if (!string.IsNullOrWhiteSpace(value))
             {
                 RefreshMarkEventsForSelectedMark(value);
             }
+            SaveCompleteMarkEventsChangesCommand.NotifyCanExecuteChanged();
         }
     }
 
-    private AreaViewModel _selectedArea = null!;
+    private AreaInfo? _selectedArea;
 
-    public AreaViewModel SelectedArea
+    public AreaInfo? SelectedArea
     {
         get => _selectedArea;
         set
@@ -271,10 +276,10 @@ public partial class MarksPanelViewModel : TitledViewModel,
         {
             RefreshMarkEventsForSelectedMark(SelectedEventTypeOption);
         }
-        
+
         if (results.Where(e => e.IsSuccess).Any())
         {
-            CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
+            CalculateExecutionForEachMark(SelectedArea?.Id, SelectedDisplayInOption);
             MessageBoxHelper.ShowInfoBox($"Информация о {results.Where(e => e.IsSuccess).Count()} марках была обновлена успешно.");
         }
         else
@@ -314,12 +319,60 @@ public partial class MarksPanelViewModel : TitledViewModel,
 
     public bool CanFillExecution() => SelectedMark is not null;
 
+    [RelayCommand(CanExecute = nameof(CanSaveMarkEventsChanges))]
+    public async Task SaveCompleteMarkEventsChanges()
+    {
+        var modifiedEvents = SelectedMarkEvents!.Where(e => e is MarkCompleteEventViewModel ce && ce.IsModified()).Cast<MarkCompleteEventViewModel>().ToList();
+        if (SaveChangesCommand.IsRunning || modifiedEvents.Count == 0)
+        {
+            return;
+        }
+
+        IsEnabled = false;
+        using var scope = App.Services.CreateScope();
+        var markService = scope.ServiceProvider.GetRequiredService<IMarkService>();
+
+        var results = new List<Result>();
+        foreach (var @event in modifiedEvents)
+        {
+            var dto = new MarkCompleteEventUpdateDTO(@event.Id, @event.Area.Id, @event.Date, @event.MarkCount, @event.Executors.Select(e => e.Id).ToArray(), @event.Remark);
+            var updateResult = await markService.UpdateCompleteEventAsync(dto);
+
+            if (updateResult.IsFailure)
+            {
+                @event.RollBackChanges();
+            }
+            else
+            {
+                @event.SaveState();
+            }
+
+            results.Add(updateResult);
+        }
+
+        if (results.Where(e => e.IsSuccess).Any())
+        {
+            await RefreshExecutionForSelectedMark();
+            CalculateExecutionForEachMark(SelectedArea?.Id, SelectedDisplayInOption);
+            MessageBoxHelper.ShowInfoBox($"Информация о заполнении была обновлена успешно.");
+        }
+        else
+        {
+            MessageBoxHelper.ShowErrorBox(results.Where(e => e.IsFailure).SelectMany(e => e.Errors).Display());
+        }
+        IsEnabled = true;
+    }
+
+    public bool CanSaveMarkEventsChanges() =>
+        (SelectedEventTypeOption == MarkEventViewModel.CommonEventType
+        || SelectedEventTypeOption == MarkEventViewModel.CompleteEventType) && SelectedMarkEvents is ICollection<MarkEventViewModel> { Count: > 0 } e && e.Any(e => e.EventType == MarkEventViewModel.CompleteEventType);
+
     public void Receive(MarksAddedMessage message)
     {
         App.Current.Dispatcher.Invoke(() =>
         {
             Marks.AddRange(message.Marks);
-            CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
+            CalculateExecutionForEachMark(SelectedArea?.Id, SelectedDisplayInOption);
             MessageBoxHelper.ShowInfoBox("Марки были успешно добавлены.");
         });
     }
@@ -338,7 +391,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
             await RefreshCacheMarkEventsFor(message.MarkId);
             RefreshMarkEventsForSelectedMark(SelectedEventTypeOption);
 
-            CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
+            CalculateExecutionForEachMark(SelectedArea?.Id, SelectedDisplayInOption);
             MessageBoxHelper.ShowInfoBox("Выполнение марки успешно сохранено.");
         });
     }
@@ -366,13 +419,20 @@ public partial class MarksPanelViewModel : TitledViewModel,
             .Areas
             .AsNoTracking()
             .OrderBy(e => e.Order)
-            .Select(e => e.ToViewModel())
+            .Select(e => new AreaInfo(e.Id, e.Title))
             .ToListAsync();
 
         var completeEvents = await dbContext
             .MarkCompleteEvents
             .AsNoTracking()
             .Where(e => marks.Select(e => e.Id).Contains(e.MarkId))
+            .ToListAsync();
+
+        var executors = await dbContext
+            .Employees
+            .AsNoTracking()
+            .OrderBy(e => e.FullName)
+            .Select(e => new ExecutorInfo(e.Id, string.IsNullOrWhiteSpace(e.Post) ? e.FullName : $"{e.FullName} ({e.Post})"))
             .ToListAsync();
 
         await App.Current.Dispatcher.InvokeAsync(() =>
@@ -382,16 +442,22 @@ public partial class MarksPanelViewModel : TitledViewModel,
                 e => completeEvents.Where(i => i.AreaId == e.Id).GroupBy(e => e.MarkId).ToDictionary(e => e.Key, e => e.Sum(e => e.CompleteCount)));
             Marks.AddRange(marks);
             AvailableAreas.AddRange(areas);
+            AvailableExecutors.AddRange(executors);
 
-            SelectedArea = AvailableAreas.First();
+            SelectedArea = AvailableAreas.FirstOrDefault();
             SelectedDisplayInOption = ByUnits;
             IsEnabled = true;
         });
     }
 
-    private void CalculateExecutionForEachMark(Guid areaId, string displayInOption)
+    private void CalculateExecutionForEachMark(Guid? areaId, string displayInOption)
     {
-        bool isExists = Executions.TryGetValue(areaId, out var data);
+        if (areaId is null)
+        {
+            return;
+        }
+
+        bool isExists = Executions.TryGetValue((Guid)areaId, out var data);
         if (!isExists || data is null)
         {
             return;
@@ -457,6 +523,11 @@ public partial class MarksPanelViewModel : TitledViewModel,
 
     private double CalculateTotalCompleteInPercents()
     {
+        if (SelectedArea is null)
+        {
+            return 0;
+        }
+
         bool isExists = Executions.TryGetValue(SelectedArea.Id, out var data);
         double totalCount = TotalCount;
         if (!isExists || data is null || totalCount == 0)
@@ -519,6 +590,12 @@ public partial class MarksPanelViewModel : TitledViewModel,
             return;
         }
 
+        foreach (var item in data)
+        {
+            item.IsEditable = item.EventType == MarkEventViewModel.CompleteEventType && eventType != MarkEventViewModel.CommonEventType;
+            item.DisplayEventType = eventType;
+        }
+
         if (eventType == MarkEventViewModel.CommonEventType)
         {
             SelectedMarkEvents = data;
@@ -528,9 +605,32 @@ public partial class MarksPanelViewModel : TitledViewModel,
             SelectedMarkEvents = new(data.Where(e => e.EventType == eventType));
         }
     }
+
+    private async Task RefreshExecutionForSelectedMark()
+    {
+        if (SelectedMark is null)
+        {
+            return;
+        }
+
+        using var scope = App.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ZMKDbContext>();
+
+        var completeEvents = await dbContext
+            .MarkCompleteEvents
+            .AsNoTracking()
+            .Where(e => SelectedMark.Id == e.MarkId)
+            .ToListAsync();
+
+        foreach (var areaId in Executions.Keys)
+        {
+            var data = Executions[areaId];
+            data[SelectedMark.Id] = completeEvents.Where(e => e.MarkId == SelectedMark.Id && e.AreaId == areaId).Sum(e => e.CompleteCount);
+        }
+    }
 }
 
-public abstract record MarkEventViewModel
+public partial class MarkEventViewModel : ObservableObject
 {
     public const string CompleteEventType = "Выполнено";
 
@@ -542,20 +642,27 @@ public abstract record MarkEventViewModel
 
     public required Guid Id { get; init; }
 
-    public required DateTimeOffset CreatedDate { get; init; }
+    public virtual DateTime Date { get; set; }
 
-    public required double MarkCount { get; init; }
-
-    public required string CommonTitle { get; init; }
-
-    public required string EventType { get; init; }
+    public virtual double MarkCount { get; set; }
 
     public required string CreatorUserNameAndEmployeeFullName { get; init; }
 
-    public string? Remark { get; init; }
+    [ObservableProperty]
+    private string _commonTitle = null!;
+
+    public required string EventType { get; init; }
+
+    [ObservableProperty]
+    private string _displayEventType = CommonEventType;
+
+    public virtual string? Remark { get; set; }
+
+    [ObservableProperty]
+    private bool _isEditable;
 }
 
-public record MarkCreateOrModifyEventViewModel : MarkEventViewModel
+public class MarkCreateOrModifyEventViewModel : MarkEventViewModel
 {
     public required string MarkCode { get; init; }
 
@@ -566,11 +673,123 @@ public record MarkCreateOrModifyEventViewModel : MarkEventViewModel
     public required int MarkOrder { get; init; }
 }
 
-public record MarkCompleteEventViewModel : MarkEventViewModel
+public partial class MarkCompleteEventViewModel :
+    MarkEventViewModel,
+    IModifiable<MarkCompleteEventViewModel>
 {
-    public required string AreaTitle { get; init; }
+    public MarkCompleteEventViewModel PreviousState { get; private set; } = default!;
 
-    public required IReadOnlyCollection<ExecutorInfo> Executors { get; init; }
+    public UpdatableSign? UpdatableSign => IsModified() ? new UpdatableSign() : null;
+
+    private AreaInfo _area = null!;
+    public AreaInfo Area
+    {
+        get => _area;
+        set 
+        {
+            SetProperty(ref _area, value);
+            OnPropertyChanged(nameof(UpdatableSign));
+            CommonTitle = value.Title;
+        }
+    }
+
+    public ObservableCollection<ExecutorInfo> Executors { get; private set; } = [];
+
+    private ExecutorInfo? _selectedExecutor;
+    public ExecutorInfo? SelectedExecutor
+    {
+        get => _selectedExecutor;
+        set
+        {
+            if (SetProperty(ref _selectedExecutor, value))
+            {
+                if (value is not null && !Executors.Contains(value))
+                {
+                    Executors.Add(value);
+                    OnPropertyChanged(nameof(UpdatableSign));
+                }
+            }
+        }
+    }
+
+    [RelayCommand]
+    public void RemoveExecutor(object param)
+    {
+        if (param is not ExecutorInfo executor || !Executors.Contains(executor))
+        {
+            return;
+        }
+
+        Executors.Remove(executor);
+        OnPropertyChanged(nameof(UpdatableSign));
+        SelectedExecutor = null;
+    }
+
+    private DateTime _date;
+    public override DateTime Date
+    {
+        get => _date; 
+        set
+        {
+            if (SetProperty(ref _date, value))
+            {
+                OnPropertyChanged(nameof(UpdatableSign));
+            }
+        }
+    }
+
+    private double _markCount;
+    public override double MarkCount
+    {
+        get => _markCount;
+        set
+        {
+            if (SetProperty(ref _markCount, value))
+            {
+                OnPropertyChanged(nameof(UpdatableSign));
+            }
+        }
+    }
+
+    private string? _remark;
+    public override string? Remark
+    {
+        get => _remark;
+        set
+        {
+            if (SetProperty(ref _remark, value))
+            {
+                OnPropertyChanged(nameof(UpdatableSign));
+            }
+        }
+    }
+
+    public bool IsModified()
+    {
+        return Area.Id != PreviousState.Area.Id
+            || Date != PreviousState.Date
+            || MarkCount != PreviousState.MarkCount
+            || Remark != PreviousState.Remark
+            || !Executors.OrderBy(e => e.FullNameAndPost).Select(e => e.Id).SequenceEqual(PreviousState.Executors.OrderBy(e => e.FullNameAndPost).Select(e => e.Id));
+    }
+
+    public void RollBackChanges()
+    {
+        Area = PreviousState.Area;
+        Date = PreviousState.Date;
+        MarkCount = PreviousState.MarkCount;
+        Remark = PreviousState.Remark;
+        Executors = PreviousState.Executors;
+    }
+
+    public virtual void SaveState()
+    {
+        PreviousState = (MarkCompleteEventViewModel)MemberwiseClone();
+        PreviousState.Executors = new(Executors);
+        OnPropertyChanged(nameof(UpdatableSign));
+    }
 }
 
 public record ExecutorInfo(Guid Id, string FullNameAndPost);
+
+public record AreaInfo(Guid Id, string Title);

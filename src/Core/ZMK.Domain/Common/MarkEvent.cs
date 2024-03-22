@@ -22,7 +22,7 @@ public class MarkEvent : Entity, IMarkAuditable
 
     public required double MarkWeight { get; init; }
 
-    public string? Remark { get; init; }
+    public string? Remark { get; set; }
 
     #region --Navigation--
 

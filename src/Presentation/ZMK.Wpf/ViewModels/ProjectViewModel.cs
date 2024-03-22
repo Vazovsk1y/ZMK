@@ -110,5 +110,11 @@ public partial class ProjectSettingsViewModel : ModifiableViewModel<ProjectSetti
         AreExecutorsRequired = PreviousState.AreExecutorsRequired;
     }
 
+    public override void SaveState()
+    {
+        base.SaveState();
+        PreviousState.Areas = new(Areas);
+    }
+
     public record AreaViewModel(Guid Id, string Title, int Order);
 }

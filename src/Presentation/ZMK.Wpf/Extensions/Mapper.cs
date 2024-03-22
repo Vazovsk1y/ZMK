@@ -22,7 +22,7 @@ public static class Mapper
                     Id = @event.Id,
                     CreatorUserNameAndEmployeeFullName = creatorInfo,
                     MarkCount = @event.MarkCount,
-                    CreatedDate = @event.CreatedDate,
+                    Date = @event.CreatedDate.DateTime,
                     EventType = MarkEventViewModel.CreateEventType,
                     MarkTitle = @event.MarkTitle,
                     MarkCode = @event.MarkCode,
@@ -37,7 +37,7 @@ public static class Mapper
                     Id = @event.Id,
                     CreatorUserNameAndEmployeeFullName = creatorInfo,
                     MarkCount = @event.MarkCount,
-                    CreatedDate = @event.CreatedDate,
+                    Date = @event.CreatedDate.DateTime,
                     EventType = MarkEventViewModel.ModifyEventType,
                     MarkTitle = @event.MarkTitle,
                     MarkCode = @event.MarkCode,
@@ -59,15 +59,17 @@ public static class Mapper
         var entity = new MarkCompleteEventViewModel()
         {
             Id = @event.Id,
-            CreatedDate = @event.CreatedDate,
-            AreaTitle = @event.Area.Title,
+            Date = @event.CompleteDate.Date,
+            Area = new(@event.Area.Id, @event.Area.Title),
             MarkCount = @event.CompleteCount,
             CreatorUserNameAndEmployeeFullName = $"{@event.Creator.UserName} - {@event.Creator.Employee.FullName}",
             Remark = @event.Remark,
-            Executors = @event.Executors.Select(e => new ExecutorInfo(e.EmployeeId, e.Employee.FullName)).ToList(),
             CommonTitle = @event.Area.Title,
             EventType = MarkEventViewModel.CompleteEventType,
         };
+
+        entity.Executors.AddRange(@event.Executors.Select(e => new ExecutorInfo(e.EmployeeId,string.IsNullOrWhiteSpace(e.Employee.Post) ? e.Employee.FullName : $"{e.Employee.FullName} ({e.Employee.Post})")));
+        entity.SaveState();
         return entity;
     }
     public static double? ParseInDifferentCultures(this string number)

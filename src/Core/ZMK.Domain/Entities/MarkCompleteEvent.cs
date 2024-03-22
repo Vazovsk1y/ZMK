@@ -4,9 +4,11 @@ namespace ZMK.Domain.Entities;
 
 public class MarkCompleteEvent : MarkEvent
 {
-    public required Guid AreaId { get; init; }
+    public required Guid AreaId { get; set; }
 
     public required double CompleteCount { get; set; }
+
+    public required DateTimeOffset CompleteDate { get; set; }
 
     public Area Area { get; set; } = null!;
 

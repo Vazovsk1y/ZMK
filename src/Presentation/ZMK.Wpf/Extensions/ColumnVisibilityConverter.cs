@@ -9,17 +9,23 @@ namespace ZMK.Wpf.Extensions;
 public class ColumnVisibilityConverter : IValueConverter
 {
     public const string MarkCreateOrModifyEventType = nameof(MarkCreateOrModifyEventType);
+
+    public const string MarkCompleteOrCommonEventType = nameof(MarkCompleteOrCommonEventType);
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is ObservableCollection<MarkEventViewModel> collection && parameter is string collectionType && collection.Count > 0)
+        if (value is ObservableCollection<MarkEventViewModel> collection && parameter is string eventType && collection.Count > 0)
         {
-            return collectionType switch
+            return eventType switch
             {
-                MarkCreateOrModifyEventType => collection.All(e => e.EventType == MarkEventViewModel.CreateEventType) || collection.All(e => e.EventType == MarkEventViewModel.ModifyEventType) ? Visibility.Visible : Visibility.Collapsed,
-                MarkEventViewModel.CompleteEventType => collection.All(e => e.EventType == collectionType) ? Visibility.Visible : Visibility.Collapsed,
-                MarkEventViewModel.CreateEventType => collection.All(e => e.EventType == collectionType)  ? Visibility.Visible : Visibility.Collapsed,
-                MarkEventViewModel.ModifyEventType => collection.All(e => e.EventType == collectionType) ? Visibility.Visible : Visibility.Collapsed,
-                MarkEventViewModel.CommonEventType => collection.Select(e => e.EventType).Distinct().Count() == 1 ? Visibility.Collapsed : Visibility.Visible,
+                MarkCreateOrModifyEventType => 
+                collection.All(e => e.EventType == MarkEventViewModel.CreateEventType && e.DisplayEventType != MarkEventViewModel.CommonEventType) 
+                || collection.Any(e => e.EventType == MarkEventViewModel.ModifyEventType && e.DisplayEventType != MarkEventViewModel.CommonEventType) ? Visibility.Visible : Visibility.Collapsed,
+                MarkEventViewModel.CompleteEventType => collection.All(e => e.EventType == eventType && e.DisplayEventType == MarkEventViewModel.CompleteEventType) ? Visibility.Visible : Visibility.Collapsed,
+                MarkEventViewModel.CreateEventType => collection.All(e => e.EventType == eventType && e.DisplayEventType == MarkEventViewModel.CreateEventType)  ? Visibility.Visible : Visibility.Collapsed,
+                MarkEventViewModel.ModifyEventType => collection.All(e => e.EventType == eventType && e.DisplayEventType == MarkEventViewModel.ModifyEventType) ? Visibility.Visible : Visibility.Collapsed,
+                MarkEventViewModel.CommonEventType => collection.All(e => e.DisplayEventType == MarkEventViewModel.CommonEventType) ? Visibility.Visible : Visibility.Collapsed,
+                MarkCompleteOrCommonEventType => collection.All(e => e.DisplayEventType == MarkEventViewModel.CommonEventType) 
+                || collection.All(e => e.EventType == MarkEventViewModel.CompleteEventType && e.DisplayEventType == MarkEventViewModel.CompleteEventType) ? Visibility.Visible : Visibility.Collapsed,
                 _ => Visibility.Collapsed,
             };
         }
