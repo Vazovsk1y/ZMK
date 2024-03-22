@@ -32,7 +32,7 @@ public partial class ProjectSettingsUpdateViewModel : DialogViewModel
 
         if (!selectedAreas.OrderBy(e => e.Title).Select(e => e.Id).SequenceEqual(ProjectSettingsViewModel.Areas.OrderBy(e => e.Title).Select(e => e.Id)))
         {
-            ProjectSettingsViewModel.Areas = new(selectedAreas.Select(e => new ProjectSettingsViewModel.AreaViewModel(e.Id, e.Title, e.Order)));
+            ProjectSettingsViewModel.Areas = new(selectedAreas.Select(e => new ProjectSettingsViewModel.ProjectAreaViewModel(e.Id, e.Title, e.Order)));
         }
         
         _dialogService.CloseDialog();

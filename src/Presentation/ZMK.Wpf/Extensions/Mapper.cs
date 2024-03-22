@@ -3,6 +3,7 @@ using ZMK.Application.Contracts;
 using ZMK.Domain.Common;
 using ZMK.Domain.Entities;
 using ZMK.Wpf.ViewModels;
+using ZMK.Wpf.ViewModels.User;
 using static ZMK.Wpf.ViewModels.ProjectViewModel;
 
 namespace ZMK.Wpf.Extensions;
@@ -121,7 +122,7 @@ public static class Mapper
         var entity = new ProjectViewModel
         {
             Id = project.Id,
-            Creator = project.Creator is not null ? new CreatorViewModel(project.Creator.Id, project.Creator!.UserName!) : null,
+            Creator = project.Creator is not null ? new CreatorInfo(project.Creator.Id, project.Creator!.UserName!) : null,
             ClosingDate = project.ClosingDate,
             CreatedDate = project.CreatedDate,
             ModifiedDate = project.ModifiedDate,
@@ -172,7 +173,7 @@ public static class Mapper
             AllowMarksModifying = settings.AllowMarksModifying,
             AllowMarksAdding = settings.AllowMarksAdding,
             AreExecutorsRequired = settings.AreExecutorsRequired,
-            Areas = new (project.Areas.Select(e => new ProjectSettingsViewModel.AreaViewModel(e.AreaId, e.Area.Title, e.Area.Order)).ToList()),
+            Areas = new (project.Areas.Select(e => new ProjectSettingsViewModel.ProjectAreaViewModel(e.AreaId, e.Area.Title, e.Area.Order)).ToList()),
         };
 
         entity.SaveState();
@@ -259,13 +260,13 @@ public static class Mapper
         return entity;
     }
 
-    public static UserViewModel.RoleViewModel ToPanelViewModel(this Role role)
+    public static UserViewModel.RoleInfo ToPanelViewModel(this Role role)
     {
-        return new UserViewModel.RoleViewModel(role.Id, role.Name!);
+        return new UserViewModel.RoleInfo(role.Id, role.Name!);
     }
 
-    public static UserViewModel.EmployeeViewModel ToUsersPanelViewModel(this Employee employee)
+    public static UserViewModel.EmployeeInfo ToUsersPanelViewModel(this Employee employee)
     {
-        return new UserViewModel.EmployeeViewModel(employee.Id, employee.FullName);
+        return new UserViewModel.EmployeeInfo(employee.Id, employee.FullName);
     }
 }

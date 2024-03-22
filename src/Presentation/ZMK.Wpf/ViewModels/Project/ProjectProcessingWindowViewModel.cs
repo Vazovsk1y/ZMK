@@ -1,4 +1,4 @@
-﻿namespace ZMK.Wpf.ViewModels;
+﻿namespace ZMK.Wpf.ViewModels.Project;
 
 public class ProjectProcessingWindowViewModel : TitledViewModel
 {
@@ -7,7 +7,7 @@ public class ProjectProcessingWindowViewModel : TitledViewModel
     public ProjectProcessingWindowViewModel(MarksPanelViewModel marksPanelViewModel)
     {
         MarksPanelViewModel = marksPanelViewModel;
-        ControlTitle = "Процесс выполнения проэкта";
+        ControlTitle = "Процесс выполнения проекта";
 
         ActivateAllRecipients();
     }

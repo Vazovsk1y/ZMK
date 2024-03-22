@@ -1,6 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
+﻿using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
@@ -28,7 +26,7 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
 
     public ObservableCollection<MarkCompleteEventViewModel> ExecutionHistory { get; } = [];
 
-    public ObservableCollection<FillExecutionViewModel> FillExecutionViewModels { get; } = [];
+    public ObservableCollection<FillMarkExecutionViewModel> FillExecutionViewModels { get; } = [];
 
     public ObservableCollection<ExecutorInfo> AvailableExecutors { get; } = [];
 
@@ -122,7 +120,7 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
         {
             var fillExecutionVms = enabledAreas
             .ToDictionary(e => e, i => completeEvents.Where(e => e.AreaId == i.Id).Sum(e => e.CompleteCount))
-            .Select(e => new FillExecutionViewModel { Area = e.Key.ToViewModel(), Left = SelectedMark.Count - e.Value })
+            .Select(e => new FillMarkExecutionViewModel { Area = e.Key.ToViewModel(), Left = SelectedMark.Count - e.Value })
             .ToList();
 
             FillExecutionViewModels.AddRange(fillExecutionVms);
@@ -130,56 +128,5 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
             ExecutionHistory.AddRange(completeEvents.Select(e => e.ToViewModel()));
             IsEnabled = true;
         });
-    }
-}
-
-public partial class FillExecutionViewModel : ObservableObject
-{
-    public required double Left { get; init; }
-
-    public required AreaViewModel Area { get; init; }
-
-    public ObservableCollection<ExecutorInfo> Executors { get; } = [];
-
-    public bool IsNotFinished => Left != 0;
-
-    public bool IsFinished => !IsNotFinished;
-
-    [ObservableProperty]
-    public DateTime? _date;
-
-    [ObservableProperty]
-    private string? _count;
-
-    [ObservableProperty]
-    private string? _remark;
-
-    private ExecutorInfo? _selectedExecutor;
-
-    public ExecutorInfo? SelectedExecutor
-    {
-        get => _selectedExecutor;
-        set
-        {
-            if (SetProperty(ref _selectedExecutor, value))
-            {
-                if (value is not null && !Executors.Contains(value))
-                {
-                    Executors.Add(value);
-                }
-            }
-        }
-    }
-
-    [RelayCommand]
-    public void RemoveExecutor(object param)
-    {
-        if (param is not ExecutorInfo executor || !Executors.Contains(executor))
-        {
-            return;
-        }
-
-        Executors.Remove(executor);
-        SelectedExecutor = null;
     }
 }

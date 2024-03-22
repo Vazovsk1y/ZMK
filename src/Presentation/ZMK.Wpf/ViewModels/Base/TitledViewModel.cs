@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Reflection;
+using ZMK.Wpf.ViewModels.User;
 
 namespace ZMK.Wpf.ViewModels;
 

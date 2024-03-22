@@ -20,8 +20,8 @@ public partial class UsersPanelViewModel : TitledViewModel,
     IRecipient<UserAddedMessage>,
     IRefrashable
 {
-    public ObservableCollection<UserViewModel.RoleViewModel> AvailableRoles { get; } = [];
-    public ObservableCollection<UserViewModel.EmployeeViewModel> AvailableEmployees { get; } = [];
+    public ObservableCollection<UserViewModel.RoleInfo> AvailableRoles { get; } = [];
+    public ObservableCollection<UserViewModel.EmployeeInfo> AvailableEmployees { get; } = [];
     public ObservableCollection<UserViewModel> Users { get; } = [];
 
     [ObservableProperty]

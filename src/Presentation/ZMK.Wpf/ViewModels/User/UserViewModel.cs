@@ -12,11 +12,11 @@ public partial class UserViewModel : ModifiableViewModel<UserViewModel>
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(UpdatableSign))]
-    private RoleViewModel _role = null!;
+    private RoleInfo _role = null!;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(UpdatableSign))]
-    private EmployeeViewModel _employee = null!;
+    private EmployeeInfo _employee = null!;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(UpdatableSign))]
@@ -44,8 +44,8 @@ public partial class UserViewModel : ModifiableViewModel<UserViewModel>
         Password = string.Empty;
     }
 
-    public record EmployeeViewModel(Guid Id, string FullName);
+    public record EmployeeInfo(Guid Id, string FullName);
 
-    public record RoleViewModel(Guid Id, string Name);
+    public record RoleInfo(Guid Id, string Name);
 }
 

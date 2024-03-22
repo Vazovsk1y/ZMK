@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Messaging;
 using MathNet.Numerics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using NPOI.SS.Formula.Functions;
 using System.Collections.ObjectModel;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
@@ -59,7 +58,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
         {
             if (value is not null && SetProperty(ref _selectedDisplayInOption, value))
             {
-                CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
+                CalculateExecutionForEachMark(SelectedArea?.Id, SelectedDisplayInOption);
             }
         }
     }
@@ -627,166 +626,6 @@ public partial class MarksPanelViewModel : TitledViewModel,
             var data = Executions[areaId];
             data[SelectedMark.Id] = completeEvents.Where(e => e.MarkId == SelectedMark.Id && e.AreaId == areaId).Sum(e => e.CompleteCount);
         }
-    }
-}
-
-public partial class MarkEventViewModel : ObservableObject
-{
-    public const string CompleteEventType = "Выполнено";
-
-    public const string CreateEventType = "Создано";
-
-    public const string ModifyEventType = "Изменено";
-
-    public const string CommonEventType = "Общий";
-
-    public required Guid Id { get; init; }
-
-    public virtual DateTime Date { get; set; }
-
-    public virtual double MarkCount { get; set; }
-
-    public required string CreatorUserNameAndEmployeeFullName { get; init; }
-
-    [ObservableProperty]
-    private string _commonTitle = null!;
-
-    public required string EventType { get; init; }
-
-    [ObservableProperty]
-    private string _displayEventType = CommonEventType;
-
-    public virtual string? Remark { get; set; }
-
-    [ObservableProperty]
-    private bool _isEditable;
-}
-
-public class MarkCreateOrModifyEventViewModel : MarkEventViewModel
-{
-    public required string MarkCode { get; init; }
-
-    public required string MarkTitle { get; init; }
-
-    public required double MarkWeight { get; init; }
-
-    public required int MarkOrder { get; init; }
-}
-
-public partial class MarkCompleteEventViewModel :
-    MarkEventViewModel,
-    IModifiable<MarkCompleteEventViewModel>
-{
-    public MarkCompleteEventViewModel PreviousState { get; private set; } = default!;
-
-    public UpdatableSign? UpdatableSign => IsModified() ? new UpdatableSign() : null;
-
-    private AreaInfo _area = null!;
-    public AreaInfo Area
-    {
-        get => _area;
-        set 
-        {
-            SetProperty(ref _area, value);
-            OnPropertyChanged(nameof(UpdatableSign));
-            CommonTitle = value.Title;
-        }
-    }
-
-    public ObservableCollection<ExecutorInfo> Executors { get; private set; } = [];
-
-    private ExecutorInfo? _selectedExecutor;
-    public ExecutorInfo? SelectedExecutor
-    {
-        get => _selectedExecutor;
-        set
-        {
-            if (SetProperty(ref _selectedExecutor, value))
-            {
-                if (value is not null && !Executors.Contains(value))
-                {
-                    Executors.Add(value);
-                    OnPropertyChanged(nameof(UpdatableSign));
-                }
-            }
-        }
-    }
-
-    [RelayCommand]
-    public void RemoveExecutor(object param)
-    {
-        if (param is not ExecutorInfo executor || !Executors.Contains(executor))
-        {
-            return;
-        }
-
-        Executors.Remove(executor);
-        OnPropertyChanged(nameof(UpdatableSign));
-        SelectedExecutor = null;
-    }
-
-    private DateTime _date;
-    public override DateTime Date
-    {
-        get => _date; 
-        set
-        {
-            if (SetProperty(ref _date, value))
-            {
-                OnPropertyChanged(nameof(UpdatableSign));
-            }
-        }
-    }
-
-    private double _markCount;
-    public override double MarkCount
-    {
-        get => _markCount;
-        set
-        {
-            if (SetProperty(ref _markCount, value))
-            {
-                OnPropertyChanged(nameof(UpdatableSign));
-            }
-        }
-    }
-
-    private string? _remark;
-    public override string? Remark
-    {
-        get => _remark;
-        set
-        {
-            if (SetProperty(ref _remark, value))
-            {
-                OnPropertyChanged(nameof(UpdatableSign));
-            }
-        }
-    }
-
-    public bool IsModified()
-    {
-        return Area.Id != PreviousState.Area.Id
-            || Date != PreviousState.Date
-            || MarkCount != PreviousState.MarkCount
-            || Remark != PreviousState.Remark
-            || !Executors.OrderBy(e => e.FullNameAndPost).Select(e => e.Id).SequenceEqual(PreviousState.Executors.OrderBy(e => e.FullNameAndPost).Select(e => e.Id));
-    }
-
-    public void RollBackChanges()
-    {
-        Area = PreviousState.Area;
-        Date = PreviousState.Date;
-        MarkCount = PreviousState.MarkCount;
-        Remark = PreviousState.Remark;
-        Executors = PreviousState.Executors;
-    }
-
-    public virtual void SaveState()
-    {
-        PreviousState = (MarkCompleteEventViewModel)MemberwiseClone();
-        PreviousState.Executors = new(Executors);
-        OnPropertyChanged(nameof(UpdatableSign));
     }
 }
 
