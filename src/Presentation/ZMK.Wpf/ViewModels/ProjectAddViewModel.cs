@@ -50,7 +50,7 @@ public partial class ProjectAddViewModel : DialogViewModel
 
     public ProjectAddViewModel(IUserDialogService userDialogService) : base(userDialogService)
     {
-        ControlTitle = "Добавление проэкта";
+        ControlTitle = "Добавление проекта";
     }
 
     protected override async Task Accept(object action)

@@ -27,7 +27,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0">
-            <TextBlock HorizontalAlignment="Center" Margin="15" Text="Настройки выбранного проэкта"/>
+            <TextBlock HorizontalAlignment="Center" Margin="15" Text="Настройки выбранного проекта"/>
             <Rectangle Height="3" Margin="30,0,30,0" Fill="Black">
                 <Rectangle.RadiusX>2
                 </Rectangle.RadiusX>

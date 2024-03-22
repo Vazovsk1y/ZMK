@@ -85,6 +85,11 @@ public class AreaService : BaseService, IAreaService
             return Result.Success();
         }
 
+        if (await _dbContext.MarkCompleteEvents.AnyAsync(e => e.AreaId == area.Id, cancellationToken) || await _dbContext.ProjectsAreas.AnyAsync(e => e.AreaId == area.Id, cancellationToken))
+        {
+            return Result.Failure<Guid>(new Error(nameof(Error), "Удаление невозможно, присутствуют связанные данные."));
+        }
+
         _dbContext.Areas.Remove(area);
         await _dbContext.SaveChangesAsync(cancellationToken);
 

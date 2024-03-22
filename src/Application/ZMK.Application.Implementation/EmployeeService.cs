@@ -85,6 +85,11 @@ public class EmployeeService : BaseService, IEmployeeService
             return Result.Failure(new Error(nameof(Error), "Зайдите с другого аккаунта чтобы иметь возможность удалить данного сотрудника."));
         }
 
+        if (await _dbContext.Users.AnyAsync(e => e.EmployeeId == employee.Id, cancellationToken) || await _dbContext.MarkCompleteEventsEmployees.AnyAsync(e => e.EmployeeId == employee.Id, cancellationToken))
+        {
+            return Result.Failure<Guid>(new Error(nameof(Error), "Удаление невозможно, присутствуют связанные данные."));
+        }
+
         _dbContext.Employees.Remove(employee);
         await _dbContext.SaveChangesAsync(cancellationToken);
 

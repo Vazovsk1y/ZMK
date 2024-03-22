@@ -41,7 +41,7 @@
                     </ItemsPanelTemplate>
                 </Menu.ItemsPanel>
 
-                <MenuItem Header="Проэкты"
+                <MenuItem Header="Проекты"
                           Template="{StaticResource MenuItem_Template}"
                           DataContext="{Binding ProjectsPanelViewModel}"
                                 Command="{Binding DataContext.MenuItemChangedCommand, 

@@ -68,9 +68,7 @@ public partial class EmployeesPanelViewModel : TitledViewModel,
         using var scope = App.Services.CreateScope();
         var employeeService = scope.ServiceProvider.GetRequiredService<IEmployeeService>();
 
-        var dialogResult = MessageBoxHelper.ShowDialogBoxYesNo(
-            $"Вы уверены, что желаете удалить данного сотрудника '{SelectedEmployee!.FullName}'?" +
-            $"\nВнимание! При удалении сотрудника удалятся все связанные с ним пользователи.");
+        var dialogResult = MessageBoxHelper.ShowDialogBoxYesNo($"Вы уверены, что желаете удалить данного сотрудника '{SelectedEmployee!.FullName}'?");
         if (dialogResult == System.Windows.MessageBoxResult.Yes)
         {
             var result = await employeeService.DeleteAsync(SelectedEmployee.Id).ConfigureAwait(false);

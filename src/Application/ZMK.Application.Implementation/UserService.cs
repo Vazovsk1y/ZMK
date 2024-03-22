@@ -101,6 +101,11 @@ public class UserService : BaseService, IUserService
             return Result.Failure(new Error(nameof(Error),"Зайдите с другого аккаунта чтобы иметь возможность удалить данного пользователя."));
         }
 
+        if (await _dbContext.MarksEvents.AnyAsync(e => e.CreatorId == user.Id, cancellationToken) || await _dbContext.Projects.AnyAsync(e => e.CreatorId == user.Id, cancellationToken))
+        {
+            return Result.Failure<Guid>(new Error(nameof(Error), "Удаление невозможно, присутствуют связанные данные."));
+        }
+
         _dbContext.Users.Remove(user);
         await _dbContext.SaveChangesAsync(cancellationToken);
 

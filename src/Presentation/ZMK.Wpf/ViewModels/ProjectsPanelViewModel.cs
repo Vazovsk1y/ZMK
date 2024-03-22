@@ -61,14 +61,14 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
         using var scope = App.Services.CreateScope();
         var projectService = scope.ServiceProvider.GetRequiredService<IProjectService>();
 
-        var dialogResult = MessageBoxHelper.ShowDialogBoxYesNo($"Вы уверены, что желаете удалить данный проэкт '{SelectedProject!.FactoryNumber}'?");
+        var dialogResult = MessageBoxHelper.ShowDialogBoxYesNo($"Вы уверены, что желаете удалить данный проект '{SelectedProject!.FactoryNumber}'?");
         if (dialogResult == System.Windows.MessageBoxResult.Yes)
         {
             var result = await projectService.DeleteAsync(SelectedProject.Id).ConfigureAwait(false);
             if (result.IsSuccess)
             {
                 App.Current.Dispatcher.Invoke(() => Projects.Remove(SelectedProject));
-                MessageBoxHelper.ShowInfoBox("Проэкт успешно удален.");
+                MessageBoxHelper.ShowInfoBox("Проект успешно удален.");
             }
             else
             {
@@ -113,7 +113,7 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
 
         if (results.Where(e => e.IsSuccess).Any())
         {
-            MessageBoxHelper.ShowInfoBox($"Информация о {results.Where(e => e.IsSuccess).Count()} проэктах была обновлена успешно.");
+            MessageBoxHelper.ShowInfoBox($"Информация о {results.Where(e => e.IsSuccess).Count()} проектах была обновлена успешно.");
         }
         else
         {
@@ -148,7 +148,7 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
                 }
                 else
                 {
-                    MessageBoxHelper.ShowInfoBox("Настройки проэкта успешно сохранены.");
+                    MessageBoxHelper.ShowInfoBox("Настройки проекта успешно сохранены.");
                     SelectedProject.Settings.SaveState();
                 }
             });
@@ -162,7 +162,7 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
         App.Current.Dispatcher.Invoke(() =>
         {
             Projects.Add(message.Project);
-            MessageBoxHelper.ShowInfoBox("Проэкт был успешно добавлен.");
+            MessageBoxHelper.ShowInfoBox("Проект был успешно добавлен.");
         });
     }
 

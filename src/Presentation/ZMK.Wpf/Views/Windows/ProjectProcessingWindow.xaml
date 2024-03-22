@@ -51,7 +51,7 @@
         <TextBlock
 			Grid.Row="0"
 			Margin="10, 5, 0, 0"
-			Text="{Binding MarksPanelViewModel.SelectedProject.FactoryNumber, StringFormat='Выбранный проэкт: {0}'}"/>
+			Text="{Binding MarksPanelViewModel.SelectedProject.FactoryNumber, StringFormat='Выбранный проект: {0}'}"/>
         <Grid Grid.Row="1" Margin="10, 5, 0, 0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
