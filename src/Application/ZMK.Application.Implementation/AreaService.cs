@@ -130,9 +130,9 @@ public class AreaService : BaseService, IAreaService
             case null:
                 return Result.Failure(Errors.NotFound("Участок"));
             case Area when await _dbContext.Areas.AnyAsync(e => e.Id != area.Id && e.Title == area.Title, cancellationToken):
-                return Result.Failure<Guid>(new Error(nameof(Error), "Участок с таким названием уже существует."));
+                return Result.Failure<Guid>(new Error(nameof(Error), $"Участок с таким названием '{area.Title}' уже существует."));
             case Area when await _dbContext.Areas.AnyAsync(e => e.Id != area.Id && e.Order == area.Order, cancellationToken):
-                return Result.Failure<Guid>(new Error(nameof(Error), "Участок с таким значением очередности уже существует."));
+                return Result.Failure<Guid>(new Error(nameof(Error), $"Участок с таким значением очередности '{area.Order}' уже существует."));
             default:
                 {
                     await _dbContext.SaveChangesAsync(cancellationToken);

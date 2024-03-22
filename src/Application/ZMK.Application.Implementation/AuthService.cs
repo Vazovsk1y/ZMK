@@ -67,6 +67,7 @@ public class AuthService : BaseService, IAuthService
         var currentSessionId = _currentSessionProvider.GetCurrentSessionId();
         if (currentSessionId is null)
         {
+            _logger.LogWarning("Значение текущей сессии было null.");
             return Result.Success();
         }
 
@@ -81,6 +82,11 @@ public class AuthService : BaseService, IAuthService
                 return Result.Success();
             default:
                 {
+                    if (!session.IsActive)
+                    {
+                        _logger.LogWarning("Сессия с айди '{sessionId}' уже числится не активной.", session.Id);
+                    }
+
                     var currentDate = _clock.GetDateTimeOffsetUtcNow();
                     session.ClosingDate = currentDate;
                     session.IsActive = false;

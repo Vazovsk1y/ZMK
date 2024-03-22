@@ -51,16 +51,17 @@ public class MarkService : BaseService, IMarkService
             .Include(e => e.Mark)
             .ThenInclude(e => e.Project)
             .ThenInclude(e => e.Settings)
+            .Include(e => e.Creator)
             .SingleOrDefaultAsync(e => e.Id == dTO.EventId, cancellationToken);
 
         switch (completeEvent)
         {
             case null:
-                return Result.Failure(Errors.NotFound("Событие выполнения"));
+                return Result.Failure(Errors.NotFound("Запись о выполнении марки"));
             case MarkCompleteEvent when completeEvent.Mark.Project.Settings.AreExecutorsRequired && !dTO.Executors.Any():
                 return Result.Failure(new Error(nameof(Error), "Заполнение исполнителей обязательно. Указано в настройках проэкта."));
             case MarkCompleteEvent when isAbleResult.Value.UserId != completeEvent.CreatorId:
-                return Result.Failure(new Error(nameof(Error), "Только создатель может изменять информацию о событии."));
+                return Result.Failure(new Error(nameof(Error), $"Только создатель '{completeEvent.Creator.UserName}-{completeEvent.Creator.Employee.FullName}' может изменять информацию о данной записи."));
             case MarkCompleteEvent
                 when (await _dbContext
                 .MarkCompleteEvents
@@ -101,7 +102,7 @@ public class MarkService : BaseService, IMarkService
             return Result.Failure<Guid>(isAbleResult.Errors);
         }
 
-        _logger.LogInformation("Попытка заполненения выполнения марки.");
+        _logger.LogInformation("Попытка заполнения выполнения марки.");
         var mark = await _dbContext
             .Marks
             .Include(e => e.Project)
@@ -124,15 +125,15 @@ public class MarkService : BaseService, IMarkService
 
                     foreach (var item in dTO.AreasExecutions)
                     {
-                        double completeCount = await _dbContext
+                        double currentCompleteCount = await _dbContext
                             .MarkCompleteEvents
                             .Where(e => e.MarkId == dTO.MarkId && e.AreaId == item.AreaId)
                             .SumAsync(e => e.CompleteCount, cancellationToken);
 
-                        double leftCount = mark.Count - completeCount;
+                        double leftCount = mark.Count - currentCompleteCount;
                         if (item.Count > leftCount)
                         {
-                            return Result.Failure(new Error(nameof(Error), $"Количество для заполения '{item.Count}' больше текущего остатка на этом участке '{leftCount}'."));
+                            return Result.Failure(new Error(nameof(Error), $"Количество для заполения '{item.Count}' больше текущего остатка на этом участке '{leftCount}' для данной марки."));
                         }
 
                         var currentDate = _clock.GetDateTimeOffsetUtcNow();
@@ -141,7 +142,7 @@ public class MarkService : BaseService, IMarkService
                             MarkId = mark.Id,
                             AreaId = item.AreaId,
                             CompleteCount = item.Count,
-                            CreatedDate = currentDate, // UTC
+                            CreatedDate = currentDate,
                             CreatorId = isAbleResult.Value.UserId,
                             EventType = EventType.Complete,
                             Remark = item.Remark?.Trim(),
@@ -187,7 +188,7 @@ public class MarkService : BaseService, IMarkService
             return Result.Failure<IReadOnlyCollection<Guid>>(isAbleToAddMark.Errors);
         }
 
-        _logger.LogInformation("Попытка добавления марок из файла таблицы эксель {fileExtension}.", Path.GetExtension(filePath));
+        _logger.LogInformation("Попытка добавления марок из файла таблицы эксель '{fileExtension}'.", Path.GetExtension(filePath));
         List<(Mark mark, string? remark)> marks = [];
         try
         {
@@ -355,7 +356,7 @@ public class MarkService : BaseService, IMarkService
             case Mark when await IsAbleToModifyMark(mark.ProjectId) is Result result && result.IsFailure:
                 return result;
             case Mark when await _dbContext.Marks.Where(e => e.ProjectId == mark.ProjectId).AnyAsync(e => e.Id != mark.Id && e.Code == mark.Code, cancellationToken):
-                return Result.Failure(new Error(nameof(Error), "Марка с таким кодом уже существует."));
+                return Result.Failure(new Error(nameof(Error), $"Марка с таким кодом '{mark.Code}' уже существует."));
             default:
                 {
                     var completeForEachArea = await _dbContext
@@ -398,9 +399,9 @@ public class MarkService : BaseService, IMarkService
         var project = await _dbContext
             .Projects
             .Include(e => e.Settings)
-            .SingleOrDefaultAsync(e => e.Id == projectId);
+            .SingleAsync(e => e.Id == projectId);
 
-        if (project is null || !project.Settings.AllowMarksAdding)
+        if (!project.Settings.AllowMarksAdding)
         {
             return Result.Failure(new Error(nameof(Error), "Функция добавления марок отключена в настройках проэкта."));
         }
@@ -413,9 +414,9 @@ public class MarkService : BaseService, IMarkService
         var project = await _dbContext
             .Projects
             .Include(e => e.Settings)
-            .SingleOrDefaultAsync(e => e.Id == projectId);
+            .SingleAsync(e => e.Id == projectId);
 
-        if (project is null || !project.Settings.AllowMarksDeleting)
+        if (!project.Settings.AllowMarksDeleting)
         {
             return Result.Failure(new Error(nameof(Error), "Функция удаления марок отключена в настройках проэкта."));
         }
@@ -428,9 +429,9 @@ public class MarkService : BaseService, IMarkService
         var project = await _dbContext
             .Projects
             .Include(e => e.Settings)
-            .SingleOrDefaultAsync(e => e.Id == projectId);
+            .SingleAsync(e => e.Id == projectId);
 
-        if (project is null || !project.Settings.AllowMarksModifying)
+        if (!project.Settings.AllowMarksModifying)
         {
             return Result.Failure(new Error(nameof(Error), "Функция изменения марок отключена в настройках проэкта."));
         }

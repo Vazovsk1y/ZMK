@@ -71,7 +71,7 @@ public class UserService : BaseService, IUserService
         {
             transaction.Rollback();
             _logger.LogError(ex, "Что-то пошло не так во время добавления нового пользователя. Транзакция не была зафиксирована.");
-            return Result.Failure<Guid>(new Error(nameof(Exception), "Что-то пошло не так во время добавления нового пользователя. Транзакция не была зафиксирована."));
+            return Result.Failure<Guid>(new Error(nameof(Exception), "Что-то пошло не так во время добавления нового пользователя."));
         }
 
         _logger.LogInformation("Новый пользователь был успешно добавлен.");
@@ -174,7 +174,7 @@ public class UserService : BaseService, IUserService
             var newRole = await _dbContext.Roles.SingleAsync(e => e.Id == dTO.RoleId, cancellationToken);
             if (newRole.Name != DefaultRoles.Admin && _dbContext.Users.Where(e => e.Roles.Select(e => e.Role!.Name).Contains(DefaultRoles.Admin)).Count() == 1)
             {
-                return Result.Failure(new Error(nameof(Exception), "Невозможно сменить роль последенго администратора в системе."));
+                return Result.Failure(new Error(nameof(Exception), "Невозможно сменить роль последнего администратора в системе."));
             }
 
             var previousRoles = await _dbContext.UserRoles.Where(e => e.UserId == user.Id).ToListAsync(cancellationToken);
@@ -191,7 +191,7 @@ public class UserService : BaseService, IUserService
         {
             transaction.Rollback();
             _logger.LogError(ex, "Что-то пошло не так во время обновления пользователя. Транзакция не была зафиксирована.");
-            return Result.Failure(new Error(nameof(Exception), "Что-то пошло не так во время обновления пользователя. Транзакция не была зафиксирована."));
+            return Result.Failure(new Error(nameof(Exception), "Что-то пошло не так во время обновления пользователя."));
         }
 
         _logger.LogInformation("Информация о пользователе была успешно обновлена.");

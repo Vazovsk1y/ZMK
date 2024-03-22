@@ -41,11 +41,11 @@ public class ProjectService : BaseService, IProjectService
             return Result.Failure<Guid>(isAbleResult.Errors);
         }
 
-        _logger.LogInformation("Попытка добавления нового проэкта.");
+        _logger.LogInformation("Попытка добавления нового проекта.");
         var project = dTO.ToEntity(_clock, isAbleResult.Value.UserId);
         if (await _dbContext.Projects.AnyAsync(e => e.FactoryNumber == project.FactoryNumber, cancellationToken))
         {
-            return Result.Failure<Guid>(new Error(nameof(Error), "Проэкт с таким заводским номером уже существует."));
+            return Result.Failure<Guid>(new Error(nameof(Error), "Проект с таким заводским номером уже существует."));
         }
 
         var projectSettings = dTO.ToSettingsEntity(project.Id);
@@ -55,7 +55,7 @@ public class ProjectService : BaseService, IProjectService
         _dbContext.ProjectsSettings.Add(projectSettings);
         _dbContext.ProjectsAreas.AddRange(projectAreas);
         await _dbContext.SaveChangesAsync(cancellationToken);
-        _logger.LogInformation("Проэкт был успешно добавлен.");
+        _logger.LogInformation("Проект был успешно добавлен.");
         return project.Id;
     }
 
@@ -69,21 +69,21 @@ public class ProjectService : BaseService, IProjectService
             return Result.Failure<Guid>(isAbleResult.Errors);
         }
 
-        _logger.LogInformation("Попытка удаления проэкта.");
+        _logger.LogInformation("Попытка удаления проекта.");
         var project = await _dbContext
             .Projects
             .SingleOrDefaultAsync(e => e.Id == id, cancellationToken);
 
         if (project is null)
         {
-            _logger.LogWarning("Проэкта с указанным айди нет в базе данных.");
+            _logger.LogWarning("Проекта с указанным айди нет в базе данных.");
             return Result.Success();
         }
 
         _dbContext.Projects.Remove(project);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Проэкт был успешно удален.");
+        _logger.LogInformation("Проект был успешно удален.");
         return Result.Success();
     }
 
@@ -103,7 +103,7 @@ public class ProjectService : BaseService, IProjectService
             return Result.Failure(isAbleResult.Errors);
         }
 
-        _logger.LogInformation("Попытка обновления информации о проэкте.");
+        _logger.LogInformation("Попытка обновления информации о проекте.");
         var project = await _dbContext
             .Projects
             .Include(e => e.Settings)
@@ -113,15 +113,15 @@ public class ProjectService : BaseService, IProjectService
         switch (project)
         {
             case null:
-                return Result.Failure(Errors.NotFound("Проэкт"));
+                return Result.Failure(Errors.NotFound("Проект"));
             case Project { Settings.IsEditable: false }:
-                return Result.Failure(new Error(nameof(Error), "Функция редактирования не доступна для этого проэкта."));
+                return Result.Failure(new Error(nameof(Error), $"Функция редактирования отключена для '{project.FactoryNumber}'."));
             case Project when await _dbContext.Projects.AnyAsync(e => e.Id != project.Id && e.FactoryNumber == project.FactoryNumber, cancellationToken):
-                return Result.Failure<Guid>(new Error(nameof(Error), "Проэкт с таким заводским номером уже существует."));
+                return Result.Failure<Guid>(new Error(nameof(Error), $"Проект с таким заводским '{project.FactoryNumber}' номером уже существует."));
             default:
                 {
                     await _dbContext.SaveChangesAsync(cancellationToken);
-                    _logger.LogInformation("Информация о проэкте была успешно обновлена.");
+                    _logger.LogInformation("Информация о проекте была успешно обновлена.");
                     return Result.Success();
                 }
         }
@@ -143,14 +143,14 @@ public class ProjectService : BaseService, IProjectService
             return Result.Failure(isAbleResult.Errors);
         }
 
-        _logger.LogInformation("Попытка обновления настроек проэкта.");
+        _logger.LogInformation("Попытка обновления настроек проекта.");
         var settings = await _dbContext
             .ProjectsSettings
             .SingleOrDefaultAsync(e => e.ProjectId == dTO.ProjectId, cancellationToken);
 
         if (settings is null)
         {
-            _logger.LogWarning("Настройки для указанного проэкта не найдены в базе данных.");
+            _logger.LogWarning("Настройки для указанного проекта не найдены в базе данных.");
             return Result.Success();
         }
 
@@ -167,7 +167,7 @@ public class ProjectService : BaseService, IProjectService
         _dbContext.ProjectsAreas.AddRange(newProjectAreas);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
-        _logger.LogInformation("Настройки проэкта были успешно обновлены.");
+        _logger.LogInformation("Настройки проекта были успешно обновлены.");
         return Result.Success();
     }
 }

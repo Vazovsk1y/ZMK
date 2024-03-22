@@ -130,7 +130,7 @@ public class EmployeeService : BaseService, IEmployeeService
 
         if (await _dbContext.Employees.AnyAsync(e => e.Id != employee.Id && e.FullName == employee.FullName, cancellationToken))
         {
-            return Result.Failure<Guid>(new Error(nameof(Error), "Сотрудник с таким ФИО уже существует."));
+            return Result.Failure<Guid>(new Error(nameof(Error),  $"Сотрудник с таким ФИО '{employee.FullName}' уже существует."));
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
