@@ -122,14 +122,7 @@ public partial class EmployeesPanelViewModel : TitledViewModel,
             results.Add(updateResult);
         }
 
-        if (results.Where(e => e.IsSuccess).Any())
-        {
-            MessageBoxHelper.ShowInfoBox($"Информация об {results.Where(e => e.IsSuccess).Count()} сотрудниках была обновлена успешно.");
-        }
-        else
-        {
-            MessageBoxHelper.ShowErrorBox(results.Where(e => e.IsFailure).SelectMany(e => e.Errors).Display());
-        }
+        results.DisplayUpdateResultMessageBox();
         IsEnabled = true;
 
         if (currentEmployeeUpdated)

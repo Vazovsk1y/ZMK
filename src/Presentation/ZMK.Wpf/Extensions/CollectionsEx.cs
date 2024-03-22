@@ -16,4 +16,13 @@ public static class CollectionsEx
     {
         return string.Join(Environment.NewLine, errors.Select(e => e.Text));
     }
+
+    public static void DisplayUpdateResultMessageBox(this IEnumerable<Result> results)
+    {
+        var failedResults = results.Where(e => e.IsFailure);
+        var successCount = results.Count() - failedResults.Count();
+
+        string message = failedResults.Count() == 0 ? $"Успешно обновлено {successCount} записей." : $"Успешно обновлено {successCount} записей.\nОшибки:\n{failedResults.SelectMany(e => e.Errors).Display()}";
+        MessageBoxHelper.ShowInfoBox(message);
+    }
 }

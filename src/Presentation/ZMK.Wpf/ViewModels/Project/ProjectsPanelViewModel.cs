@@ -112,14 +112,7 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
             results.Add(updateResult);
         }
 
-        if (results.Where(e => e.IsSuccess).Any())
-        {
-            MessageBoxHelper.ShowInfoBox($"Информация о {results.Where(e => e.IsSuccess).Count()} проектах была обновлена успешно.");
-        }
-        else
-        {
-            MessageBoxHelper.ShowErrorBox(results.Where(e => e.IsFailure).SelectMany(e => e.Errors).Display());
-        }
+        results.DisplayUpdateResultMessageBox();
         IsEnabled = true;
     }
 

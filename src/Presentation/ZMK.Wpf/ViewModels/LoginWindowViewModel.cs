@@ -68,7 +68,7 @@ internal partial class LoginWindowViewModel : DialogViewModel
         }
         else
         {
-            MessageBoxHelper.ShowInfoBox(result.Errors.Display());
+            MessageBoxHelper.ShowErrorBox(result.Errors.Display());
         }
     }
 

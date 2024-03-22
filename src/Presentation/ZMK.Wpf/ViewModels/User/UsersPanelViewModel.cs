@@ -126,24 +126,14 @@ public partial class UsersPanelViewModel : TitledViewModel,
             }
             else
             {
-                if (user.Id == App.CurrentSession?.User.Id)
-                {
-                    currentUserUpdated = true;
-                }
+                currentUserUpdated = user.Id == App.CurrentSession?.User.Id;
                 user.SaveState();
             }
 
             results.Add(updateResult);
         }
 
-        if (results.Where(e => e.IsSuccess).Any())
-        {
-            MessageBoxHelper.ShowInfoBox($"Информация об {results.Where(e => e.IsSuccess).Count()} пользователях была обновлена успешно.");
-        }
-        else
-        {
-            MessageBoxHelper.ShowErrorBox(results.Where(e => e.IsFailure).SelectMany(e => e.Errors).Display());
-        }
+        results.DisplayUpdateResultMessageBox();
         IsEnabled = true;
 
         if (currentUserUpdated)

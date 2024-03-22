@@ -223,7 +223,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
             await App.Current.Dispatcher.InvokeAsync(() =>
             {
                 Marks.AddRange(addedMarks);
-                CalculateExecutionForEachMark(SelectedArea.Id, SelectedDisplayInOption);
+                CalculateExecutionForEachMark(SelectedArea?.Id, SelectedDisplayInOption);
                 MessageBoxHelper.ShowInfoBox($"{result.Value.Count} марок было успешно добавлено.");
             });
         }
@@ -276,15 +276,12 @@ public partial class MarksPanelViewModel : TitledViewModel,
             RefreshMarkEventsForSelectedMark(SelectedEventTypeOption);
         }
 
-        if (results.Where(e => e.IsSuccess).Any())
+        if (updatedMarksIds.Count > 0)
         {
             CalculateExecutionForEachMark(SelectedArea?.Id, SelectedDisplayInOption);
-            MessageBoxHelper.ShowInfoBox($"Информация о {results.Where(e => e.IsSuccess).Count()} марках была обновлена успешно.");
         }
-        else
-        {
-            MessageBoxHelper.ShowErrorBox(results.Where(e => e.IsFailure).SelectMany(e => e.Errors).Display());
-        }
+
+        results.DisplayUpdateResultMessageBox();
         IsEnabled = true;
     }
 
@@ -353,12 +350,9 @@ public partial class MarksPanelViewModel : TitledViewModel,
         {
             await RefreshExecutionForSelectedMark();
             CalculateExecutionForEachMark(SelectedArea?.Id, SelectedDisplayInOption);
-            MessageBoxHelper.ShowInfoBox($"Информация о заполнении была обновлена успешно.");
         }
-        else
-        {
-            MessageBoxHelper.ShowErrorBox(results.Where(e => e.IsFailure).SelectMany(e => e.Errors).Display());
-        }
+
+        results.DisplayUpdateResultMessageBox();
         IsEnabled = true;
     }
 
