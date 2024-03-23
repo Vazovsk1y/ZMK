@@ -47,6 +47,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
     [NotifyCanExecuteChangedFor(nameof(FillExecutionCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ExportEventsToExcelCommand))]
     private MarkViewModel? _selectedMark;
 
     private string _selectedDisplayInOption = null!;
@@ -76,6 +77,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
                 RefreshMarkEventsForSelectedMark(value);
             }
             SaveCompleteMarkEventsChangesCommand.NotifyCanExecuteChanged();
+            ExportEventsToExcelCommand.NotifyCanExecuteChanged();
         }
     }
 
@@ -359,6 +361,56 @@ public partial class MarksPanelViewModel : TitledViewModel,
     public bool CanSaveMarkEventsChanges() =>
         (SelectedEventTypeOption == MarkEventViewModel.CommonEventType
         || SelectedEventTypeOption == MarkEventViewModel.CompleteEventType) && SelectedMarkEvents is ICollection<MarkEventViewModel> { Count: > 0 } e && e.Any(e => e.EventType == MarkEventViewModel.CompleteEventType);
+
+    [RelayCommand(CanExecute = nameof(CanExportEventsToExcel))]
+    public async Task ExportEventsToExcel()
+    {
+        if (ExportEventsToExcelCommand.IsRunning)
+        {
+            return;
+        }
+
+        IsEnabled = false;
+
+        const string Filter = "Excel Files (*.xlsx)|*.xlsx";
+        const string Title = "Выберите файл:";
+        var fileDialog = new Microsoft.Win32.SaveFileDialog
+        {
+            Filter = Filter,
+            Title = Title,
+            RestoreDirectory = true,
+        };
+
+        var dialogResult = fileDialog.ShowDialog();
+
+        string selectedFilePath;
+        if (dialogResult is bool dresult && dresult is true && !string.IsNullOrWhiteSpace(fileDialog.FileName))
+        {
+            selectedFilePath = fileDialog.FileName;
+        }
+        else
+        {
+            return;
+        }
+
+        using var scope = App.Services.CreateScope();
+        var service = scope.ServiceProvider.GetRequiredService<IMarkEventsReportService>();
+
+        var dto = new ExportToExcelMarkEventsDTO(SelectedMark!.Id, SelectedEventTypeOption!.ToReportType(), selectedFilePath);
+        var result = await service.ExportToExcelAsync(dto);
+        if (result.IsSuccess)
+        {
+            MessageBoxHelper.ShowInfoBox("Отчет был успешно экспортирован.");
+        }
+        else
+        {
+            MessageBoxHelper.ShowErrorBox(result.Errors.Display());
+        }
+
+        IsEnabled = true;
+    }
+
+    public bool CanExportEventsToExcel() => SelectedMark is not null && SelectedEventTypeOption != MarkEventViewModel.CreateEventType;
 
     public void Receive(MarksAddedMessage message)
     {

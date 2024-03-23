@@ -10,6 +10,16 @@ namespace ZMK.Wpf.Extensions;
 
 public static class Mapper
 {
+    public static MarkEventsReportTypes ToReportType(this string type)
+    {
+        return type switch
+        {
+            MarkEventViewModel.CommonEventType => MarkEventsReportTypes.Common,
+            MarkEventViewModel.ModifyEventType => MarkEventsReportTypes.Modify,
+            MarkEventViewModel.CompleteEventType => MarkEventsReportTypes.Complete,
+            _ => throw new KeyNotFoundException(),
+        };
+    }
     public static MarkEventViewModel ToViewModel(this MarkEvent @event)
     {
         string creatorInfo = $"{@event.Creator.UserName} - {@event.Creator.Employee.FullName}";

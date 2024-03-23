@@ -21,6 +21,7 @@ public static class Registrator
         services.AddScoped<IXlsxReader<MarkAddDTO>, MarkAddDTOXlsxReader>();
         services.AddScoped<IMarkService, MarkService>();
         services.AddScoped<IAreaService, AreaService>();
+        services.AddScoped<IMarkEventsReportService, MarkEventsReportService>();
 
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddIdentity();

@@ -112,4 +112,21 @@ public abstract class BaseService
                 }
         }
     }
+
+    protected async Task<Result<Session>> IsAbleToPerformAction(CancellationToken cancellationToken = default)
+    {
+        var currentSession = await _dbContext.Sessions.LoadByIdAsync(_currentSessionProvider.GetCurrentSessionId(), cancellationToken);
+
+        switch (currentSession)
+        {
+            case null:
+                return Result.Failure<Session>(Errors.Auth.Unauthorized);
+            case Session { IsActive: false }:
+                return Result.Failure<Session>(Errors.Auth.Unauthorized);
+            default:
+                {
+                    return currentSession;
+                }
+        }
+    }
 }

@@ -7,6 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Templates\commonMarkEventsReportTemplate.xlsx" />
+    <None Remove="Templates\completeMarkEventsReportTemplate.xlsx" />
+    <None Remove="Templates\modifyMarkEventsReportTemplate.xlsx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\commonMarkEventsReportTemplate.xlsx" />
+    <EmbeddedResource Include="Templates\completeMarkEventsReportTemplate.xlsx" />
+    <EmbeddedResource Include="Templates\modifyMarkEventsReportTemplate.xlsx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML.Report" Version="0.2.9" />
     <PackageReference Include="FluentValidation" Version="11.9.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.3" />
