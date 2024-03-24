@@ -91,11 +91,12 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
 
         var enabledAreas = await dbContext
             .Projects
+            .Include(e => e.Settings)
             .AsNoTracking()
             .Where(e => e.Id == SelectedMark.ProjectId)
             .SelectMany(e => e.Areas)
-            .Select(e => e.Area)
-            .OrderBy(e => e.Order)
+            .Select(e => new { e.Area, e.Project.Settings.AreExecutorsRequired })
+            .OrderBy(e => e.Area.Order)
             .ToListAsync();
 
         var completeEvents = await dbContext
@@ -113,17 +114,47 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
             .Employees
             .AsNoTracking()
             .OrderBy(e => e.FullName)
-            .Select(e => new ExecutorInfo(e.Id, string.IsNullOrWhiteSpace(e.Post) ? e.FullName : $"{e.FullName} ({e.Post})"))
+            .Select(e => e.ToInfo())
             .ToListAsync();
 
         await App.Current.Dispatcher.InvokeAsync(() =>
         {
-            var fillExecutionVms = enabledAreas
-            .ToDictionary(e => e, i => completeEvents.Where(e => e.AreaId == i.Id).Sum(e => e.CompleteCount))
-            .Select(e => new FillMarkExecutionViewModel { Area = e.Key.ToViewModel(), Left = SelectedMark.Count - e.Value })
-            .ToList();
+            var execution = enabledAreas.ToDictionary(e => e, i => completeEvents.Where(e => e.AreaId == i.Area.Id).Sum(e => e.CompleteCount));
+            var fillExecutionVms = new ObservableCollection<FillMarkExecutionViewModel>();
 
-            FillExecutionViewModels.AddRange(fillExecutionVms);
+            var enumerator = execution.GetEnumerator();
+            if (enumerator.MoveNext())
+            {
+                var current = enumerator.Current;
+                var previous = new FillMarkExecutionViewModel
+                {
+                    Area = current.Key.Area.ToViewModel(),
+                    LeftCount = SelectedMark.Count - current.Value,
+                    AreExecutorsRequired = current.Key.AreExecutorsRequired,
+                    IsAbleToFill = true,
+                    IsFirst = true,
+                };
+
+                FillExecutionViewModels.Add(previous);
+
+                while (enumerator.MoveNext())
+                {
+                    current = enumerator.Current;
+                    var vm = new FillMarkExecutionViewModel
+                    {
+                        Area = current.Key.Area.ToViewModel(),
+                        LeftCount = SelectedMark.Count - current.Value,
+                        AreExecutorsRequired = current.Key.AreExecutorsRequired,
+                        IsAbleToFill = previous.IsFinished && previous.IsFirst || !current.Key.AreExecutorsRequired,
+                        IsFirst = previous.IsFinished && previous.IsFirst,
+                    };
+
+                    FillExecutionViewModels.Add(vm);
+                    previous.Next = vm;
+                    previous = vm;
+                }
+            }
+
             AvailableExecutors.AddRange(executors);
             ExecutionHistory.AddRange(completeEvents.Select(e => e.ToViewModel()));
             IsEnabled = true;

@@ -6,13 +6,19 @@ namespace ZMK.Wpf.ViewModels;
 
 public partial class FillMarkExecutionViewModel : ObservableObject
 {
-    public required double Left { get; init; }
+    public required double LeftCount { get; init; }
 
     public required AreaViewModel Area { get; init; }
 
+    public required bool AreExecutorsRequired { get; init; }
+
+    public FillMarkExecutionViewModel? Next { get; set; }
+
+    public bool IsFirst { get; init; }
+
     public ObservableCollection<ExecutorInfo> Executors { get; } = [];
 
-    public bool IsNotFinished => Left != 0;
+    public bool IsNotFinished => LeftCount != 0;
 
     public bool IsFinished => !IsNotFinished;
 
@@ -24,6 +30,33 @@ public partial class FillMarkExecutionViewModel : ObservableObject
 
     [ObservableProperty]
     private string? _remark;
+
+    private bool _isAbleToFill;
+    public bool IsAbleToFill
+    {
+        get => _isAbleToFill;
+        set
+        {
+            SetProperty(ref _isAbleToFill, value);
+            if (Next is null)
+            {
+                return;
+            }
+
+            if (IsFinished)
+            {
+                Next.IsAbleToFill = IsAbleToFill;
+            }
+            else if (value && Executors.Count > 0)
+            {
+                Next.IsAbleToFill = true;
+            }
+            else if (!value)
+            {
+                Next.IsAbleToFill = false;
+            }
+        }
+    }
 
     private ExecutorInfo? _selectedExecutor;
 
@@ -37,6 +70,10 @@ public partial class FillMarkExecutionViewModel : ObservableObject
                 if (value is not null && !Executors.Contains(value))
                 {
                     Executors.Add(value);
+                    if (AreExecutorsRequired && Next is not null)
+                    {
+                        Next.IsAbleToFill = true;
+                    }
                 }
             }
         }
@@ -51,6 +88,10 @@ public partial class FillMarkExecutionViewModel : ObservableObject
         }
 
         Executors.Remove(executor);
+        if (AreExecutorsRequired && Next is not null && Executors.Count == 0)
+        {
+            Next.IsAbleToFill = false;
+        }
         SelectedExecutor = null;
     }
 }
