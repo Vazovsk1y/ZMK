@@ -10,6 +10,16 @@ namespace ZMK.Wpf.Extensions;
 
 public static class Mapper
 {
+    public static ProjectExecutionReportTypes ToProjectReportType(this string type)
+    {
+        return type switch
+        {
+            ByAreaViewModel.ByAreasOption => ProjectExecutionReportTypes.ByAreas,
+            ByExecutorViewModel.ByExecutorsOption => ProjectExecutionReportTypes.ByExecutors,
+            _ => throw new KeyNotFoundException(),
+        };
+    }
+
     public static ExecutorInfo ToInfo(this Employee employee)
     {
         return new ExecutorInfo(employee.Id, string.IsNullOrWhiteSpace(employee.Post) ?
@@ -17,7 +27,7 @@ public static class Mapper
                 :
                 $"{employee.FullName} ({employee.Post})");
     }
-    public static MarkEventsReportTypes ToReportType(this string type)
+    public static MarkEventsReportTypes ToMarkReportType(this string type)
     {
         return type switch
         {

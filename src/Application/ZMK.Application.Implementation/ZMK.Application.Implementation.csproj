@@ -7,12 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Templates\byAreasProjectExecutionReportTemplate.xlsx" />
+    <None Remove="Templates\byExecutorsProjectExecutionReportTemplate.xlsx" />
     <None Remove="Templates\commonMarkEventsReportTemplate.xlsx" />
     <None Remove="Templates\completeMarkEventsReportTemplate.xlsx" />
     <None Remove="Templates\modifyMarkEventsReportTemplate.xlsx" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Templates\byAreasProjectExecutionReportTemplate.xlsx" />
+    <EmbeddedResource Include="Templates\byExecutorsProjectExecutionReportTemplate.xlsx" />
     <EmbeddedResource Include="Templates\commonMarkEventsReportTemplate.xlsx" />
     <EmbeddedResource Include="Templates\completeMarkEventsReportTemplate.xlsx" />
     <EmbeddedResource Include="Templates\modifyMarkEventsReportTemplate.xlsx" />

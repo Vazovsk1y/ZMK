@@ -105,6 +105,10 @@
                     MinWidth="100"
                     Command="{Binding GenerateReportCommand}"
                     />
+            <Button Content="Экспорт в Excel"
+                    Margin="10, 5, 0, 5"
+                    MinWidth="100"
+                    Command="{Binding ExportToExcelCommand}"/>
         </StackPanel>
     </Grid>
 </Window>

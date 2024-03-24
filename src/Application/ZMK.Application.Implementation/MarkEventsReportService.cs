@@ -42,7 +42,7 @@ public class MarkEventsReportService : BaseService, IMarkEventsReportService
             return validationResult;
         }
 
-        var isAbleResult = await IsAbleToPerformAction(cancellationToken).ConfigureAwait(false);
+        var isAbleResult = await IsAuthenticated(cancellationToken).ConfigureAwait(false);
         if (isAbleResult.IsFailure)
         {
             return isAbleResult;
@@ -56,7 +56,6 @@ public class MarkEventsReportService : BaseService, IMarkEventsReportService
 
         _logger.LogInformation("Запрос на экспорт событий марки '{markId}' в Excel. Тип отчета '{reportType}'.", dTO.MarkId, dTO.ReportType.ToString());
 
-        var currentDate = DateTime.Now;
         Stream stream;
         object report;
         XLTemplate template;
@@ -80,13 +79,7 @@ public class MarkEventsReportService : BaseService, IMarkEventsReportService
                        .Select(e => e.ToCommon())
                        .ToListAsync(cancellationToken);
 
-                    report = new MarkEventsReport<CommonReportMarkEvent>(
-                        currentDate,
-                        targetMark.Title,
-                        targetMark.Count,
-                        targetMark.Code,
-                        targetMark.Weight,
-                        events);
+                    report = targetMark.ToReport(events);
                     break;
                 }
             case MarkEventsReportTypes.Modify:
@@ -107,13 +100,7 @@ public class MarkEventsReportService : BaseService, IMarkEventsReportService
                        .Select(e => e.ToModifyOrCreate())
                        .ToListAsync(cancellationToken);
 
-                    report = new MarkEventsReport<ModifyOrCreateReportMarkEvent>(
-                        currentDate,
-                        targetMark.Title,
-                        targetMark.Count,
-                        targetMark.Code,
-                        targetMark.Weight,
-                        events);
+                    report = targetMark.ToReport(events);
                     break;
                 }
             case MarkEventsReportTypes.Complete:
@@ -135,13 +122,7 @@ public class MarkEventsReportService : BaseService, IMarkEventsReportService
                        .Select(e => e.ToComplete())
                        .ToListAsync(cancellationToken);
 
-                    report = new MarkEventsReport<CompleteReportMarkEvent>(
-                        currentDate,
-                        targetMark.Title,
-                        targetMark.Count,
-                        targetMark.Code,
-                        targetMark.Weight,
-                        events);
+                    report = targetMark.ToReport(events);
                     break;
                 }
             default: throw new KeyNotFoundException();

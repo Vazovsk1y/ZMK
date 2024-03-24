@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using ZMK.Application.Contracts;
+using ZMK.Application.Implementation.Extensions;
 using ZMK.Application.Services;
 using ZMK.Domain.Entities;
 using ZMK.Domain.Shared;
@@ -95,13 +96,13 @@ public partial class MarksPanelViewModel : TitledViewModel,
         }
     }
 
-    public double TotalCount => Marks.Sum(e => e.Count).RoundForDisplay();
+    public double TotalCount => Marks.Sum(e => e.Count).RoundForReport();
 
-    public double TotalWeight => Marks.Sum(e => e.TotalWeight).RoundForDisplay();
+    public double TotalWeight => Marks.Sum(e => e.TotalWeight).RoundForReport();
 
-    public double TotalComplete => CalculateTotalComplete().RoundForDisplay();
+    public double TotalComplete => CalculateTotalComplete().RoundForReport();
 
-    public double TotalLeft => CalculateTotalLeft().RoundForDisplay();
+    public double TotalLeft => CalculateTotalLeft().RoundForReport();
 
     public MarksPanelViewModel(ProjectsPanelViewModel projectsPanelViewModel)
     {
@@ -207,6 +208,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
             return;
         }
 
+        IsEnabled = false;
         using var scope = App.Services.CreateScope();
         var markService = scope.ServiceProvider.GetRequiredService<IMarkService>();
         var dbContext = scope.ServiceProvider.GetRequiredService<ZMKDbContext>();
@@ -233,6 +235,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
         {
             MessageBoxHelper.ShowErrorBox(result.Errors.Display());
         }
+        IsEnabled = true;
     }
 
     [RelayCommand]
@@ -365,39 +368,17 @@ public partial class MarksPanelViewModel : TitledViewModel,
     [RelayCommand(CanExecute = nameof(CanExportEventsToExcel))]
     public async Task ExportEventsToExcel()
     {
-        if (ExportEventsToExcelCommand.IsRunning)
+        string? selectedFilePath = DialogHelper.ShowSaveXlsxFileDialog();
+        if (string.IsNullOrWhiteSpace(selectedFilePath) || ExportEventsToExcelCommand.IsRunning)
         {
             return;
         }
 
         IsEnabled = false;
-
-        const string Filter = "Excel Files (*.xlsx)|*.xlsx";
-        const string Title = "Выберите файл:";
-        var fileDialog = new Microsoft.Win32.SaveFileDialog
-        {
-            Filter = Filter,
-            Title = Title,
-            RestoreDirectory = true,
-        };
-
-        var dialogResult = fileDialog.ShowDialog();
-
-        string selectedFilePath;
-        if (dialogResult is bool dresult && dresult is true && !string.IsNullOrWhiteSpace(fileDialog.FileName))
-        {
-            selectedFilePath = fileDialog.FileName;
-        }
-        else
-        {
-            IsEnabled = true;
-            return;
-        }
-
         using var scope = App.Services.CreateScope();
         var service = scope.ServiceProvider.GetRequiredService<IMarkEventsReportService>();
 
-        var dto = new ExportToExcelMarkEventsDTO(SelectedMark!.Id, SelectedEventTypeOption!.ToReportType(), selectedFilePath);
+        var dto = new ExportToExcelMarkEventsDTO(SelectedMark!.Id, SelectedEventTypeOption!.ToMarkReportType(), selectedFilePath);
         var result = await service.ExportToExcelAsync(dto);
         if (result.IsSuccess)
         {
@@ -407,7 +388,6 @@ public partial class MarksPanelViewModel : TitledViewModel,
         {
             MessageBoxHelper.ShowErrorBox(result.Errors.Display());
         }
-
         IsEnabled = true;
     }
 
@@ -478,7 +458,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
             .Employees
             .AsNoTracking()
             .OrderBy(e => e.FullName)
-            .Select(e => new ExecutorInfo(e.Id, string.IsNullOrWhiteSpace(e.Post) ? e.FullName : $"{e.FullName} ({e.Post})"))
+            .Select(e => e.ToInfo())
             .ToListAsync();
 
         await App.Current.Dispatcher.InvokeAsync(() =>
@@ -524,16 +504,16 @@ public partial class MarksPanelViewModel : TitledViewModel,
                     }
                 case string when ByKg == displayInOption:
                     {
-                        double completeInKg = (completeCount * item.Weight).RoundForDisplay();
+                        double completeInKg = (completeCount * item.Weight).RoundForReport();
                         item.Complete = completeInKg;
-                        item.Left = ((item.Count - completeCount) * item.Weight).RoundForDisplay();
+                        item.Left = ((item.Count - completeCount) * item.Weight).RoundForReport();
                         break;
                     }
                 case string when ByPercents == displayInOption:
                     {
-                        double completeInPercents = (item.Count == 0 ? 0 : (completeCount * 100) / item.Count).RoundForDisplay();
+                        double completeInPercents = (item.Count == 0 ? 0 : (completeCount * 100) / item.Count).RoundForReport();
                         item.Complete = completeInPercents;
-                        item.Left = (100 - completeInPercents).RoundForDisplay();
+                        item.Left = (100 - completeInPercents).RoundForReport();
                         break;
                     }
                 default:

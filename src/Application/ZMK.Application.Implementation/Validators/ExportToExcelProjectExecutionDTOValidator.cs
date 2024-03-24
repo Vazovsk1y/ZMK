@@ -3,11 +3,11 @@ using ZMK.Application.Contracts;
 
 namespace ZMK.Application.Implementation.Validators;
 
-public class ExportToExcelMarkEventsDTOValidator : AbstractValidator<ExportToExcelMarkEventsDTO>
+public class ExportToExcelProjectExecutionDTOValidator : AbstractValidator<ExportToExcelProjectExecutionDTO>
 {
-    public ExportToExcelMarkEventsDTOValidator()
+    public ExportToExcelProjectExecutionDTOValidator()
     {
-        RuleFor(e => e.MarkId).NotEmpty();
+        RuleFor(e => e.ProjectId).NotEmpty();
         RuleFor(e => e.FilePath).NotEmpty().Must(e => e.EndsWith(Constants.Common.XlsxExtension, StringComparison.OrdinalIgnoreCase));
     }
 }

@@ -113,7 +113,7 @@ public abstract class BaseService
         }
     }
 
-    protected async Task<Result<Session>> IsAbleToPerformAction(CancellationToken cancellationToken = default)
+    protected async Task<Result<Session>> IsAuthenticated(CancellationToken cancellationToken = default)
     {
         var currentSession = await _dbContext.Sessions.LoadByIdAsync(_currentSessionProvider.GetCurrentSessionId(), cancellationToken);
 

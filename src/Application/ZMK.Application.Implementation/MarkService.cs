@@ -16,7 +16,7 @@ namespace ZMK.Application.Implementation;
 
 public class MarkService : BaseService, IMarkService
 {
-    public static readonly IReadOnlyCollection<string> AllowedFilesExtensions = [ ".xlsx", ".xls" ];
+    public static readonly IReadOnlyCollection<string> AllowedFilesExtensions = [ Constants.Common.XlsxExtension, ".xls" ];
 
     private readonly IXlsxReader<MarkAddDTO> _xlsxMarksReader;
     public MarkService(IClock clock,

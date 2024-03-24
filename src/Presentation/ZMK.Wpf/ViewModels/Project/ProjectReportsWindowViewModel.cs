@@ -3,6 +3,9 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
+using ZMK.Application.Contracts;
+using ZMK.Application.Implementation.Extensions;
+using ZMK.Application.Services;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
 
@@ -13,6 +16,8 @@ public partial class ProjectReportsWindowViewModel : TitledViewModel
     public ProjectViewModel SelectedProject { get; }
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(GenerateReportCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ExportToExcelCommand))]
     private string _selectedReportByOption = ByAreaViewModel.ByAreasOption;
 
     public ObservableCollection<string> ReportByOptions { get; } = [ByAreaViewModel.ByAreasOption, ByExecutorViewModel.ByExecutorsOption];
@@ -65,6 +70,34 @@ public partial class ProjectReportsWindowViewModel : TitledViewModel
 
     public bool CanGenerateReport() => !string.IsNullOrWhiteSpace(SelectedReportByOption);
 
+    [RelayCommand]
+    public async Task ExportToExcel()
+    {
+        string? selectedFilePath = DialogHelper.ShowSaveXlsxFileDialog();
+        if (string.IsNullOrWhiteSpace(selectedFilePath) || ExportToExcelCommand.IsRunning)
+        {
+            return;
+        }
+
+        IsEnabled = false;
+        using var scope = App.Services.CreateScope();
+        var service = scope.ServiceProvider.GetRequiredService<IProjectReportService>();
+
+        var dto = new ExportToExcelProjectExecutionDTO(SelectedProject.Id, SelectedReportByOption!.ToProjectReportType(), selectedFilePath, WithoutRange ? null : new Application.Contracts.Range(From, To));
+        var result = await service.ExportExecutionToExcelAsync(dto);
+        if (result.IsSuccess)
+        {
+            MessageBoxHelper.ShowInfoBox("Отчет был успешно экспортирован.");
+        }
+        else
+        {
+            MessageBoxHelper.ShowErrorBox(result.Errors.Display());
+        }
+        IsEnabled = true;
+    }
+
+    public bool CanExportToExcel() => !string.IsNullOrWhiteSpace(SelectedReportByOption);
+
     private async Task<IEnumerable<ByAreaViewModel>> ByAreas()
     {
         ArgumentNullException.ThrowIfNull(SelectedProject);
@@ -111,8 +144,8 @@ public partial class ProjectReportsWindowViewModel : TitledViewModel
                 Area = new AreaInfo(e.Key.Id, e.Key.Title),
                 CompleteCount = completeCount,
                 LeftCount = leftCount,
-                LeftWeight = leftWeight.RoundForDisplay(),
-                CompleteWeight = completeWeight.RoundForDisplay()
+                LeftWeight = leftWeight.RoundForReport(),
+                CompleteWeight = completeWeight.RoundForReport()
             };
         });
     }
@@ -157,7 +190,7 @@ public partial class ProjectReportsWindowViewModel : TitledViewModel
                 Area = group.Key.Area,
                 Executor = group.Key.Executor,
                 CompleteCount = group.Sum(e => e.CompleteCount),
-                CompleteWeight = group.Sum(e => e.CompleteWeight).RoundForDisplay(),
+                CompleteWeight = group.Sum(e => e.CompleteWeight).RoundForReport(),
             })
             .ToList();
 

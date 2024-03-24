@@ -7,6 +7,37 @@ namespace ZMK.Application.Implementation.Extensions;
 
 public static class Mapper
 {
+    public static MarkEventsReport<T> ToReport<T>(this Mark mark, IEnumerable<T> events)
+    {
+        return new MarkEventsReport<T>(
+                        DateTime.Now,
+                        mark.Title,
+                        mark.Count,
+                        mark.Code,
+                        mark.Weight,
+                        events);
+    }
+
+    public static ProjectExecutionReport<T> ToReport<T>(this Project project, ExportToExcelProjectExecutionDTO dTO, IEnumerable<T> items)
+    {
+        string reportTypeString = dTO.ReportType switch
+        {
+            ProjectExecutionReportTypes.ByAreas => "По участкам",
+            ProjectExecutionReportTypes.ByExecutors => "По исполнителям",
+            _ => throw new KeyNotFoundException(),
+        };
+
+        return new ProjectExecutionReport<T>(
+            DateTime.Now, 
+            project.FactoryNumber, 
+            project.CreatedDate, 
+            $"{project.Creator.UserName} - {project.Creator.Employee.FullName}",
+            reportTypeString,
+            dTO.Range is null ? "За весь период" : $"C: {dTO.Range.From:dd.MM.yyyy} По: {dTO.Range.To:dd.MM.yyyy}",
+            items
+            );
+    }
+
     public static CompleteReportMarkEvent ToComplete(this MarkCompleteEvent @event)
     {
         return new CompleteReportMarkEvent(
