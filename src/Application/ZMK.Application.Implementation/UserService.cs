@@ -58,7 +58,7 @@ public class UserService : BaseService, IUserService
 
             if (!result.Succeeded)
             {
-                return Result.Failure<Guid>(result.Errors.ToErrors());
+                return Result.Failure<Guid>(result.Errors.ToSharedErrors());
             }
 
             var role = await _dbContext.Roles.SingleAsync(e => e.Id == dTO.RoleId, cancellationToken);
@@ -162,13 +162,13 @@ public class UserService : BaseService, IUserService
             
             if (!changePasswordResult.Succeeded)
             {
-                return Result.Failure(changePasswordResult.Errors.ToErrors());
+                return Result.Failure(changePasswordResult.Errors.ToSharedErrors());
             }
 
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
             {
-                return Result.Failure(updateResult.Errors.ToErrors());
+                return Result.Failure(updateResult.Errors.ToSharedErrors());
             }
 
             var newRole = await _dbContext.Roles.SingleAsync(e => e.Id == dTO.RoleId, cancellationToken);

@@ -42,13 +42,13 @@ public class ProjectService : BaseService, IProjectService
         }
 
         _logger.LogInformation("Попытка добавления нового проекта.");
-        var project = dTO.ToEntity(_clock, isAbleResult.Value.UserId);
+        var project = dTO.ToProject(_clock, isAbleResult.Value.UserId);
         if (await _dbContext.Projects.AnyAsync(e => e.FactoryNumber == project.FactoryNumber, cancellationToken))
         {
             return Result.Failure<Guid>(new Error(nameof(Error), "Проект с таким заводским номером уже существует."));
         }
 
-        var projectSettings = dTO.ToSettingsEntity(project.Id);
+        var projectSettings = dTO.ToProjectSettings(project.Id);
         var projectAreas = dTO.Areas.Select(e => new ProjectArea { AreaId = e, ProjectId = project.Id }).ToList();
 
         _dbContext.Projects.Add(project);

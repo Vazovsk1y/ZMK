@@ -76,7 +76,7 @@ public class MarkReportService : BaseService, IMarkReportService
                        .AsNoTracking()
                        .Where(e => e.MarkId == dTO.MarkId)
                        .OrderByDescending(e => e.CreatedDate)
-                       .Select(e => e.ToCommon())
+                       .Select(e => e.ToCommonRaw())
                        .ToListAsync(cancellationToken);
 
                     report = targetMark.ToReport(events);
@@ -97,7 +97,7 @@ public class MarkReportService : BaseService, IMarkReportService
                        .AsNoTracking()
                        .Where(e => e.MarkId == dTO.MarkId && e.EventType == EventType.Create || e.EventType == EventType.Modify)
                        .OrderByDescending(e => e.CreatedDate)
-                       .Select(e => e.ToModifyOrCreate())
+                       .Select(e => e.ToModifyOrCreateRaw())
                        .ToListAsync(cancellationToken);
 
                     report = targetMark.ToReport(events);
@@ -119,7 +119,7 @@ public class MarkReportService : BaseService, IMarkReportService
                        .AsNoTracking()
                        .Where(e => e.MarkId == dTO.MarkId)
                        .OrderByDescending(e => e.CreatedDate)
-                       .Select(e => e.ToComplete())
+                       .Select(e => e.ToCompleteRaw())
                        .ToListAsync(cancellationToken);
 
                     report = targetMark.ToReport(events);
@@ -149,8 +149,8 @@ public record MarkEventsReport<T>(
     double MarkWeight,
     IEnumerable<T> Events);
 
-public record CommonReportMarkEvent(DateTime Date, double Count, string Title, string EventType, string Creator, string? Remark);
+public record CommonMarkEventRaw(DateTime Date, double Count, string Title, string EventType, string Creator, string? Remark);
 
-public record ModifyOrCreateReportMarkEvent(DateTime Date, double MarkCount, string MarkCode, double MarkWeight, string MarkTitle, string EventType, string Creator, string? Remark);
+public record ModifyOrCreateMarkEventRaw(DateTime Date, double MarkCount, string MarkCode, double MarkWeight, string MarkTitle, string EventType, string Creator, string? Remark);
 
-public record CompleteReportMarkEvent(DateTime CompleteDate, double CompleteCount, string AreaTitle, string EventType, string Executors, string Creator, string? Remark);
+public record CompleteMarkEventRaw(DateTime CompleteDate, double CompleteCount, string AreaTitle, string EventType, string Executors, string Creator, string? Remark);

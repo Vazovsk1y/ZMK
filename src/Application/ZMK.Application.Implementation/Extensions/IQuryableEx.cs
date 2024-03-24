@@ -9,8 +9,8 @@ public static class IQuryableEx
     {
         return await sessions
             .Include(e => e.User)
-            .ThenInclude(e => e!.Employee)
-            .Include(e => e.User!.Roles)
+            .ThenInclude(e => e.Employee)
+            .Include(e => e.User.Roles)
             .ThenInclude(e => e.Role)
             .SingleOrDefaultAsync(e => e.Id == id, cancellationToken);
     }

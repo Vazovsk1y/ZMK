@@ -38,9 +38,9 @@ public static class Mapper
             );
     }
 
-    public static CompleteReportMarkEvent ToComplete(this MarkCompleteEvent @event)
+    public static CompleteMarkEventRaw ToCompleteRaw(this MarkCompleteEvent @event)
     {
-        return new CompleteReportMarkEvent(
+        return new CompleteMarkEventRaw(
             @event.CompleteDate.Date,
             @event.CompleteCount,
             @event.Area.Title,
@@ -51,10 +51,10 @@ public static class Mapper
             );
     }
 
-    public static ModifyOrCreateReportMarkEvent ToModifyOrCreate(this MarkEvent markEvent)
+    public static ModifyOrCreateMarkEventRaw ToModifyOrCreateRaw(this MarkEvent markEvent)
     {
         string eventType = markEvent.EventType switch { EventType.Create => "Создано", EventType.Modify => "Изменено", _ => throw new KeyNotFoundException() };
-        return new ModifyOrCreateReportMarkEvent(
+        return new ModifyOrCreateMarkEventRaw(
             markEvent.CreatedDate.DateTime,
             markEvent.MarkCount,
             markEvent.MarkCode,
@@ -65,14 +65,14 @@ public static class Mapper
             markEvent.Remark);
     }
 
-    public static CommonReportMarkEvent ToCommon(this MarkEvent markEvent)
+    public static CommonMarkEventRaw ToCommonRaw(this MarkEvent markEvent)
     {
         string creator = $"{markEvent.Creator.UserName}-{markEvent.Creator.Employee.FullName}";
         switch (markEvent.EventType)
         {
             case EventType.Create:
                 {
-                    return new CommonReportMarkEvent(
+                    return new CommonMarkEventRaw(
                         markEvent.CreatedDate.DateTime,
                         markEvent.MarkCount,
                         $"{markEvent.MarkCode}-{markEvent.MarkTitle}",
@@ -82,7 +82,7 @@ public static class Mapper
                 }
             case EventType.Modify:
                 {
-                    return new CommonReportMarkEvent(
+                    return new CommonMarkEventRaw(
                         markEvent.CreatedDate.DateTime,
                         markEvent.MarkCount,
                         $"{markEvent.MarkCode}-{markEvent.MarkTitle}",
@@ -93,7 +93,7 @@ public static class Mapper
             case EventType.Complete:
                 {
                     var completeEvent = (MarkCompleteEvent)markEvent;
-                    return new CommonReportMarkEvent(
+                    return new CommonMarkEventRaw(
                         completeEvent.CompleteDate.DateTime,
                         completeEvent.CompleteCount,
                         completeEvent.Area.Title,
@@ -106,7 +106,7 @@ public static class Mapper
         }
     }
 
-    public static Project ToEntity(this ProjectAddDTO dto, IClock clock, Guid creatorId)
+    public static Project ToProject(this ProjectAddDTO dto, IClock clock, Guid creatorId)
     {
         return new Project
         {
@@ -130,7 +130,7 @@ public static class Mapper
         project.ModifiedDate = clock.GetDateTimeOffsetUtcNow();
     }
 
-    public static ProjectSettings ToSettingsEntity(this ProjectAddDTO dto, Guid projectId)
+    public static ProjectSettings ToProjectSettings(this ProjectAddDTO dto, Guid projectId)
     {
         return new ProjectSettings
         {
@@ -143,7 +143,7 @@ public static class Mapper
         };
     }
 
-    public static Mark ToEntity(this MarkAddDTO markAddDTO)
+    public static Mark ToMark(this MarkAddDTO markAddDTO)
     {
         return new Mark
         {

@@ -45,8 +45,12 @@ public class AuthService : BaseService, IAuthService
                 return Result.Failure<Guid>(Errors.Auth.InvalidUsernameOrPassword);
             case User when !string.IsNullOrWhiteSpace(loginDTO.Password) && !await _userManager.CheckPasswordAsync(user, loginDTO.Password):
                 return Result.Failure<Guid>(Errors.Auth.InvalidUsernameOrPassword);
-            case User when await _dbContext.Sessions.AnyAsync(e => e.IsActive, cancellationToken):
-                return Result.Failure<Guid>(Errors.Auth.SessionIsAlreadyOpened);
+            case User when await _dbContext
+            .Sessions
+            .Include(e => e.User)
+            .ThenInclude(e => e.Employee)
+            .SingleOrDefaultAsync(e => e.IsActive, cancellationToken) is Session s:
+                return Result.Failure<Guid>(new Error(nameof(Error), $"'{s.User.UserName} - {s.User.Employee.FullName}' уже использует приложение. Попробуйте войти позже."));
             default:
                 {
                     await _dbContext

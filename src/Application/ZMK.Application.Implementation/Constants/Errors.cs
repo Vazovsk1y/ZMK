@@ -1,5 +1,4 @@
-﻿using System;
-using ZMK.Domain.Shared;
+﻿using ZMK.Domain.Shared;
 
 namespace ZMK.Application.Implementation.Constants;
 
@@ -11,9 +10,7 @@ public static class Errors
 
         public static readonly Error InvalidUsernameOrPassword = new($"{BaseCode}.{nameof(InvalidUsernameOrPassword)}", "Неверный логин или пароль.");
 
-        public static readonly Error SessionIsAlreadyOpened = new($"{BaseCode}.{nameof(SessionIsAlreadyOpened)}", "Другой пользователь уже использует приложение.");
-
-        public static readonly Error Unauthorized = new($"{BaseCode}.{nameof(Unauthorized)}", "Вы не авторизованы.");
+        public static readonly Error Unauthorized = new($"{BaseCode}.{nameof(Unauthorized)}", "Войдите в аккаунт.");
 
         public static readonly Error AccessDenied = new($"{BaseCode}.{nameof(AccessDenied)}", "У вас недостаточно прав на выполнение этой операции.");
     }

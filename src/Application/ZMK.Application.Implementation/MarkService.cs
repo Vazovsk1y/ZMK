@@ -205,7 +205,7 @@ public class MarkService : BaseService, IMarkService
                 {
                     return Result.Failure<IReadOnlyCollection<Guid>>(validationResult.Errors);
                 }
-                marks.Add((markDto.ToEntity(), markDto.Remark?.Trim()));
+                marks.Add((markDto.ToMark(), markDto.Remark?.Trim()));
             }
         }
         catch (Exception ex)
@@ -271,7 +271,7 @@ public class MarkService : BaseService, IMarkService
         }
 
         _logger.LogInformation("Попытка добавления новой марки.");
-        var mark = dTO.ToEntity();
+        var mark = dTO.ToMark();
         if (await _dbContext.Marks.Where(e => e.ProjectId == mark.ProjectId).AnyAsync(e => e.Code == mark.Code, cancellationToken))
         {
             return Result.Failure<Guid>(new Error(nameof(Error), "Марка с таким кодом уже существует."));
