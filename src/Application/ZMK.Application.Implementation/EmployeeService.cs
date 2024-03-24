@@ -116,7 +116,7 @@ public class EmployeeService : BaseService, IEmployeeService
         _logger.LogInformation("Попытка обновления данных сотрудника.");
         var employee = await _dbContext
             .Employees
-            .SingleOrDefaultAsync(e => e.Id == dTO.Id, cancellationToken);
+            .SingleOrDefaultAsync(e => e.Id == dTO.EmployeeId, cancellationToken);
 
 
         if (employee is null)

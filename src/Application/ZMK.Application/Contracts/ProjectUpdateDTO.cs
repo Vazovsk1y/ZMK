@@ -1,7 +1,7 @@
 ﻿namespace ZMK.Application.Contracts;
 
 public record ProjectUpdateDTO(
-    Guid Id,
+    Guid ProjectId,
     string FactoryNumber,
     string? ContractNumber,
     string? Customer,

@@ -6,7 +6,7 @@ using ZMK.Domain.Entities;
 
 namespace ZMK.Application.Implementation;
 
-public class MarkAddDTOXlsxReader : IXlsxReader<MarkAddDTO>
+public class MarkAddDTOXlsxReader : IMarkAddDTOXlsxReader
 {
     private const int OrderColumnIndex = 0;
 

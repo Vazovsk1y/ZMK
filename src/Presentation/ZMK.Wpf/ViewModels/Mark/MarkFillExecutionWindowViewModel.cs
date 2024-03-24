@@ -58,14 +58,14 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
 
         using var scope = App.Services.CreateScope();
         var markService = scope.ServiceProvider.GetRequiredService<IMarkService>();
-        var dto = new FillExecutionDTO(
+        var dto = new FillMarkExecutionDTO(
             SelectedMark.Id,
             vms.Select(e => new AreaExecutionDTO(e.Area.Id, e.Executors.Select(e => e.Id).ToArray(), (double)counts[e.Area.Id]!, e.Date!.Value.ToUniversalTime(), e.Remark)));
 
         var result = await markService.FillExecutionAsync(dto);
         if (result.IsSuccess)
         {
-            Messenger.Send(new MarkExecutionFilledMessage(dto.MarkId, dto.AreasExecutions.ToDictionary(e => e.AreaId, e => e.Count)));
+            Messenger.Send(new MarkExecutionFilledMessage(dto.MarkId, dto.Executions.ToDictionary(e => e.AreaId, e => e.Count)));
             _dialogService.CloseDialog();
         }
         else

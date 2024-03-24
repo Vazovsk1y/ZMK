@@ -107,7 +107,7 @@ public class ProjectService : BaseService, IProjectService
         var project = await _dbContext
             .Projects
             .Include(e => e.Settings)
-            .SingleOrDefaultAsync(e => e.Id == dTO.Id, cancellationToken);
+            .SingleOrDefaultAsync(e => e.Id == dTO.ProjectId, cancellationToken);
 
         project?.Update(dTO, _clock);
         switch (project)

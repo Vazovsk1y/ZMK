@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
-using ZMK.Application.Contracts;
 using ZMK.Application.Services;
 using ZMK.Domain.Entities;
 using ZMK.PostgresDAL;
@@ -18,10 +17,10 @@ public static class Registrator
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IEmployeeService, EmployeeService>();
         services.AddScoped<IProjectService, ProjectService>();
-        services.AddScoped<IXlsxReader<MarkAddDTO>, MarkAddDTOXlsxReader>();
+        services.AddScoped<IMarkAddDTOXlsxReader, MarkAddDTOXlsxReader>();
         services.AddScoped<IMarkService, MarkService>();
         services.AddScoped<IAreaService, AreaService>();
-        services.AddScoped<IMarkEventsReportService, MarkEventsReportService>();
+        services.AddScoped<IMarkReportService, MarkReportService>();
         services.AddScoped<IProjectReportService, ProjectReportService>();
 
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());

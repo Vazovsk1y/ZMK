@@ -1,4 +1,4 @@
 ﻿namespace ZMK.Application.Contracts;
 
-public record MarkUpdateDTO(Guid Id, string Code, string Title, int Order, double Weight, double Count);
+public record MarkUpdateDTO(Guid MarkId, string Code, string Title, int Order, double Weight, double Count);
 

@@ -8,7 +8,7 @@ public class MarkUpdateDTOValidator : AbstractValidator<MarkUpdateDTO>
 {
     public MarkUpdateDTOValidator()
     {
-        RuleFor(e => e.Id).NotEmpty();
+        RuleFor(e => e.MarkId).NotEmpty();
         RuleFor(e => e.Title).NotEmpty();
         RuleFor(e => e.Weight).NotEmpty().GreaterThanOrEqualTo(1);
         RuleFor(e => e.Code).NotEmpty();

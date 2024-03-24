@@ -129,7 +129,7 @@ public class UserService : BaseService, IUserService
             return isAbleResult;
         }
 
-        var user = await _userManager.FindByIdAsync(dTO.Id.ToString());
+        var user = await _userManager.FindByIdAsync(dTO.UserId.ToString());
         if (user is null)
         {
             return Result.Failure(Errors.NotFound("Пользователь"));

@@ -116,7 +116,7 @@ public class AreaService : BaseService, IAreaService
         _logger.LogInformation("Попытка обновления информации об участке.");
         var area = await _dbContext
             .Areas
-            .SingleOrDefaultAsync(e => e.Id == dTO.Id, cancellationToken);
+            .SingleOrDefaultAsync(e => e.Id == dTO.AreaId, cancellationToken);
 
         if (area is not null)
         {

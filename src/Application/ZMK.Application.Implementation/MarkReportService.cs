@@ -15,14 +15,14 @@ using ZMK.PostgresDAL;
 
 namespace ZMK.Application.Implementation;
 
-public class MarkEventsReportService : BaseService, IMarkEventsReportService
+public class MarkReportService : BaseService, IMarkReportService
 {
     private const string CommonReportResourceName = "ZMK.Application.Implementation.Templates.commonMarkEventsReportTemplate.xlsx";
 
     private const string ModifyReportResourceName = "ZMK.Application.Implementation.Templates.modifyMarkEventsReportTemplate.xlsx";
 
     private const string CompleteReportResourceName = "ZMK.Application.Implementation.Templates.completeMarkEventsReportTemplate.xlsx";
-    public MarkEventsReportService(
+    public MarkReportService(
         IClock clock,
         ILogger<BaseService> logger,
         IServiceScopeFactory serviceScopeFactory,
@@ -32,7 +32,7 @@ public class MarkEventsReportService : BaseService, IMarkEventsReportService
     {
     }
 
-    public async Task<Result> ExportToExcelAsync(ExportToExcelMarkEventsDTO dTO, CancellationToken cancellationToken = default)
+    public async Task<Result> ExportEventsToExcelAsync(ExportToExcelMarkEventsDTO dTO, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 

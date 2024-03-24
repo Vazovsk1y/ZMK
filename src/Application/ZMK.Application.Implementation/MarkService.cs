@@ -18,14 +18,14 @@ public class MarkService : BaseService, IMarkService
 {
     public static readonly IReadOnlyCollection<string> AllowedFilesExtensions = [ Constants.Common.XlsxExtension, ".xls" ];
 
-    private readonly IXlsxReader<MarkAddDTO> _xlsxMarksReader;
+    private readonly IMarkAddDTOXlsxReader _xlsxMarksReader;
     public MarkService(IClock clock,
         ILogger<BaseService> logger,
         IServiceScopeFactory serviceScopeFactory,
         ZMKDbContext dbContext,
         ICurrentSessionProvider currentSessionProvider,
         UserManager<User> userManager,
-        IXlsxReader<MarkAddDTO> xlsxMarksReader) : base(clock, logger, serviceScopeFactory, dbContext, currentSessionProvider, userManager)
+        IMarkAddDTOXlsxReader xlsxMarksReader) : base(clock, logger, serviceScopeFactory, dbContext, currentSessionProvider, userManager)
     {
         _xlsxMarksReader = xlsxMarksReader;
     }
@@ -91,7 +91,7 @@ public class MarkService : BaseService, IMarkService
         }
     }
 
-    public async Task<Result> FillExecutionAsync(FillExecutionDTO dTO, CancellationToken cancellationToken = default)
+    public async Task<Result> FillExecutionAsync(FillMarkExecutionDTO dTO, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -119,16 +119,16 @@ public class MarkService : BaseService, IMarkService
         {
             case null:
                 return Result.Failure(Errors.NotFound("Марка"));
-            case Mark when mark.Project.Settings.AreExecutorsRequired && dTO.AreasExecutions.Select(e => e.Executors).Any(e => !e.Any()):
+            case Mark when mark.Project.Settings.AreExecutorsRequired && dTO.Executions.Select(e => e.Executors).Any(e => !e.Any()):
                 return Result.Failure(new Error(nameof(Error), "Заполнение исполнителей обязательно. Указано в настройках проэкта."));
-            case Mark when dTO.AreasExecutions.Select(e => e.AreaId).Any(i => !mark.Project.Areas.Select(e => e.AreaId).Contains(i)):
+            case Mark when dTO.Executions.Select(e => e.AreaId).Any(i => !mark.Project.Areas.Select(e => e.AreaId).Contains(i)):
                 throw new InvalidOperationException($"Один из переданных участков не определен для проэкта с id '{mark.Project.Id}'.");
             default:
                 {
                     var completeEvents = new List<MarkCompleteEvent>();
                     var completeEventsEmployees = new List<MarkCompleteEventEmployee>();
 
-                    foreach (var item in dTO.AreasExecutions)
+                    foreach (var item in dTO.Executions)
                     {
                         double currentCompleteCount = await _dbContext
                             .MarkCompleteEvents
@@ -351,7 +351,7 @@ public class MarkService : BaseService, IMarkService
         _logger.LogInformation("Попытка обновления информации о марке.");
         var mark = await _dbContext
             .Marks
-            .SingleOrDefaultAsync(e => e.Id == dTO.Id, cancellationToken);
+            .SingleOrDefaultAsync(e => e.Id == dTO.MarkId, cancellationToken);
 
         mark?.Update(dTO);
         switch (mark)

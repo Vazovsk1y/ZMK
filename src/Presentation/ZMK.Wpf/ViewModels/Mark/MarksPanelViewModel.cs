@@ -376,10 +376,10 @@ public partial class MarksPanelViewModel : TitledViewModel,
 
         IsEnabled = false;
         using var scope = App.Services.CreateScope();
-        var service = scope.ServiceProvider.GetRequiredService<IMarkEventsReportService>();
+        var service = scope.ServiceProvider.GetRequiredService<IMarkReportService>();
 
         var dto = new ExportToExcelMarkEventsDTO(SelectedMark!.Id, SelectedEventTypeOption!.ToMarkReportType(), selectedFilePath);
-        var result = await service.ExportToExcelAsync(dto);
+        var result = await service.ExportEventsToExcelAsync(dto);
         if (result.IsSuccess)
         {
             MessageBoxHelper.ShowInfoBox("Отчет был успешно экспортирован.");
