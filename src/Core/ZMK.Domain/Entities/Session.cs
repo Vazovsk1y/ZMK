@@ -9,7 +9,7 @@ public class Session : Entity
 {
     public required Guid UserId { get; init; }
       
-    public required DateTimeOffset CreationDate { get; set; }
+    public required DateTimeOffset CreatedDate { get; set; }
 
     public DateTimeOffset? ClosingDate { get; set; }
 

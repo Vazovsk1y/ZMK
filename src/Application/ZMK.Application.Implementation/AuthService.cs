@@ -109,7 +109,7 @@ public class AuthService : BaseService, IAuthService
             {
                 IsActive = true,
                 UserId = user.Id,
-                CreationDate = currentDate,
+                CreatedDate = currentDate,
                 ClosingDate = null,
             };
 
@@ -119,7 +119,7 @@ public class AuthService : BaseService, IAuthService
         else
         {
             session.IsActive = true;
-            session.CreationDate = currentDate;
+            session.CreatedDate = currentDate;
             session.ClosingDate = null;
         }
 
