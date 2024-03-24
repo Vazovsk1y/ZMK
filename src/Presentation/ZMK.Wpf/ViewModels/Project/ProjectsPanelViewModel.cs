@@ -25,6 +25,7 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
     [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
     [NotifyCanExecuteChangedFor(nameof(UpdateProjectSettingsCommand))]
     [NotifyCanExecuteChangedFor(nameof(ProcessingCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ReportsCommand))]
     private ProjectViewModel? _selectedProject;
 
     [RelayCommand]
@@ -116,7 +117,7 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
         IsEnabled = true;
     }
 
-    [RelayCommand(CanExecute = nameof(CanProjectSettings))]
+    [RelayCommand(CanExecute = nameof(CanUpdateProjectSettings))]
     public async Task UpdateProjectSettings()
     {
         if (UpdateProjectSettingsCommand.IsRunning)
@@ -149,7 +150,17 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
         }
     }
 
-    public bool CanProjectSettings() => SelectedProject is not null;
+    public bool CanUpdateProjectSettings() => SelectedProject is not null;
+
+    [RelayCommand(CanExecute = nameof(CanReports))]
+    public void Reports()
+    {
+        using var scope = App.Services.CreateScope();
+        var dialogService = scope.ServiceProvider.GetRequiredService<IUserDialogService>();
+        dialogService.ShowDialog<ProjectReportsWindow>();
+    }
+
+    public bool CanReports() => SelectedProject is not null;
 
     public void Receive(ProjectAddedMessage message)
     {

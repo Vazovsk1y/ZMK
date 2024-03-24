@@ -30,7 +30,7 @@
             <Setter Property="MinHeight" Value="30"/>
             <Setter Property="FontSize" Value="14"/>
         </Style>
-        <extensions:ColumnVisibilityConverter x:Key="ColumnVisibililtyConverter"/>
+        <extensions:MarkEventsColumnVisibilityConverter x:Key="MarkEventsColumnVisibililtyConverter"/>
         <extensions:NullVisibilityConverter x:Key="NullVisibilityConverter"/>
 
         <Style x:Key="nonSelected" TargetType="{x:Type ListBoxItem}">
@@ -271,7 +271,7 @@
 						Binding="{Binding CommonTitle}"
 						Header="Название"
 						IsReadOnly="True"
-						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource ColumnVisibililtyConverter},  ConverterParameter={x:Static viewmodels:MarkEventViewModel.CommonEventType}}"/>
+						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static viewmodels:MarkEventViewModel.CommonEventType}}"/>
                     <DataGridTextColumn
 						Binding="{Binding EventType}"
 						Header="Тип события"
@@ -285,8 +285,8 @@
 						ItemsSource="{Binding Source={StaticResource AvailableAreas}}"
 						SelectedItemBinding="{Binding Area}"
                         DisplayMemberPath="Title"
-						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents, Source={x:Reference frmElement},      Converter={StaticResource ColumnVisibililtyConverter},ConverterParameter={x:Static viewmodels:MarkEventViewModel.CompleteEventType}}"/>
-                    <DataGridTemplateColumn Header="Исполнители" Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource ColumnVisibililtyConverter},  ConverterParameter={x:Static viewmodels:MarkEventViewModel.CompleteEventType}}">
+						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents, Source={x:Reference frmElement},      Converter={StaticResource MarkEventsColumnVisibililtyConverter},ConverterParameter={x:Static viewmodels:MarkEventViewModel.CompleteEventType}}"/>
+                    <DataGridTemplateColumn Header="Исполнители" Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static viewmodels:MarkEventViewModel.CompleteEventType}}">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <ItemsControl ItemsSource="{Binding Executors}">
@@ -342,22 +342,22 @@
 						Binding="{Binding MarkCode}"
 						Header="Код марки"
 						IsReadOnly="True"
-						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource ColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:ColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
+						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
                     <DataGridTextColumn
 						Binding="{Binding MarkTitle}"
 						Header="Название марки"
 						IsReadOnly="True"
-						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource ColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:ColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
+						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
                     <DataGridTextColumn
 						Binding="{Binding MarkOrder}"
 						Header="Очередность марки"
 						IsReadOnly="True"
-						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource ColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:ColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
+						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
                     <DataGridTextColumn
 						Binding="{Binding MarkWeight}"
 						Header="Вес марки"
 						IsReadOnly="True"
-						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource ColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:ColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
+						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
                     <DataGridTemplateColumn CellTemplate="{StaticResource RemarkReadonlyCellTemplate}" Header="Примечание">
                         <DataGridTemplateColumn.CellEditingTemplate>
                             <DataTemplate>
@@ -376,7 +376,7 @@
                     <DataGridTextColumn
 						Binding="{Binding UpdatableSign.Value}"
 						IsReadOnly="True"
-						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource ColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:ColumnVisibilityConverter.MarkCompleteOrCommonEventType}}"/>
+						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCompleteOrCommonEventType}}"/>
                 </DataGrid.Columns>
             </DataGrid>
             <StackPanel Grid.Row="2" Orientation="Horizontal">

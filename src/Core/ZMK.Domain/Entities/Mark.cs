@@ -12,6 +12,9 @@ public class Mark : Entity
 
     public required int Order { get; set; }
 
+    /// <summary>
+    /// Вес марки в килограммах.
+    /// </summary>
     public required double Weight { get; set; }
 
     public required Guid ProjectId { get; init; }

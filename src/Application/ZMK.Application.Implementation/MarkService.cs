@@ -77,6 +77,11 @@ public class MarkService : BaseService, IMarkService
                     completeEvent.CompleteCount = dTO.Count;
                     completeEvent.Remark = dTO.Remark?.Trim();
                     completeEvent.AreaId = dTO.AreaId;
+                    completeEvent.MarkCode = completeEvent.Mark.Code;
+                    completeEvent.MarkOrder = completeEvent.Mark.Order;
+                    completeEvent.MarkTitle = completeEvent.Mark.Title;
+                    completeEvent.MarkWeight = completeEvent.Mark.Weight;
+                    completeEvent.MarkCount = completeEvent.Mark.Count;
 
                     _dbContext.MarkCompleteEventsEmployees.RemoveRange(previousExecutors);
                     _dbContext.MarkCompleteEventsEmployees.AddRange(newExecutors);

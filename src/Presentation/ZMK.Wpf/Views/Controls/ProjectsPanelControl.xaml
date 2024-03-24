@@ -66,6 +66,9 @@
                     <Button Content="Процесс выполнения"
                             Command="{Binding ProcessingCommand}"
                             Margin="10"/>
+                    <Button Content="Отчеты"
+        Command="{Binding ReportsCommand}"
+        Margin="10"/>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>

@@ -158,14 +158,14 @@ public partial class MarksPanelViewModel : TitledViewModel,
         if (MarkEventsCache.TryGetValue(mark.Id, out var _))
         {
             SelectedMark = mark;
-            SelectedEventTypeOption = MarkEventViewModel.CommonEventType;
+            SelectedEventTypeOption = string.IsNullOrWhiteSpace(SelectedEventTypeOption) ? MarkEventViewModel.CommonEventType : SelectedEventTypeOption;
             IsEnabled = true;
             return;
         }
 
         await RefreshCacheMarkEventsFor(mark.Id);
         SelectedMark = mark;
-        SelectedEventTypeOption = MarkEventViewModel.CommonEventType;
+        SelectedEventTypeOption = string.IsNullOrWhiteSpace(SelectedEventTypeOption) ? MarkEventViewModel.CommonEventType : SelectedEventTypeOption;
         IsEnabled = true;
     }
 
@@ -390,6 +390,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
         }
         else
         {
+            IsEnabled = true;
             return;
         }
 

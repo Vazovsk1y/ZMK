@@ -10,6 +10,13 @@ namespace ZMK.Wpf.Extensions;
 
 public static class Mapper
 {
+    public static ExecutorInfo ToInfo(this Employee employee)
+    {
+        return new ExecutorInfo(employee.Id, string.IsNullOrWhiteSpace(employee.Post) ?
+                employee.FullName
+                :
+                $"{employee.FullName} ({employee.Post})");
+    }
     public static MarkEventsReportTypes ToReportType(this string type)
     {
         return type switch

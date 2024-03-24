@@ -6,7 +6,7 @@ using ZMK.Wpf.ViewModels;
 
 namespace ZMK.Wpf.Extensions;
 
-public class ColumnVisibilityConverter : IValueConverter
+public class MarkEventsColumnVisibilityConverter : IValueConverter
 {
     public const string MarkCreateOrModifyEventType = nameof(MarkCreateOrModifyEventType);
 
@@ -26,7 +26,7 @@ public class ColumnVisibilityConverter : IValueConverter
                 MarkEventViewModel.CommonEventType => collection.All(e => e.DisplayEventType == MarkEventViewModel.CommonEventType) ? Visibility.Visible : Visibility.Collapsed,
                 MarkCompleteOrCommonEventType => collection.All(e => e.DisplayEventType == MarkEventViewModel.CommonEventType) 
                 || collection.All(e => e.EventType == MarkEventViewModel.CompleteEventType && e.DisplayEventType == MarkEventViewModel.CompleteEventType) ? Visibility.Visible : Visibility.Collapsed,
-                _ => Visibility.Collapsed,
+                _ => throw new KeyNotFoundException(),
             };
         }
         return Visibility.Collapsed;

@@ -54,6 +54,7 @@ public static class Registrator
         services.AddWindowWithViewModelTransient<ProjectAddWindow, ProjectAddViewModel>();
         services.AddWindowWithViewModelTransient<MarkAddWindow, MarkAddViewModel>();
         services.AddWindowWithViewModelTransient<AreaAddWindow, AreaAddViewModel>();
+        services.AddWindowWithViewModelTransient<ProjectReportsWindow, ProjectReportsWindowViewModel>();
     }
 
     public static IHostBuilder CreateApplicationAssociatedFolder(this IHostBuilder hostBuilder)

@@ -12,15 +12,18 @@ public class MarkEvent : Entity, IMarkAuditable
 
     public required EventType EventType { get; init; }
 
-    public required double MarkCount { get; init; }
+    public required double MarkCount { get; set; }
 
-    public required string MarkTitle { get; init; }
+    public required string MarkTitle { get; set; }
 
-    public required string MarkCode { get; init; }
+    public required string MarkCode { get; set; }
 
-    public required int MarkOrder { get; init; }
+    public required int MarkOrder { get; set; }
 
-    public required double MarkWeight { get; init; }
+    /// <summary>
+    /// Вес марки в килограммах.
+    /// </summary>
+    public required double MarkWeight { get; set; }
 
     public string? Remark { get; set; }
 
