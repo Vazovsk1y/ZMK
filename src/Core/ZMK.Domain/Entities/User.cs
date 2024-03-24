@@ -7,9 +7,6 @@ public class User : IdentityUser<Guid>, IHasId
 {
     public override Guid Id { get => base.Id; }
 
-    /// <summary>
-    /// Ссылка на привязанного к пользователю сотрудника.
-    /// </summary>
     public required Guid EmployeeId { get; set; }
 
     #region --Navigations--

@@ -9,7 +9,7 @@ public record Error
 
     public Error(string code, string text)
     {
-        ArgumentNullException.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(code);
         ArgumentNullException.ThrowIfNull(text);
         Text = text;
         Code = code;

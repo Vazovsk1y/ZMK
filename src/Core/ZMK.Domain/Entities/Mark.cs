@@ -17,11 +17,14 @@ public class Mark : Entity
     /// </summary>
     public required double Weight { get; set; }
 
+    /// <summary>
+    /// Кол-во, штук данной марки.
+    /// </summary>
+    public required double Count { get; set; }
+
     public required Guid ProjectId { get; init; }
 
     public Project Project { get; set; } = null!;
-
-    public required double Count { get; set; }
 
     public static bool IsValidCount(double number)
     {

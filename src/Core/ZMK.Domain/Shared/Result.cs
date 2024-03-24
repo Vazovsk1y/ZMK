@@ -57,7 +57,7 @@ public class Result<TValue> : Result
         => _value = value;
 
     public TValue Value => IsFailure ?
-        throw new InvalidOperationException("The value of failed response can't be accessed.")
+        throw new InvalidOperationException("The value of failed result can't be accessed.")
         :
         _value!;
 

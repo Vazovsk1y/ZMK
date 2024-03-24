@@ -8,7 +8,7 @@ namespace ZMK.Domain.Entities;
 public class Session : Entity
 {
     public required Guid UserId { get; init; }
-
+      
     public required DateTimeOffset CreationDate { get; set; }
 
     public DateTimeOffset? ClosingDate { get; set; }
@@ -17,7 +17,7 @@ public class Session : Entity
 
     #region --Navigation--
 
-    public User? User { get; set; }
+    public User User { get; set; } = null!;
 
     #endregion
 }
