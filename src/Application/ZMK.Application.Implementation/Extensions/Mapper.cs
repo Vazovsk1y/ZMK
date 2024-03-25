@@ -7,6 +7,28 @@ namespace ZMK.Application.Implementation.Extensions;
 
 public static class Mapper
 {
+    public static MarkCompleteEvent ToCompleteEvent(this Mark mark, AreaExecutionDTO dTO, DateTimeOffset createdDate, Guid creatorId)
+    {
+        var entity = new MarkCompleteEvent
+        {
+            MarkId = mark.Id,
+            AreaId = dTO.AreaId,
+            CompleteCount = dTO.Count,
+            CreatedDate = createdDate,
+            CreatorId = creatorId,
+            EventType = EventType.Complete,
+            Remark = dTO.Remark?.Trim(),
+            MarkCode = mark.Code,
+            MarkCount = mark.Count,
+            MarkOrder = mark.Order,
+            MarkTitle = mark.Title,
+            MarkWeight = mark.Weight,
+            CompleteDate = dTO.Date,
+        };
+
+        return entity;
+    }
+    
     public static MarkEventsReport<T> ToReport<T>(this Mark mark, IEnumerable<T> events)
     {
         return new MarkEventsReport<T>(

@@ -111,7 +111,7 @@ public class MarkService : BaseService, IMarkService
         var mark = await _dbContext
             .Marks
             .Include(e => e.Project)
-            .ThenInclude(e => e.Settings)
+            .Include(e => e.Project.Settings)
             .Include(e => e.Project.Areas)
             .SingleOrDefaultAsync(e => e.Id == dTO.MarkId, cancellationToken);
 
@@ -120,52 +120,69 @@ public class MarkService : BaseService, IMarkService
             case null:
                 return Result.Failure(Errors.NotFound("Марка"));
             case Mark when mark.Project.Settings.AreExecutorsRequired && dTO.Executions.Select(e => e.Executors).Any(e => !e.Any()):
-                return Result.Failure(new Error(nameof(Error), "Заполнение исполнителей обязательно. Указано в настройках проэкта."));
+                return Result.Failure(new Error(nameof(Error), "Заполнение исполнителей обязательно. Указано в настройках проекта."));
             case Mark when dTO.Executions.Select(e => e.AreaId).Any(i => !mark.Project.Areas.Select(e => e.AreaId).Contains(i)):
-                throw new InvalidOperationException($"Один из переданных участков не определен для проэкта с id '{mark.Project.Id}'.");
+                throw new InvalidOperationException($"Один из переданных участков не определен или отключен для проекта с id '{mark.Project.Id}'.");
             default:
                 {
-                    var completeEvents = new List<MarkCompleteEvent>();
-                    var completeEventsEmployees = new List<MarkCompleteEventEmployee>();
+                    var byAreaCompleteCounts = await _dbContext
+                        .MarkCompleteEvents
+                        .Where(e => e.MarkId == dTO.MarkId)
+                        .GroupBy(e => e.AreaId)
+                        .ToDictionaryAsync(e => e.Key, e => e.Sum(i => i.CompleteCount), cancellationToken);
 
-                    foreach (var item in dTO.Executions)
+                    var filledAreas = await _dbContext
+                        .Areas
+                        .Where(e => dTO.Executions.Select(e => e.AreaId).Contains(e.Id))
+                        .OrderBy(e => e.Order)
+                        .ToListAsync(cancellationToken);
+
+                    var currentDate = _clock.GetDateTimeOffsetUtcNow();
+                    var filledAreasEnumerator = filledAreas.GetEnumerator();
+                    if (filledAreasEnumerator.MoveNext())
                     {
-                        double currentCompleteCount = await _dbContext
-                            .MarkCompleteEvents
-                            .Where(e => e.MarkId == dTO.MarkId && e.AreaId == item.AreaId)
-                            .SumAsync(e => e.CompleteCount, cancellationToken);
-
-                        double leftCount = mark.Count - currentCompleteCount;
-                        if (item.Count > leftCount)
+                        var previousArea = filledAreasEnumerator.Current;
+                        byAreaCompleteCounts.TryGetValue(previousArea.Id, out double completeCount);
+                        double leftCount = mark.Count - completeCount;
+                        var previousItem = dTO.Executions.Single(e => e.AreaId == previousArea.Id);
+                        if (previousItem.Count > leftCount)
                         {
-                            return Result.Failure(new Error(nameof(Error), $"Количество для заполения '{item.Count}' больше текущего остатка на этом участке '{leftCount}' для данной марки."));
+                            return Result.Failure(new Error(nameof(Error), 
+                                $"Количество для заполнения {previousItem.Count} больше текущего остатка на этом участке {previousArea.Title} - {leftCount} для данной марки."));
                         }
 
-                        var currentDate = _clock.GetDateTimeOffsetUtcNow();
-                        var @event = new MarkCompleteEvent
+                        var @event = mark.ToCompleteEvent(previousItem, currentDate, isAbleResult.Value.UserId);
+                        _dbContext.MarkCompleteEventsEmployees.AddRange(previousItem.Executors.Select(e => new MarkCompleteEventEmployee { EmployeeId = e, EventId = @event.Id }));
+                        _dbContext.MarkCompleteEvents.Add(@event);
+
+                        while (filledAreasEnumerator.MoveNext()) 
                         {
-                            MarkId = mark.Id,
-                            AreaId = item.AreaId,
-                            CompleteCount = item.Count,
-                            CreatedDate = currentDate,
-                            CreatorId = isAbleResult.Value.UserId,
-                            EventType = EventType.Complete,
-                            Remark = item.Remark?.Trim(),
-                            MarkCode = mark.Code,
-                            MarkCount = mark.Count,
-                            MarkOrder = mark.Order,
-                            MarkTitle = mark.Title,
-                            MarkWeight = mark.Weight,
-                            CompleteDate = item.Date,
-                        };
-                        completeEvents.Add(@event);
-                        completeEventsEmployees.AddRange(item.Executors.Select(e => new MarkCompleteEventEmployee { EmployeeId = e, EventId = @event.Id }));
+                            var currentArea = filledAreasEnumerator.Current;
+                            byAreaCompleteCounts.TryGetValue(currentArea.Id, out completeCount);
+                            leftCount = mark.Count - completeCount;
+                            var currentItem = dTO.Executions.Single(e => e.AreaId == currentArea.Id);
+                            if (currentItem.Count > leftCount)
+                            {
+                                return Result.Failure(new Error(nameof(Error), 
+                                    $"Количество для заполнения {currentItem.Count} больше текущего остатка на этом участке {currentArea.Title} - {leftCount} для данной марки."));
+                            }
+
+                            if (currentItem.Count > previousItem.Count)
+                            {
+                                return Result.Failure(new Error(nameof(Error), 
+                                    $"Количество для заполнения на участке {currentArea.Title} - {currentItem.Count} больше чем значение для предшествующего участка {previousArea.Title} - {previousItem.Count}."));
+                            }
+
+                            @event = mark.ToCompleteEvent(currentItem, currentDate, isAbleResult.Value.UserId);
+                            _dbContext.MarkCompleteEventsEmployees.AddRange(currentItem.Executors.Select(e => new MarkCompleteEventEmployee { EmployeeId = e, EventId = @event.Id }));
+                            _dbContext.MarkCompleteEvents.Add(@event);
+
+                            previousItem = currentItem;
+                            previousArea = currentArea;
+                        }
                     }
 
-                    _dbContext.MarkCompleteEvents.AddRange(completeEvents);
-                    _dbContext.MarkCompleteEventsEmployees.AddRange(completeEventsEmployees);
                     await _dbContext.SaveChangesAsync(cancellationToken);
-
                     _logger.LogInformation("Выполнение марки было успешно заполнено.");
                     return Result.Success();
                 }
