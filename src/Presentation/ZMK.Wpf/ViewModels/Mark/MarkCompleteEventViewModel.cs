@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 
 namespace ZMK.Wpf.ViewModels;
@@ -23,13 +24,14 @@ public partial class MarkCompleteEventViewModel :
         }
     }
 
-    public ObservableCollection<ExecutorInfo> Executors { get; private set; } = [];
+    [ObservableProperty]
+    private ObservableCollection<ExecutorInfo> _executors = [];
 
     private ExecutorInfo? _selectedExecutor;
     public ExecutorInfo? SelectedExecutor
     {
         get => _selectedExecutor;
-        set
+        set                                          
         {
             if (SetProperty(ref _selectedExecutor, value))
             {
@@ -69,7 +71,7 @@ public partial class MarkCompleteEventViewModel :
     }
 
     private double _markCount;
-    public override double MarkCount
+    public override double MarkCount                                                            
     {
         get => _markCount;
         set
@@ -109,7 +111,9 @@ public partial class MarkCompleteEventViewModel :
         Date = PreviousState.Date;
         MarkCount = PreviousState.MarkCount;
         Remark = PreviousState.Remark;
-        Executors = PreviousState.Executors;
+        Executors = new (PreviousState.Executors);
+        SelectedExecutor = null;
+        OnPropertyChanged(nameof(UpdatableSign));
     }
 
     public virtual void SaveState()

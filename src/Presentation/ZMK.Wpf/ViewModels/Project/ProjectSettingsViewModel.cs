@@ -43,7 +43,7 @@ public partial class ProjectSettingsViewModel : ModifiableViewModel<ProjectSetti
 
     public override void RollBackChanges()
     {
-        Areas = PreviousState.Areas;
+        Areas = new (PreviousState.Areas);
         IsEditable = PreviousState.IsEditable;
         AllowMarksDeleting = PreviousState.AllowMarksDeleting;
         AllowMarksModifying = PreviousState.AllowMarksModifying;

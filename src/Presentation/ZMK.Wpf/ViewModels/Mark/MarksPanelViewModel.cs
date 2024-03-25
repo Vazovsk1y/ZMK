@@ -43,12 +43,14 @@ public partial class MarksPanelViewModel : TitledViewModel,
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(SaveCompleteMarkEventsChangesCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RollbackEventsChangesCommand))]
     private ObservableCollection<MarkEventViewModel>? _selectedMarkEvents;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
     [NotifyCanExecuteChangedFor(nameof(FillExecutionCommand))]
     [NotifyCanExecuteChangedFor(nameof(ExportEventsToExcelCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RollbackEventsChangesCommand))]
     private MarkViewModel? _selectedMark;
 
     private string _selectedDisplayInOption = null!;
@@ -392,6 +394,24 @@ public partial class MarksPanelViewModel : TitledViewModel,
     }
 
     public bool CanExportEventsToExcel() => SelectedMark is not null && SelectedEventTypeOption != MarkEventViewModel.CreateEventType;
+
+    [RelayCommand(CanExecute = nameof(CanRollbackEventsChanges))]
+    public void RollbackEventsChanges()
+    {
+        var modifiedEvents = SelectedMarkEvents!.Where(e => e is MarkCompleteEventViewModel ce && ce.IsModified()).Cast<MarkCompleteEventViewModel>().ToList();
+        if (modifiedEvents.Count == 0)
+        {
+            return;
+        }
+
+        var dialogResult = MessageBoxHelper.ShowDialogBoxYesNo($"Вы уверены, что желаете отменить все текущие изменения?");
+        if (dialogResult == System.Windows.MessageBoxResult.Yes)
+        {
+            modifiedEvents.ForEach(e => e.RollBackChanges());
+        }
+    }
+
+    public bool CanRollbackEventsChanges() => SelectedMark is not null && SelectedMarkEvents is ICollection<MarkEventViewModel> { Count: > 0 };
 
     public void Receive(MarksAddedMessage message)
     {
