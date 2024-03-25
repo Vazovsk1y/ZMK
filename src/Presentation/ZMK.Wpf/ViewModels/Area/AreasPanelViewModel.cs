@@ -2,12 +2,14 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
 using ZMK.Domain.Shared;
 using ZMK.PostgresDAL;
+using ZMK.Wpf.Constants;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Messages;
 using ZMK.Wpf.Services;
@@ -17,6 +19,13 @@ namespace ZMK.Wpf.ViewModels;
 
 public partial class AreasPanelViewModel : TitledViewModel, IRecipient<AreaAddedMessage>, IRefrashable
 {
+    private readonly IMemoryCache _cache;
+
+    public AreasPanelViewModel(IMemoryCache cache)
+    {
+        _cache = cache;
+    }
+
     public ObservableCollection<AreaViewModel> Areas { get; } = [];
 
     [ObservableProperty]
@@ -50,10 +59,7 @@ public partial class AreasPanelViewModel : TitledViewModel, IRecipient<AreaAdded
         }
     }
 
-    public bool CanDelete()
-    {
-        return SelectedArea is not null;
-    }
+    public bool CanDelete() => SelectedArea is not null;
 
     [RelayCommand]
     public void RollbackChanges()
@@ -118,6 +124,11 @@ public partial class AreasPanelViewModel : TitledViewModel, IRecipient<AreaAdded
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        if (_cache.TryGetValue(Cache.AreasPanelCacheKey, out _))
+        {
+            return;
+        }
+
         IsEnabled = false;
 
         using var scope = App.Services.CreateScope();
@@ -132,9 +143,11 @@ public partial class AreasPanelViewModel : TitledViewModel, IRecipient<AreaAdded
 
         await App.Current.Dispatcher.InvokeAsync(() =>
         {
+            object cacheStub = new();
             Areas.Clear();
             SelectedArea = null;
             Areas.AddRange(areas);
+            _cache.Set(Cache.AreasPanelCacheKey, cacheStub, Cache.AreasPanelCacheExpiration);
             IsEnabled = true;
         });
     }
