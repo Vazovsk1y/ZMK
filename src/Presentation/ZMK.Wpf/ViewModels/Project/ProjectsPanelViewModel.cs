@@ -122,6 +122,12 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
             results.Add(updateResult);
         }
 
+        if (results.Any(e => e.IsSuccess))
+        {
+            _cache.Remove(Cache.ProjectsPanelCacheKey);
+            await RefreshAsync();
+        }
+
         results.DisplayUpdateResultMessageBox();
         IsEnabled = true;
     }
@@ -198,7 +204,7 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (_cache.TryGetValue(Cache.ProjectsCacheKey, out _))
+        if (_cache.TryGetValue(Cache.ProjectsPanelCacheKey, out _))
         {
             return;
         }
@@ -225,7 +231,7 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
             Projects.Clear();
             SelectedProject = null;
             Projects.AddRange(projects);
-            _cache.Set(Cache.ProjectsCacheKey, cacheStub, Cache.ProjectsCacheExpiration);
+            _cache.Set(Cache.ProjectsPanelCacheKey, cacheStub, Cache.ProjectsPanelCacheExpiration);
             IsEnabled = true;
         });
     }

@@ -2,12 +2,14 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
 using ZMK.Domain.Shared;
 using ZMK.PostgresDAL;
+using ZMK.Wpf.Constants;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Messages;
 using ZMK.Wpf.Services;
@@ -19,18 +21,21 @@ public partial class EmployeesPanelViewModel : TitledViewModel,
     IRecipient<EmployeeAddedMessage>,
     IRefrashable
 {
+    private readonly IMemoryCache _cache;
+
     public ObservableCollection<EmployeeViewModel> Employees { get; } = [];
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
     private EmployeeViewModel? _selectedEmployee;
 
-    public EmployeesPanelViewModel()
+    public EmployeesPanelViewModel(IMemoryCache cache)
     {
         Employees.CollectionChanged += (_, _) =>
         {
             DeleteCommand.NotifyCanExecuteChanged();
         };
+        _cache = cache;
     }
 
     [RelayCommand]
@@ -145,6 +150,11 @@ public partial class EmployeesPanelViewModel : TitledViewModel,
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        if (_cache.TryGetValue(Cache.EmployeesPanelCacheKey, out _))
+        {
+            return;
+        }
+
         IsEnabled = false;
 
         using var scope = App.Services.CreateScope();
@@ -159,9 +169,11 @@ public partial class EmployeesPanelViewModel : TitledViewModel,
 
         await App.Current.Dispatcher.InvokeAsync(() =>
         {
+            object cacheStub = new();
             Employees.Clear();
             SelectedEmployee = null;
             Employees.AddRange(employees);
+            _cache.Set(Cache.EmployeesPanelCacheKey, cacheStub, Cache.EmployeesPanelCacheExpiration);
             IsEnabled = true;
         });
     }

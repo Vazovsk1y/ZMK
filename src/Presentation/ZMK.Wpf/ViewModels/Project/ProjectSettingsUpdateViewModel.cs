@@ -64,17 +64,16 @@ public partial class ProjectSettingsUpdateViewModel : DialogViewModel
             .Select(e => new SelectableAreaViewModel { Id = e.Id, Title = e.Title, Order = e.Order })
             .ToListAsync();
 
-        var ids = ProjectSettingsViewModel.Areas.Select(e => e.Id).ToList();
-        areas.ForEach(e =>
-        {
-            if (ids.Contains(e.Id))
-            {
-                e.IsSelected = true;
-            }
-        });
-
         await App.Current.Dispatcher.InvokeAsync(() =>
         {
+            var ids = ProjectSettingsViewModel.Areas.Select(e => e.Id).ToList();
+            areas.ForEach(e =>
+            {
+                if (ids.Contains(e.Id))
+                {
+                    e.IsSelected = true;
+                }
+            });
             Areas.AddRange(areas);
         });
     }
