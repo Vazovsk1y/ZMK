@@ -2,11 +2,13 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using ZMK.Application.Services;
 using ZMK.Domain.Shared;
 using ZMK.PostgresDAL;
+using ZMK.Wpf.Constants;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Messages;
 using ZMK.Wpf.Services;
@@ -19,6 +21,13 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
     IRecipient<ProjectAddedMessage>,
     IRefrashable
 {
+    private readonly IMemoryCache _cache;
+
+    public ProjectsPanelViewModel(IMemoryCache cache)
+    {
+        _cache = cache;
+    }
+
     public ObservableCollection<ProjectViewModel> Projects { get; } = [];
 
     [ObservableProperty]
@@ -189,6 +198,11 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        if (_cache.TryGetValue(Cache.ProjectsCacheKey, out _))
+        {
+            return;
+        }
+
         IsEnabled = false;
 
         using var scope = App.Services.CreateScope();
@@ -207,9 +221,11 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
 
         await App.Current.Dispatcher.InvokeAsync(() =>
         {
+            object cacheStub = new();
             Projects.Clear();
             SelectedProject = null;
             Projects.AddRange(projects);
+            _cache.Set(Cache.ProjectsCacheKey, cacheStub, Cache.ProjectsCacheExpiration);
             IsEnabled = true;
         });
     }
