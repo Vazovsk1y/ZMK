@@ -23,7 +23,7 @@ public static class Mapper
             MarkOrder = mark.Order,
             MarkTitle = mark.Title,
             MarkWeight = mark.Weight,
-            CompleteDate = dTO.Date,
+            CompleteDate = new DateTimeOffset(dTO.CompleteDate.Year, dTO.CompleteDate.Month, dTO.CompleteDate.Day, 0, 0, 0, TimeSpan.Zero),
         };
 
         return entity;

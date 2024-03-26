@@ -73,7 +73,7 @@ public class MarkService : BaseService, IMarkService
                     var previousExecutors = await _dbContext.MarkCompleteEventsEmployees.Where(e => e.EventId == completeEvent.Id).ToListAsync(cancellationToken);
                     var newExecutors = dTO.Executors.Select(e => new MarkCompleteEventEmployee { EmployeeId = e, EventId = completeEvent.Id });
 
-                    completeEvent.CompleteDate = dTO.Date.ToUniversalTime();
+                    completeEvent.CompleteDate = new DateTimeOffset(dTO.CompleteDate.Year, dTO.CompleteDate.Month, dTO.CompleteDate.Day, 0, 0, 0, TimeSpan.Zero);
                     completeEvent.CompleteCount = dTO.Count;
                     completeEvent.Remark = dTO.Remark?.Trim();
                     completeEvent.AreaId = dTO.AreaId;

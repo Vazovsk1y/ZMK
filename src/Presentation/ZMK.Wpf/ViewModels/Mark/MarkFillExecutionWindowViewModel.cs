@@ -60,7 +60,7 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
         var markService = scope.ServiceProvider.GetRequiredService<IMarkService>();
         var dto = new FillMarkExecutionDTO(
             SelectedMark.Id,
-            vms.Select(e => new AreaExecutionDTO(e.Area.Id, e.Executors.Select(e => e.Id).ToArray(), (double)counts[e.Area.Id]!, e.Date!.Value.ToUniversalTime(), e.Remark)));
+            vms.Select(e => new AreaExecutionDTO(e.Area.Id, e.Executors.Select(e => e.Id).ToArray(), (double)counts[e.Area.Id]!, DateOnly.FromDateTime(e.Date!.Value), e.Remark)));
 
         var result = await markService.FillExecutionAsync(dto);
         if (result.IsSuccess)

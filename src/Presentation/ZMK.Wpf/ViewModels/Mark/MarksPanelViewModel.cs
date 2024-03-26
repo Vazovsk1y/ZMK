@@ -336,7 +336,7 @@ public partial class MarksPanelViewModel : TitledViewModel,
         var results = new List<Result>();
         foreach (var @event in modifiedEvents)
         {
-            var dto = new MarkCompleteEventUpdateDTO(@event.Id, @event.Area.Id, @event.Date, @event.MarkCount, @event.Executors.Select(e => e.Id).ToArray(), @event.Remark);
+            var dto = new MarkCompleteEventUpdateDTO(@event.Id, @event.Area.Id, DateOnly.FromDateTime(@event.Date), @event.MarkCount, @event.Executors.Select(e => e.Id).ToArray(), @event.Remark);
             var updateResult = await markService.UpdateCompleteEventAsync(dto);
 
             if (updateResult.IsFailure)

@@ -16,6 +16,8 @@ public partial class MarkEventViewModel : ObservableObject
 
     public virtual DateTime Date { get; set; }
 
+    public virtual string DisplayDate => Date.ToString("dd.MM.yyyy HH:mm");
+
     public virtual double MarkCount { get; set; }
 
     public required string CreatorUserNameAndEmployeeFullName { get; init; }

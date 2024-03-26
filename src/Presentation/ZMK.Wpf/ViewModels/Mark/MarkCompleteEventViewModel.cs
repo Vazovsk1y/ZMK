@@ -10,6 +10,8 @@ public partial class MarkCompleteEventViewModel :
 {
     public MarkCompleteEventViewModel PreviousState { get; private set; } = default!;
 
+    public override string DisplayDate => Date.ToString("dd.MM.yyyy");
+
     public UpdatableSign? UpdatableSign => IsModified() ? new UpdatableSign() : null;
 
     private AreaInfo _area = null!;
@@ -66,6 +68,7 @@ public partial class MarkCompleteEventViewModel :
             if (SetProperty(ref _date, value))
             {
                 OnPropertyChanged(nameof(UpdatableSign));
+                OnPropertyChanged(nameof(DisplayDate));
             }
         }
     }

@@ -10,7 +10,7 @@ public class MarkCompleteEventUpdateDTOValidator : AbstractValidator<MarkComplet
     {
         RuleFor(e => e.EventId).NotEmpty();
         RuleFor(e => e.Executors).Must(e => e.Distinct().Count() == e.Count());
-        RuleFor(e => e.Date).NotEmpty();
+        RuleFor(e => e.CompleteDate).NotEmpty();
         RuleFor(e => e.Count)
             .Must(e => Mark.IsValidCount(e))
             .WithMessage($"Количество должно быть больше нуля или кратное '{Mark.CountMultiplicityNumber}'.");

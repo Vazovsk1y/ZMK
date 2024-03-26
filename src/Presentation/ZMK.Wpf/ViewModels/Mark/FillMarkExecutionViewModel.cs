@@ -58,6 +58,11 @@ public partial class FillMarkExecutionViewModel : ObservableObject
             {
                 if (!string.IsNullOrWhiteSpace(value))
                 {
+                    if (value == "0" || value == "0," || value == "0.")
+                    {
+                        return;
+                    }
+
                     var isValid = value.ParseInDifferentCultures() is double count && Mark.IsValidCount(count);
                     if (!isValid)
                     {

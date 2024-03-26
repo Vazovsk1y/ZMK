@@ -50,7 +50,7 @@ public static class Mapper
                     Id = @event.Id,
                     CreatorUserNameAndEmployeeFullName = creatorInfo,
                     MarkCount = @event.MarkCount,
-                    Date = @event.CreatedDate.DateTime,
+                    Date = @event.CreatedDate.LocalDateTime,
                     EventType = MarkEventViewModel.CreateEventType,
                     MarkTitle = @event.MarkTitle,
                     MarkCode = @event.MarkCode,
@@ -65,7 +65,7 @@ public static class Mapper
                     Id = @event.Id,
                     CreatorUserNameAndEmployeeFullName = creatorInfo,
                     MarkCount = @event.MarkCount,
-                    Date = @event.CreatedDate.DateTime,
+                    Date = @event.CreatedDate.LocalDateTime,
                     EventType = MarkEventViewModel.ModifyEventType,
                     MarkTitle = @event.MarkTitle,
                     MarkCode = @event.MarkCode,
@@ -96,7 +96,7 @@ public static class Mapper
             EventType = MarkEventViewModel.CompleteEventType,
         };
 
-        entity.Executors.AddRange(@event.Executors.Select(e => new ExecutorInfo(e.EmployeeId,string.IsNullOrWhiteSpace(e.Employee.Post) ? e.Employee.FullName : $"{e.Employee.FullName} ({e.Employee.Post})")));
+        entity.Executors.AddRange(@event.Executors.Select(e => e.Employee.ToInfo()));
         entity.SaveState();
         return entity;
     }

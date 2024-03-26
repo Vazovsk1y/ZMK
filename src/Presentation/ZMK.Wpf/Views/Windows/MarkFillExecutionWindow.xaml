@@ -150,7 +150,7 @@
 			IsReadOnly="True"
 			ItemsSource="{Binding ExecutionHistory}">
             <DataGrid.Columns>
-                <DataGridTextColumn Binding="{Binding Date}" Header="Дата"/>
+                <DataGridTextColumn Binding="{Binding DisplayDate}" Header="Дата"/>
                 <DataGridTextColumn Binding="{Binding MarkCount}" Header="Количество"/>
                 <DataGridTextColumn Binding="{Binding Area.Title}" Header="Участок"/>
                 <DataGridTemplateColumn Header="Исполнители">

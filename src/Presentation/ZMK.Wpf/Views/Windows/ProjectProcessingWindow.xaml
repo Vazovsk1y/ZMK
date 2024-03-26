@@ -207,7 +207,7 @@
                     <CollectionViewSource x:Key="AvailableAreas" Source="{Binding MarksPanelViewModel.AvailableAreas}"/>
                     <CollectionViewSource x:Key="AvailableExecutors" Source="{Binding MarksPanelViewModel.AvailableExecutors}"/>
                     <DataTemplate x:Key="DateReadonlyCellTemplate">
-                        <TextBlock Text="{Binding Date}"/>
+                        <TextBlock Text="{Binding DisplayDate}"/>
                     </DataTemplate>
                     <DataTemplate x:Key="DateEditableCellTemplate">
                         <DatePicker
