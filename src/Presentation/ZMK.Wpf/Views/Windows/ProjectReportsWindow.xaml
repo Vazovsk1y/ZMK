@@ -26,7 +26,7 @@
 
 
         <StackPanel Orientation="Horizontal" Margin="10">
-            <TextBlock VerticalAlignment="Center" Text="{Binding SelectedProject.FactoryNumber, StringFormat='Выбранный проэкт: {0}'}"/>
+            <TextBlock VerticalAlignment="Center" Text="{Binding SelectedProject.FactoryNumber, StringFormat='Выбранный проект: {0}'}"/>
             <TextBlock Margin="10, 0, 0, 0" VerticalAlignment="Center" Text="Отчет: "/>
             <ComboBox ItemsSource="{Binding ReportByOptions}"
                       SelectedItem="{Binding SelectedReportByOption}"
@@ -49,7 +49,7 @@
                 <TextBlock Text="Период с: " Margin="0, 2, 0, 0"/>
                 <DatePicker SelectedDate="{Binding From}"
                             DisplayDateEnd="{x:Static system:DateTime.Now}"
-                            DisplayDateStart="01/01/2000"
+                            DisplayDateStart="01/01/2024"
                             IsTodayHighlighted="True"
                             MinWidth="20">
                     
@@ -57,7 +57,7 @@
                 <TextBlock Margin="10, 3, 0, 0" Text="По: "/>
                 <DatePicker SelectedDate="{Binding To}"
                             DisplayDateEnd="{x:Static system:DateTime.Now}"
-                            DisplayDateStart="01/01/2000"
+                            DisplayDateStart="01/01/2024"
                             IsTodayHighlighted="True"
                             MinWidth="20">
                 </DatePicker>

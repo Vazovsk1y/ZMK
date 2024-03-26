@@ -114,7 +114,7 @@
 				SelectionMode="Single">
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding Order}" Header="Очередность"/>
-                    <DataGridTextColumn Binding="{Binding Code}" Header="Код"/>
+                    <DataGridTextColumn Binding="{Binding Code}" Header="Марка"/>
                     <DataGridTextColumn Binding="{Binding Title}" Header="Название"/>
                     <DataGridTextColumn Binding="{Binding Count}" Header="Количество"/>
                     <DataGridTextColumn Binding="{Binding Weight}" Header="Вес 1 шт, кг"/>
@@ -340,7 +340,7 @@
                     </DataGridTemplateColumn>
                     <DataGridTextColumn
 						Binding="{Binding MarkCode}"
-						Header="Код марки"
+						Header="Марка"
 						IsReadOnly="True"
 						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
                     <DataGridTextColumn

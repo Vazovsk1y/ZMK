@@ -91,11 +91,10 @@ public class MarkReportService : BaseService, IMarkReportService
                     var events = await _dbContext
                        .MarksEvents
                        .Include(e => e.Mark)
-                       .Include(e => ((MarkCompleteEvent)e).Area)
                        .Include(e => e.Creator)
                        .ThenInclude(e => e.Employee)
                        .AsNoTracking()
-                       .Where(e => e.MarkId == dTO.MarkId && e.EventType == EventType.Create || e.EventType == EventType.Modify)
+                       .Where(e => e.MarkId == dTO.MarkId && (e.EventType == EventType.Create || e.EventType == EventType.Modify))
                        .OrderByDescending(e => e.CreatedDate)
                        .Select(e => e.ToModifyOrCreateRaw())
                        .ToListAsync(cancellationToken);
@@ -145,12 +144,13 @@ public record MarkEventsReport<T>(
     DateTime CreatedDate,
     string MarkTitle,
     double MarkCount,
+    int MarkOrder,
     string MarkCode,
     double MarkWeight,
     IEnumerable<T> Events);
 
-public record CommonMarkEventRaw(DateTime Date, double Count, string Title, string EventType, string Creator, string? Remark);
+public record CommonMarkEventRaw(string Date, double Count, string Title, string EventType, string Creator, string? Remark);
 
-public record ModifyOrCreateMarkEventRaw(DateTime Date, double MarkCount, string MarkCode, double MarkWeight, string MarkTitle, string EventType, string Creator, string? Remark);
+public record ModifyOrCreateMarkEventRaw(DateTime Date, double MarkCount, string MarkCode, double MarkWeight, int MarkOrder, string MarkTitle, string EventType, string Creator, string? Remark);
 
 public record CompleteMarkEventRaw(DateTime CompleteDate, double CompleteCount, string AreaTitle, string EventType, string Executors, string Creator, string? Remark);

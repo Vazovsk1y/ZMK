@@ -196,7 +196,7 @@ public class ProjectReportService : BaseService, IProjectReportService
 public record ProjectExecutionReport<T>(
     DateTime CreatedDate,
     string ProjectFactoryNumber,
-    DateTimeOffset ProjectCreatedDate,
+    DateTime ProjectCreatedDate,
     string ProjectCreator,
     string ReportType,
     string ReportRange,

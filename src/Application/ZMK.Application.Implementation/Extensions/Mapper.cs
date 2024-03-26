@@ -35,6 +35,7 @@ public static class Mapper
                         DateTime.Now,
                         mark.Title,
                         mark.Count,
+                        mark.Order,
                         mark.Code,
                         mark.Weight,
                         events);
@@ -52,7 +53,7 @@ public static class Mapper
         return new ProjectExecutionReport<T>(
             DateTime.Now, 
             project.FactoryNumber, 
-            project.CreatedDate, 
+            project.CreatedDate.LocalDateTime, 
             $"{project.Creator.UserName} - {project.Creator.Employee.FullName}",
             reportTypeString,
             dTO.Range is null ? "За весь период" : $"C: {dTO.Range.From:dd.MM.yyyy} По: {dTO.Range.To:dd.MM.yyyy}",
@@ -77,10 +78,11 @@ public static class Mapper
     {
         string eventType = markEvent.EventType switch { EventType.Create => "Создано", EventType.Modify => "Изменено", _ => throw new KeyNotFoundException() };
         return new ModifyOrCreateMarkEventRaw(
-            markEvent.CreatedDate.DateTime,
+            markEvent.CreatedDate.LocalDateTime,
             markEvent.MarkCount,
             markEvent.MarkCode,
             markEvent.MarkWeight,
+            markEvent.MarkOrder,
             markEvent.MarkTitle,
             eventType,
             $"{markEvent.Creator.UserName}-{markEvent.Creator.Employee.FullName}",
@@ -95,7 +97,7 @@ public static class Mapper
             case EventType.Create:
                 {
                     return new CommonMarkEventRaw(
-                        markEvent.CreatedDate.DateTime,
+                        markEvent.CreatedDate.LocalDateTime.ToString("dd.MM.yyyy HH:mm"),
                         markEvent.MarkCount,
                         $"{markEvent.MarkCode}-{markEvent.MarkTitle}",
                         "Создано",
@@ -105,7 +107,7 @@ public static class Mapper
             case EventType.Modify:
                 {
                     return new CommonMarkEventRaw(
-                        markEvent.CreatedDate.DateTime,
+                        markEvent.CreatedDate.LocalDateTime.ToString("dd.MM.yyyy HH:mm"),
                         markEvent.MarkCount,
                         $"{markEvent.MarkCode}-{markEvent.MarkTitle}",
                         "Изменено",
@@ -116,7 +118,7 @@ public static class Mapper
                 {
                     var completeEvent = (MarkCompleteEvent)markEvent;
                     return new CommonMarkEventRaw(
-                        completeEvent.CompleteDate.DateTime,
+                        completeEvent.CompleteDate.ToString("dd.MM.yyyy"),
                         completeEvent.CompleteCount,
                         completeEvent.Area.Title,
                         "Выполнено",

@@ -26,7 +26,7 @@ public partial class ProjectReportsWindowViewModel : TitledViewModel
     public ObservableCollection<ObservableObject>? _report;
 
     [ObservableProperty]
-    private DateTime _from = new(2000, 1, 1);
+    private DateTime _from = new(2024, 1, 1);
 
     [ObservableProperty]
     private DateTime _to = DateTime.Now;
