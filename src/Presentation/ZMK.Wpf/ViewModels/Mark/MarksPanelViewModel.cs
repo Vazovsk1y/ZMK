@@ -19,7 +19,7 @@ using ZMK.Wpf.Views.Windows;
 namespace ZMK.Wpf.ViewModels;
 
 public partial class MarksPanelViewModel : TitledViewModel,
-        IRecipient<MarksAddedMessage>, IRecipient<MarkExecutionFilledMessage>
+        IRecipient<MarkAddedMessage>, IRecipient<MarkExecutionFilledMessage>
 {
     public const string ByKg = "В Килограммах";
     public const string ByUnits = "В штуках";
@@ -136,7 +136,6 @@ public partial class MarksPanelViewModel : TitledViewModel,
                     Marks.Remove(SelectedMark);
                 });
                 NotifyTotalProperties();
-                MessageBoxHelper.ShowInfoBox("Марка успешно удалена.");
             }
             else
             {
@@ -230,7 +229,6 @@ public partial class MarksPanelViewModel : TitledViewModel,
             {
                 Marks.AddRange(addedMarks);
                 CalculateExecutionForEachMark(SelectedArea?.Id, SelectedDisplayInOption);
-                MessageBoxHelper.ShowInfoBox($"{result.Value.Count} марок было успешно добавлено.");
             });
         }
         else
@@ -413,13 +411,12 @@ public partial class MarksPanelViewModel : TitledViewModel,
 
     public bool CanRollbackEventsChanges() => SelectedMark is not null && SelectedMarkEvents is ICollection<MarkEventViewModel> { Count: > 0 };
 
-    public void Receive(MarksAddedMessage message)
+    public void Receive(MarkAddedMessage message)
     {
         App.Current.Dispatcher.Invoke(() =>
         {
-            Marks.AddRange(message.Marks);
+            Marks.Add(message.Mark);
             CalculateExecutionForEachMark(SelectedArea?.Id, SelectedDisplayInOption);
-            MessageBoxHelper.ShowInfoBox("Марки были успешно добавлены.");
         });
     }
 
@@ -438,7 +435,6 @@ public partial class MarksPanelViewModel : TitledViewModel,
             RefreshMarkEventsForSelectedMark(SelectedEventTypeOption);
 
             CalculateExecutionForEachMark(SelectedArea?.Id, SelectedDisplayInOption);
-            MessageBoxHelper.ShowInfoBox("Выполнение марки успешно сохранено.");
         });
     }
 

@@ -54,7 +54,6 @@ public partial class UsersPanelViewModel : TitledViewModel,
             if (result.IsSuccess)
             {
                 App.Current.Dispatcher.Invoke(() => Users.Remove(SelectedUser));
-                MessageBoxHelper.ShowInfoBox("Пользователь успешно удален.");
             }
             else
             {
@@ -148,7 +147,6 @@ public partial class UsersPanelViewModel : TitledViewModel,
         App.Current.Dispatcher.Invoke(() =>
         {
             Users.Add(message.User);
-            MessageBoxHelper.ShowInfoBox("Пользователь был успешно добавлен.");
         });
     }
 

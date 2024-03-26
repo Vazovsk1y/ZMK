@@ -50,7 +50,6 @@ public partial class AreasPanelViewModel : TitledViewModel, IRecipient<AreaAdded
             if (result.IsSuccess)
             {
                 App.Current.Dispatcher.Invoke(() => Areas.Remove(SelectedArea));
-                MessageBoxHelper.ShowInfoBox("Участок успешно удален.");
             }
             else
             {
@@ -157,7 +156,6 @@ public partial class AreasPanelViewModel : TitledViewModel, IRecipient<AreaAdded
         App.Current.Dispatcher.Invoke(() =>
         {
             Areas.Add(message.Area);
-            MessageBoxHelper.ShowInfoBox("Участок был успешно добавлен.");
         });
     }
 }

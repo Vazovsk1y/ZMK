@@ -80,7 +80,6 @@ public partial class EmployeesPanelViewModel : TitledViewModel,
             if (result.IsSuccess)
             {
                 App.Current.Dispatcher.Invoke(() => Employees.Remove(SelectedEmployee));
-                MessageBoxHelper.ShowInfoBox("Сотрудник успешно удален.");
             }
             else
             {
@@ -142,7 +141,6 @@ public partial class EmployeesPanelViewModel : TitledViewModel,
         App.Current.Dispatcher.Invoke(() =>
         {
             Employees.Add(message.Employee);
-            MessageBoxHelper.ShowInfoBox("Сотрудник был успешно добавлен.");
         });
     }
 

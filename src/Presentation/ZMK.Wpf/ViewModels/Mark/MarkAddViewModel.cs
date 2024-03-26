@@ -78,8 +78,8 @@ public partial class MarkAddViewModel : DialogViewModel
                 .AsNoTracking()
                 .SingleAsync(e => e.Id == result.Value);
 
-            App.Current.Dispatcher.Invoke(() => _dialogService.CloseDialog());
-            Messenger.Send(new MarksAddedMessage([ addedMark.ToViewModel() ]));
+            App.Current.Dispatcher.Invoke(_dialogService.CloseDialog);
+            Messenger.Send(new MarkAddedMessage(addedMark.ToViewModel()));
         }
         else
         {
