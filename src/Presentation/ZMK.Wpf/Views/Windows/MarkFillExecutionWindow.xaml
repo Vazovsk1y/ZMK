@@ -108,11 +108,15 @@
                                         </Style>
                                     </DatePicker.Resources>
                                 </DatePicker>
-                                <ComboBox 
+                                <ComboBox IsEditable="True" 
+                                          IsTextSearchEnabled="False"
+                                          IsTextSearchCaseSensitive="False"
 								Margin="0, 5, 0, 0"
 								DisplayMemberPath="FullNameAndPost"
-								ItemsSource="{Binding DataContext.AvailableExecutors, RelativeSource={RelativeSource AncestorType={x:Type local:MarkFillExecutionWindow}}}"
-								SelectedItem="{Binding SelectedExecutor, Mode=TwoWay}">
+								ItemsSource="{Binding AvailableExecutors}"
+								SelectedItem="{Binding SelectedExecutor, Mode=TwoWay}"
+                                    Text="{Binding ExecutorFilterText, Mode=OneWayToSource}"
+                                          IsDropDownOpen="{Binding IsDropDownOpen, Mode=TwoWay}">
                                 </ComboBox>
                                 <ListBox 
 								MaxHeight="110"

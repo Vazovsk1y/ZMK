@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using ZMK.Domain.Entities;
 using ZMK.Wpf.Extensions;
 
@@ -22,12 +23,35 @@ public partial class FillMarkExecutionViewModel : ObservableObject
 
     public ObservableCollection<ExecutorInfo> Executors { get; } = [];
 
+
+    public string? ExecutorFilterText
+    {
+        get => throw new NotImplementedException();
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                AvailableExecutors.Filter = null;
+                IsDropDownOpen = false;
+                return;
+            }
+
+            AvailableExecutors.Filter = item => ((ExecutorInfo)item).FullNameAndPost.Contains(value, StringComparison.OrdinalIgnoreCase);
+            IsDropDownOpen = true;
+        }
+    }
+
+    public required ICollectionView AvailableExecutors { get; init; }
+
     public bool IsNotFinished => LeftCount != 0;
 
     public bool IsFinished => !IsNotFinished;
 
     [ObservableProperty]
     public DateTime? _date = DateTime.Today;
+
+    [ObservableProperty]
+    private bool _isDropDownOpen;
 
     [ObservableProperty]
     private string? _remark;
@@ -71,6 +95,7 @@ public partial class FillMarkExecutionViewModel : ObservableObject
                     }
                 }
             }
+            ExecutorFilterText = null;
         }
     }
 

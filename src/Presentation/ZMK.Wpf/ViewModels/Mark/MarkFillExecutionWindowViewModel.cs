@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using MoreLinq;
 using System.Collections.ObjectModel;
+using System.Windows.Data;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
 using ZMK.PostgresDAL;
@@ -28,8 +29,6 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
     public ObservableCollection<MarkCompleteEventViewModel> ExecutionHistory { get; } = [];
 
     public ObservableCollection<FillMarkExecutionViewModel> FillExecutionViewModels { get; } = [];
-
-    public ObservableCollection<ExecutorInfo> AvailableExecutors { get; } = [];
 
     public MarkFillExecutionWindowViewModel(IUserDialogService userDialogService) : base(userDialogService)
     {
@@ -130,6 +129,7 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
                     AreExecutorsRequired = current.Key.AreExecutorsRequired,
                     IsAbleToFill = true,
                     IsFirst = true,
+                    AvailableExecutors = CollectionViewSource.GetDefaultView(executors),
                 };
 
                 FillExecutionViewModels.Add(previous);
@@ -145,6 +145,7 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
                         IsAbleToFill = previous.IsFinished && previous.IsFirst || !current.Key.AreExecutorsRequired,
                         IsFirst = previous.IsFinished && previous.IsFirst,
                         Previous = previous,
+                        AvailableExecutors = CollectionViewSource.GetDefaultView(executors),
                     };
 
                     FillExecutionViewModels.Add(vm);
@@ -153,7 +154,6 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
                 }
             }
 
-            AvailableExecutors.AddRange(executors);
             ExecutionHistory.AddRange(completeEvents.Select(e => e.ToViewModel()));
             IsEnabled = true;
         });
