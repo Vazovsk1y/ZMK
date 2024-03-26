@@ -6,6 +6,7 @@
    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
    xmlns:viewmodels="clr-namespace:ZMK.Wpf.ViewModels"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:extensions="clr-namespace:ZMK.Wpf.Extensions"
    Width="450"
    Height="600"
    d:DataContext="{d:DesignInstance Type=viewmodels:ProjectAddViewModel}"
@@ -70,21 +71,19 @@
                         <CheckBox Content="Разрешить редактирование марок" IsChecked="{Binding AllowMarksModifying}"/>
                         <CheckBox Content="Проверять заполнение исполнителей" IsChecked="{Binding AreExecutorsRequired}"/>
                     </StackPanel>
-                    
-                    <ScrollViewer Grid.Column="1" >
-                        <ListBox ItemsSource="{Binding Areas}" SelectionMode="Multiple">
-                            <ListBox.ItemContainerStyle>
-                                <Style TargetType="ListBoxItem">
-                                    <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
-                                </Style>
-                            </ListBox.ItemContainerStyle>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Title}"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </ScrollViewer>
+
+                    <ListBox extensions:ListBoxFocusBehavior.FocusSelectedItems="True" Grid.Column="1" ItemsSource="{Binding Areas}" SelectionMode="Multiple">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Focusable="True" Text="{Binding Title}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
                 </Grid>
             </Expander>
         </Grid>

@@ -150,9 +150,9 @@ public static class Mapper
         {
             Id = project.Id,
             Creator = project.Creator is not null ? new CreatorInfo(project.Creator.Id, project.Creator!.UserName!) : null,
-            ClosingDate = project.ClosingDate,
-            CreatedDate = project.CreatedDate,
-            ModifiedDate = project.ModifiedDate,
+            ClosingDate = project.ClosingDate.HasValue ? project.ClosingDate.Value.LocalDateTime : null,
+            CreatedDate = project.CreatedDate.LocalDateTime,
+            ModifiedDate = project.ModifiedDate.HasValue ? project.ModifiedDate.Value.LocalDateTime : null,
             FactoryNumber = project.FactoryNumber,
             ContractNumber = project.ContractNumber,
             Customer = project.Customer,

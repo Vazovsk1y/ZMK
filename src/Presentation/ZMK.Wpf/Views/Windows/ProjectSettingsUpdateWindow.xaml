@@ -6,6 +6,7 @@
    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
    xmlns:viewmodels="clr-namespace:ZMK.Wpf.ViewModels"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:extensions="clr-namespace:ZMK.Wpf.Extensions"
    Width="400"
    Height="400"
    d:DataContext="{d:DesignInstance Type=viewmodels:ProjectSettingsUpdateViewModel}"
@@ -42,7 +43,8 @@
             <CheckBox Content="Разрешить редактирование марок" IsChecked="{Binding ProjectSettingsViewModel.AllowMarksModifying}"/>
             <CheckBox Content="Проверять заполнение исполнителей" IsChecked="{Binding ProjectSettingsViewModel.AreExecutorsRequired}"/>
         </StackPanel>
-        <ListBox Background="Transparent" 
+        <ListBox Background="Transparent"
+                 extensions:ListBoxFocusBehavior.FocusSelectedItems="True"
                  Grid.Row="2" 
                  ItemsSource="{Binding Areas}" 
                  SelectionMode="Multiple"

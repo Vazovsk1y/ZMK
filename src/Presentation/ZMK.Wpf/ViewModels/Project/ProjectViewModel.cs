@@ -8,11 +8,11 @@ public partial class ProjectViewModel : ModifiableViewModel<ProjectViewModel>
 
     public required CreatorInfo? Creator { get; init; }
 
-    public required DateTimeOffset? ClosingDate { get; init; }
+    public required DateTime? ClosingDate { get; init; }
 
-    public required DateTimeOffset CreatedDate { get; init; }
+    public required DateTime CreatedDate { get; init; }
 
-    public required DateTimeOffset? ModifiedDate { get; init; }
+    public required DateTime? ModifiedDate { get; init; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(UpdatableSign))]

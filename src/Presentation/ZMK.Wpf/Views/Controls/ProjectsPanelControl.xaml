@@ -36,13 +36,13 @@
                                             Binding="{Binding Creator.UserName}"/>
                         <DataGridTextColumn Header="Дата создания"
                                             IsReadOnly="True"
-                                            Binding="{Binding CreatedDate}"/>
+                                            Binding="{Binding CreatedDate, StringFormat={}{0:dd.MM.yyyy HH:mm}}"/>
                         <DataGridTextColumn Header="Дата изменения"
                                             IsReadOnly="True"
-                                            Binding="{Binding ModifiedDate}"/>
+                                            Binding="{Binding ModifiedDate, StringFormat={}{0:dd.MM.yyyy HH:mm}}"/>
                         <DataGridTextColumn Header="Дата закрытия"
                                             IsReadOnly="True"
-                                            Binding="{Binding ClosingDate}"/>
+                                            Binding="{Binding ClosingDate, StringFormat={}{0:dd.MM.yyyy HH:mm}}"/>
                         <DataGridTextColumn IsReadOnly="True"
                                             Width="20"
                                             Binding="{Binding UpdatableSign.Value}"/>

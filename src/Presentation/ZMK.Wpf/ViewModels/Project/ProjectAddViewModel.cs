@@ -34,19 +34,19 @@ public partial class ProjectAddViewModel : DialogViewModel
     private string? _remark;
 
     [ObservableProperty]
-    public bool _isEditable;
+    public bool _isEditable = true;
 
     [ObservableProperty]
-    public bool _allowMarksDeleting;
+    public bool _allowMarksDeleting = true;
 
     [ObservableProperty]
-    public bool _allowMarksModifying;
+    public bool _allowMarksModifying = true;
 
     [ObservableProperty]
-    public bool _allowMarksAdding;
+    public bool _allowMarksAdding = true;
 
     [ObservableProperty]
-    public bool _areExecutorsRequired;
+    public bool _areExecutorsRequired = true;
 
     public ProjectAddViewModel(IUserDialogService userDialogService) : base(userDialogService)
     {
@@ -114,7 +114,7 @@ public partial class ProjectAddViewModel : DialogViewModel
             .Areas
             .AsNoTracking()
             .OrderBy(e => e.Order)
-            .Select(e => new SelectableAreaViewModel { Id = e.Id, Title = e.Title, Order = e.Order })
+            .Select(e => new SelectableAreaViewModel { Id = e.Id, Title = e.Title, Order = e.Order, IsSelected = true })
             .ToListAsync();
 
         await App.Current.Dispatcher.InvokeAsync(() =>
