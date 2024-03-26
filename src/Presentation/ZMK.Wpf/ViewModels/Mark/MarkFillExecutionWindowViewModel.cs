@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using MoreLinq;
 using System.Collections.ObjectModel;
 using ZMK.Application.Contracts;
 using ZMK.Application.Services;
@@ -42,10 +43,9 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
             return;
         }
 
-        var vms = FillExecutionViewModels.Where(e => e.IsNotFinished).ToList();
+        var vms = FillExecutionViewModels.Where(e => e.IsNotFinished && !e.IsEmpty).ToList();
         if (vms.Count == 0)
         {
-            MessageBoxHelper.ShowInfoBox("Марка уже выполнена на каждом из доступных участков.");
             return;
         }
 
@@ -75,10 +75,7 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
 
     }
 
-    protected override bool CanAccept(object p)
-    {
-        return true;
-    }
+    protected override bool CanAccept(object p) => true;
 
     protected override async void OnActivated()
     {
@@ -147,6 +144,7 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
                         AreExecutorsRequired = current.Key.AreExecutorsRequired,
                         IsAbleToFill = previous.IsFinished && previous.IsFirst || !current.Key.AreExecutorsRequired,
                         IsFirst = previous.IsFinished && previous.IsFirst,
+                        Previous = previous,
                     };
 
                     FillExecutionViewModels.Add(vm);
