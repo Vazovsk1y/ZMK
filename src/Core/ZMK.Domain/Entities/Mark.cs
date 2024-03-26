@@ -6,6 +6,13 @@ public class Mark : Entity
 {
     public const double CountMultiplicityNumber = 0.5d;
 
+    /// <summary>
+    /// 10 грамм, 0.01 кг.
+    /// </summary>
+    public const double MinWeight = 0.01;
+
+    public const int MinOrder = 1;
+
     public required string Code { get; set; }
 
     public required string Title { get; set; }

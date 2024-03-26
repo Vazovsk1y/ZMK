@@ -10,11 +10,11 @@ public class MarkUpdateDTOValidator : AbstractValidator<MarkUpdateDTO>
     {
         RuleFor(e => e.MarkId).NotEmpty();
         RuleFor(e => e.Title).NotEmpty();
-        RuleFor(e => e.Weight).NotEmpty().GreaterThanOrEqualTo(1);
+        RuleFor(e => e.Weight).NotEmpty().GreaterThanOrEqualTo(Mark.MinWeight);
         RuleFor(e => e.Code).NotEmpty();
         RuleFor(e => e.Count)
-            .Must(e => Mark.IsValidCount(e))
+            .Must(Mark.IsValidCount)
             .WithMessage($"Количество должно быть больше нуля или кратное '{Mark.CountMultiplicityNumber}'.");
-        RuleFor(e => e.Order).NotEmpty().GreaterThanOrEqualTo(1);
+        RuleFor(e => e.Order).NotEmpty().GreaterThanOrEqualTo(Mark.MinOrder);
     }
 }
