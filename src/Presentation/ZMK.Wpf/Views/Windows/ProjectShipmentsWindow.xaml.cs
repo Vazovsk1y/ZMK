@@ -15,11 +15,11 @@ using System.Windows.Shapes;
 namespace ZMK.Wpf.Views.Windows
 {
     /// <summary>
-    /// Interaction logic for MarkFillExecutionWindow.xaml
+    /// Interaction logic for ProjectShipmentsWindow.xaml
     /// </summary>
-    public partial class MarkFillExecutionWindow : Window
+    public partial class ProjectShipmentsWindow : Window
     {
-        public MarkFillExecutionWindow()
+        public ProjectShipmentsWindow()
         {
             InitializeComponent();
         }

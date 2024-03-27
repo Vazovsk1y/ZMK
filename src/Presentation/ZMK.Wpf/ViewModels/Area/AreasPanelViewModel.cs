@@ -13,9 +13,10 @@ using ZMK.Wpf.Constants;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Messages;
 using ZMK.Wpf.Services;
+using ZMK.Wpf.ViewModels.Base;
 using ZMK.Wpf.Views.Windows;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Area;
 
 public partial class AreasPanelViewModel : TitledViewModel, IRecipient<AreaAddedMessage>, IRefrashable
 {

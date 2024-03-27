@@ -8,10 +8,11 @@ using ZMK.Application.Implementation.Extensions;
 using ZMK.Application.Services;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
+using ZMK.Wpf.ViewModels.Base;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Project;
 
-public partial class ProjectReportsWindowViewModel : TitledViewModel
+public partial class ProjectReportsViewModel : TitledViewModel
 {
     public ProjectViewModel SelectedProject { get; }
 
@@ -34,7 +35,7 @@ public partial class ProjectReportsWindowViewModel : TitledViewModel
     [ObservableProperty]
     private bool _withoutRange = true;
 
-    public ProjectReportsWindowViewModel(ProjectsPanelViewModel projectsPanelViewModel)
+    public ProjectReportsViewModel(ProjectsPanelViewModel projectsPanelViewModel)
     {
         ArgumentNullException.ThrowIfNull(projectsPanelViewModel.SelectedProject);
         SelectedProject = projectsPanelViewModel.SelectedProject;

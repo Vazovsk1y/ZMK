@@ -1,8 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
+using ZMK.Wpf.ViewModels.Base;
+using ZMK.Wpf.ViewModels.Project;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Mark;
 
 public partial class MarkCompleteEventViewModel :
     MarkEventViewModel,

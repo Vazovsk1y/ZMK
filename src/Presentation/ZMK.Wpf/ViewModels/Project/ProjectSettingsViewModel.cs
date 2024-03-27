@@ -1,7 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
+using ZMK.Wpf.ViewModels.Base;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Project;
 
 public partial class ProjectSettingsViewModel : ModifiableViewModel<ProjectSettingsViewModel>
 {

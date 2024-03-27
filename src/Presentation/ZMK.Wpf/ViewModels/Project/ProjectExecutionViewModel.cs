@@ -14,11 +14,13 @@ using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Messages;
 using ZMK.Wpf.Services;
+using ZMK.Wpf.ViewModels.Base;
+using ZMK.Wpf.ViewModels.Mark;
 using ZMK.Wpf.Views.Windows;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Project;
 
-public partial class MarksPanelViewModel : TitledViewModel,
+public partial class ProjectExecutionViewModel : TitledViewModel,
         IRecipient<MarkAddedMessage>, IRecipient<MarkExecutionFilledMessage>
 {
     public const string ByKg = "В Килограммах";
@@ -106,8 +108,9 @@ public partial class MarksPanelViewModel : TitledViewModel,
 
     public double TotalLeft => CalculateTotalLeft().RoundForReport();
 
-    public MarksPanelViewModel(ProjectsPanelViewModel projectsPanelViewModel)
+    public ProjectExecutionViewModel(ProjectsPanelViewModel projectsPanelViewModel)
     {
+        ControlTitle = "Выполнение проекта";
         ArgumentNullException.ThrowIfNull(projectsPanelViewModel.SelectedProject);
         SelectedProject = projectsPanelViewModel.SelectedProject;
     }
@@ -310,12 +313,12 @@ public partial class MarksPanelViewModel : TitledViewModel,
     public void FillExecution()
     {
         using var scope = App.Services.CreateScope();
-        var viewModel = scope.ServiceProvider.GetRequiredService<MarkFillExecutionWindowViewModel>();
+        var viewModel = scope.ServiceProvider.GetRequiredService<MarkExecutionFillingViewModel>();
         viewModel.SelectedMark = SelectedMark!;
         viewModel.IsActive = true;
 
         var dialogService = scope.ServiceProvider.GetRequiredService<IUserDialogService>();
-        dialogService.ShowDialog<MarkFillExecutionWindow, MarkFillExecutionWindowViewModel>(viewModel);
+        dialogService.ShowDialog<MarkExecutionFillingWindow, MarkExecutionFillingViewModel>(viewModel);
     }
 
     public bool CanFillExecution() => SelectedMark is not null;

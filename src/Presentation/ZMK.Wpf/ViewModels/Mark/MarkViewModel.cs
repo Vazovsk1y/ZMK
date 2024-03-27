@@ -1,8 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using ZMK.Application.Implementation.Extensions;
 using ZMK.Wpf.Extensions;
+using ZMK.Wpf.ViewModels.Base;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Mark;
 
 public partial class MarkViewModel : ModifiableViewModel<MarkViewModel>
 {

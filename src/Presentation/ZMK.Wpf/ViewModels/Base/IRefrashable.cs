@@ -1,4 +1,4 @@
-﻿namespace ZMK.Wpf.ViewModels;
+﻿namespace ZMK.Wpf.ViewModels.Base;
 
 public interface IRefrashable
 {

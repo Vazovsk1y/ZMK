@@ -1,4 +1,6 @@
-﻿namespace ZMK.Wpf.ViewModels;
+﻿using ZMK.Wpf.ViewModels.Base;
+
+namespace ZMK.Wpf.ViewModels;
 
 public class StatusPanelViewModel : TitledViewModel
 {

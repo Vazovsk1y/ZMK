@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using ZMK.Wpf.ViewModels.Base;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Employee;
 
 public partial class EmployeeViewModel : ModifiableViewModel<EmployeeViewModel>
 {

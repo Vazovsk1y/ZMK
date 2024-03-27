@@ -2,7 +2,7 @@
 using ZMK.Wpf.Services;
 using CommunityToolkit.Mvvm.Messaging;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Base;
 
 public abstract partial class DialogViewModel : TitledViewModel
 {

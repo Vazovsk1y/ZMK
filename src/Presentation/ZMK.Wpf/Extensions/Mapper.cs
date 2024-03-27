@@ -2,14 +2,31 @@
 using ZMK.Application.Contracts;
 using ZMK.Domain.Common;
 using ZMK.Domain.Entities;
-using ZMK.Wpf.ViewModels;
+using ZMK.Wpf.ViewModels.Area;
+using ZMK.Wpf.ViewModels.Employee;
+using ZMK.Wpf.ViewModels.Mark;
+using ZMK.Wpf.ViewModels.Project;
+using ZMK.Wpf.ViewModels.Shipment;
 using ZMK.Wpf.ViewModels.User;
-using static ZMK.Wpf.ViewModels.ProjectViewModel;
+using static ZMK.Wpf.ViewModels.Project.ProjectViewModel;
 
 namespace ZMK.Wpf.Extensions;
 
 public static class Mapper
 {
+    public static ShipmentViewModel ToViewModel(this Shipment shipment)
+    {
+        // TODO: Fill marks count and marks weight
+        return new ShipmentViewModel
+        {
+            Id = shipment.Id,
+            ShipmentDate = shipment.ShipmentDate.LocalDateTime,
+            Creator = $"{shipment.Creator.UserName} - {shipment.Creator.Employee.FullName}",
+            MarksCount = 0,
+            Number = shipment.Number,
+            MarksWeight = 0
+        };
+    }
     public static ProjectExecutionReportTypes ToProjectReportType(this string type)
     {
         return type switch
@@ -221,8 +238,8 @@ public static class Mapper
         var entity = new UserViewModel
         {
             Id = id,
-            Employee = userAddViewModel.SelectedEmployee,
-            Role = userAddViewModel.SelectedRole,
+            Employee = userAddViewModel.SelectedEmployee!,
+            Role = userAddViewModel.SelectedRole!,
             UserName = userAddViewModel.UserName,
         };
 

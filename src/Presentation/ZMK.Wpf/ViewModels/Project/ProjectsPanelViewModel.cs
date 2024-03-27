@@ -12,10 +12,10 @@ using ZMK.Wpf.Constants;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Messages;
 using ZMK.Wpf.Services;
-using ZMK.Wpf.ViewModels.Project;
+using ZMK.Wpf.ViewModels.Base;
 using ZMK.Wpf.Views.Windows;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Project;
 
 public partial class ProjectsPanelViewModel : TitledViewModel,
     IRecipient<ProjectAddedMessage>,
@@ -33,9 +33,20 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(DeleteCommand))]
     [NotifyCanExecuteChangedFor(nameof(UpdateProjectSettingsCommand))]
-    [NotifyCanExecuteChangedFor(nameof(ProcessingCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ExecutionCommand))]
     [NotifyCanExecuteChangedFor(nameof(ReportsCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ShipmentsCommand))]
     private ProjectViewModel? _selectedProject;
+
+    [RelayCommand(CanExecute = nameof(CanShipments))]
+    public void Shipments()
+    {
+        using var scope = App.Services.CreateScope();
+        var dialogService = scope.ServiceProvider.GetRequiredService<IUserDialogService>();
+        dialogService.ShowDialog<ProjectShipmentsWindow>();
+    }
+
+    public bool CanShipments() => SelectedProject is not null;
 
     [RelayCommand]
     public void Add()
@@ -175,6 +186,16 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
 
     public bool CanReports() => SelectedProject is not null;
 
+    [RelayCommand(CanExecute = nameof(CanExecution))]
+    public void Execution(object selectedItem)
+    {
+        using var scope = App.Services.CreateScope();
+        var dialogService = scope.ServiceProvider.GetRequiredService<IUserDialogService>();
+        dialogService.ShowDialog<ProjectExecutionWindow>();
+    }
+
+    public bool CanExecution() => SelectedProject is not null;
+
     public void Receive(ProjectAddedMessage message)
     {
         App.Current.Dispatcher.Invoke(() =>
@@ -182,19 +203,6 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
             Projects.Add(message.Project);
         });
     }
-
-    [RelayCommand(CanExecute = nameof(CanProcessing))]
-    public void Processing(object selectedItem)
-    {
-        using var scope = App.Services.CreateScope();
-        var viewModel = scope.ServiceProvider.GetRequiredService<ProjectProcessingWindowViewModel>();
-        var dialogService = scope.ServiceProvider.GetRequiredService<IUserDialogService>();
-        viewModel.IsActive = true;
-        dialogService.ShowDialog<ProjectProcessingWindow, ProjectProcessingWindowViewModel>(viewModel);
-        viewModel.IsActive = false;
-    }
-
-    public bool CanProcessing() => SelectedProject is not null;
 
     public async Task RefreshAsync(CancellationToken cancellationToken = default)
     {

@@ -1,10 +1,6 @@
 ﻿using FluentValidation;
-using FluentValidation.Validators;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System.Reflection;
 using ZMK.Application.Services;
 using ZMK.Domain.Entities;
@@ -26,6 +22,7 @@ public static class Registrator
         services.AddScoped<IAreaService, AreaService>();
         services.AddScoped<IMarkReportService, MarkReportService>();
         services.AddScoped<IProjectReportService, ProjectReportService>();
+        services.AddScoped<IShipmentService, ShipmentService>();
 
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
         services.AddIdentity();

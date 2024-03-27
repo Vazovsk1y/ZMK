@@ -7,6 +7,7 @@ using ZMK.Application.Services;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Services;
+using ZMK.Wpf.ViewModels.Base;
 using ZMK.Wpf.Views.Windows;
 
 namespace ZMK.Wpf.ViewModels;

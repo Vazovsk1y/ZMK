@@ -17,9 +17,9 @@ namespace ZMK.Wpf.Views.Windows
     /// <summary>
     /// Interaction logic for ProjectProcessingWindow.xaml
     /// </summary>
-    public partial class ProjectProcessingWindow : Window
+    public partial class ProjectExecutionWindow : Window
     {
-        public ProjectProcessingWindow()
+        public ProjectExecutionWindow()
         {
             InitializeComponent();
         }

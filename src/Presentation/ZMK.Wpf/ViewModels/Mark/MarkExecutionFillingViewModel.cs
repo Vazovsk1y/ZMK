@@ -10,10 +10,11 @@ using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Messages;
 using ZMK.Wpf.Services;
+using ZMK.Wpf.ViewModels.Base;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Mark;
 
-public partial class MarkFillExecutionWindowViewModel : DialogViewModel
+public partial class MarkExecutionFillingViewModel : DialogViewModel
 {
     private MarkViewModel _selectedMark = null!;
     public MarkViewModel SelectedMark
@@ -28,9 +29,9 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
 
     public ObservableCollection<MarkCompleteEventViewModel> ExecutionHistory { get; } = [];
 
-    public ObservableCollection<FillMarkExecutionViewModel> FillExecutionViewModels { get; } = [];
+    public ObservableCollection<MarkExecutionByAreaViewModel> FillExecutionViewModels { get; } = [];
 
-    public MarkFillExecutionWindowViewModel(IUserDialogService userDialogService) : base(userDialogService)
+    public MarkExecutionFillingViewModel(IUserDialogService userDialogService) : base(userDialogService)
     {
         ControlTitle = "Выполнение марки";
     }
@@ -116,13 +117,13 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
         await App.Current.Dispatcher.InvokeAsync(() =>
         {
             var execution = enabledAreas.ToDictionary(e => e, i => completeEvents.Where(e => e.AreaId == i.Area.Id).Sum(e => e.CompleteCount));
-            var fillExecutionVms = new ObservableCollection<FillMarkExecutionViewModel>();
+            var fillExecutionVms = new ObservableCollection<MarkExecutionByAreaViewModel>();
 
             var enumerator = execution.GetEnumerator();
             if (enumerator.MoveNext())
             {
                 var current = enumerator.Current;
-                var previous = new FillMarkExecutionViewModel
+                var previous = new MarkExecutionByAreaViewModel
                 {
                     Area = current.Key.Area.ToViewModel(),
                     LeftCount = SelectedMark.Count - current.Value,
@@ -137,7 +138,7 @@ public partial class MarkFillExecutionWindowViewModel : DialogViewModel
                 while (enumerator.MoveNext())
                 {
                     current = enumerator.Current;
-                    var vm = new FillMarkExecutionViewModel
+                    var vm = new MarkExecutionByAreaViewModel
                     {
                         Area = current.Key.Area.ToViewModel(),
                         LeftCount = SelectedMark.Count - current.Value,

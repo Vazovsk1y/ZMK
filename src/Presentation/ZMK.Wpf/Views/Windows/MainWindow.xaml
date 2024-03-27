@@ -5,16 +5,19 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:ZMK.Wpf.Views.Controls"
         xmlns:local="clr-namespace:ZMK.Wpf.Views.Windows" 
-        xmlns:viewmodels="clr-namespace:ZMK.Wpf.ViewModels" 
+        xmlns:viewmodels="clr-namespace:ZMK.Wpf.ViewModels"
+        xmlns:projects="clr-namespace:ZMK.Wpf.ViewModels.Project"
+        xmlns:areas="clr-namespace:ZMK.Wpf.ViewModels.Area"
+        xmlns:users="clr-namespace:ZMK.Wpf.ViewModels.User"
+        xmlns:employees="clr-namespace:ZMK.Wpf.ViewModels.Employee"
         xmlns:extensions="clr-namespace:ZMK.Wpf.Extensions"
-        xmlns:constants="clr-namespace:ZMK.Domain.Constants;assembly=ZMK.Domain"
-        d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel, IsDesignTimeCreatable=True}"
+        xmlns:constants="clr-namespace:ZMK.Domain.Constants;assembly=ZMK.Domain" 
+        d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        MinHeight="450"
-        ResizeMode="NoResize"
-        MinWidth="900"
-        Title="{Binding ControlTitle}" Height="500" Width="1000">
+        MinHeight="600"
+        MinWidth="1280"
+        Title="{Binding ControlTitle}" Height="600" Width="1280">
     <Window.Resources>
         <extensions:RoleNameVisibilityConverter x:Key="RoleNameVisibilityConverter"/>
     </Window.Resources>
@@ -106,18 +109,18 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <ContentControl Grid.Row="0" Content="{Binding SelectedMenuItem}">
+            <ContentControl Margin="5" Grid.Row="0" Content="{Binding SelectedMenuItem}">
                 <ContentControl.Resources>
-                    <DataTemplate DataType="{x:Type viewmodels:UsersPanelViewModel}">
+                    <DataTemplate DataType="{x:Type users:UsersPanelViewModel}">
                         <controls:UsersPanelControl DataContext="{Binding}"/>
                     </DataTemplate>
-                    <DataTemplate DataType="{x:Type viewmodels:EmployeesPanelViewModel}">
+                    <DataTemplate DataType="{x:Type employees:EmployeesPanelViewModel}">
                         <controls:EmployeesPanelControl DataContext="{Binding}"/>
                     </DataTemplate>
-                    <DataTemplate DataType="{x:Type viewmodels:ProjectsPanelViewModel}">
+                    <DataTemplate DataType="{x:Type projects:ProjectsPanelViewModel}">
                         <controls:ProjectsPanelControl DataContext="{Binding}"/>
                     </DataTemplate>
-                    <DataTemplate DataType="{x:Type viewmodels:AreasPanelViewModel}">
+                    <DataTemplate DataType="{x:Type areas:AreasPanelViewModel}">
                         <controls:AreasPanelControl DataContext="{Binding}"/>
                     </DataTemplate>
                 </ContentControl.Resources>

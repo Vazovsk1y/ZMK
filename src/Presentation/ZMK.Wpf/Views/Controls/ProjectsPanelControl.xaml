@@ -6,71 +6,84 @@
              xmlns:local="clr-namespace:ZMK.Wpf.Views.Controls" 
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:viewmodels="clr-namespace:ZMK.Wpf.ViewModels" 
-             d:DataContext="{d:DesignInstance Type=viewmodels:ProjectsPanelViewModel}"
-             mc:Ignorable="d" 
+             xmlns:project="clr-namespace:ZMK.Wpf.ViewModels.Project" 
+             d:DataContext="{d:DesignInstance Type=project:ProjectsPanelViewModel}"
+             mc:Ignorable="d"
              IsEnabled="{Binding IsEnabled}"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="1050">
+    <UserControl.Resources>
+        <Style TargetType="Button">
+            <Setter Property="MinWidth" Value="100"/>
+            <Setter Property="MinHeight" Value="35"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+    </UserControl.Resources>
     <Grid>
-        <ScrollViewer>
-            <StackPanel>
-                <DataGrid ItemsSource="{Binding Projects}"
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <DataGrid ItemsSource="{Binding Projects}"
                           SelectedItem="{Binding SelectedProject}"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"
                           SelectionMode="Single"
-                          CanUserDeleteRows="False">
+                          CanUserDeleteRows="False"
+                          FontSize="14">
 
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Заводской номер" 
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Заводской номер" 
                                             Binding="{Binding FactoryNumber}"/>
-                        <DataGridTextColumn Header="Номер договора" 
+                <DataGridTextColumn Header="Номер договора" 
                                             Binding="{Binding ContractNumber}"/>
-                        <DataGridTextColumn Header="Заказчик" 
+                <DataGridTextColumn Header="Заказчик" 
                                             Binding="{Binding Customer}"/>
-                        <DataGridTextColumn Header="Поставщик" 
+                <DataGridTextColumn Header="Поставщик" 
                                             Binding="{Binding Vendor}"/>
-                        <DataGridTextColumn Header="Примечание" 
+                <DataGridTextColumn Header="Примечание" 
                                             Binding="{Binding Remark}"/>
-                        <DataGridTextColumn Header="Создатель"
+                <DataGridTextColumn Header="Создатель"
                                             IsReadOnly="True"
                                             Binding="{Binding Creator.UserName}"/>
-                        <DataGridTextColumn Header="Дата создания"
+                <DataGridTextColumn Header="Дата создания"
                                             IsReadOnly="True"
                                             Binding="{Binding CreatedDate, StringFormat={}{0:dd.MM.yyyy HH:mm}}"/>
-                        <DataGridTextColumn Header="Дата изменения"
+                <DataGridTextColumn Header="Дата изменения"
                                             IsReadOnly="True"
                                             Binding="{Binding ModifiedDate, StringFormat={}{0:dd.MM.yyyy HH:mm}}"/>
-                        <DataGridTextColumn Header="Дата закрытия"
+                <DataGridTextColumn Header="Дата закрытия"
                                             IsReadOnly="True"
                                             Binding="{Binding ClosingDate, StringFormat={}{0:dd.MM.yyyy HH:mm}}"/>
-                        <DataGridTextColumn IsReadOnly="True"
+                <DataGridTextColumn IsReadOnly="True"
                                             Width="20"
                                             Binding="{Binding UpdatableSign.Value}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
+            </DataGrid.Columns>
+        </DataGrid>
 
-                <StackPanel Orientation="Horizontal">
-                    <Button Content="Добавить" 
-                            Command="{Binding AddCommand}" 
-                            Margin="10"/>
-                    <Button Content="Сохранить изменения" 
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <Button Content="Добавить" 
+                            Command="{Binding AddCommand}"
+                    Margin="0, 10, 0, 10"/>
+            <Button Content="Сохранить изменения" 
                             Command="{Binding SaveChangesCommand}" 
-                            Margin="10"/>
-                    <Button Content="Отменить изменения" Command="{Binding RollbackChangesCommand}" Margin="10"/>
-                    <Button Content="Удалить" 
+                    Margin="10, 10, 0, 10"/>
+            <Button Content="Отменить изменения" Command="{Binding RollbackChangesCommand}" 
+                    Margin="10, 10, 0, 10"/>
+            <Button Content="Удалить" 
                             Command="{Binding DeleteCommand}" 
-                            Margin="10"/>
-                    <Button Content="Настройки" 
+                            Margin="10, 10, 0, 10"/>
+            <Button Content="Настройки" 
                             Command="{Binding UpdateProjectSettingsCommand}" 
-                            Margin="10"/>
-                    <Button Content="Процесс выполнения"
-                            Command="{Binding ProcessingCommand}"
-                            Margin="10"/>
-                    <Button Content="Отчеты"
+                            Margin="10, 10, 0, 10"/>
+            <Button Content="Процесс выполнения"
+                            Command="{Binding ExecutionCommand}"
+                            Margin="10, 10, 0, 10"/>
+            <Button Content="Отчеты"
         Command="{Binding ReportsCommand}"
-        Margin="10"/>
-                </StackPanel>
-            </StackPanel>
-        </ScrollViewer>
+        Margin="10, 10, 0, 10"/>
+            <Button Content="Отгрузки"
+                            Command="{Binding ShipmentsCommand}"
+                            Margin="10, 10, 0, 10"/>
+        </StackPanel>
     </Grid>
 </UserControl>

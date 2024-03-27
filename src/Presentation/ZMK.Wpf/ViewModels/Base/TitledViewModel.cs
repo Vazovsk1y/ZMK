@@ -2,7 +2,7 @@
 using System.Reflection;
 using ZMK.Wpf.ViewModels.User;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Base;
 
 public partial class TitledViewModel : ObservableRecipient
 {

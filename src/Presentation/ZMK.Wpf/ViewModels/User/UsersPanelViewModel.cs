@@ -12,9 +12,10 @@ using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Messages;
 using ZMK.Wpf.Services;
+using ZMK.Wpf.ViewModels.Base;
 using ZMK.Wpf.Views.Windows;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.User;
 
 public partial class UsersPanelViewModel : TitledViewModel,
     IRecipient<UserAddedMessage>,

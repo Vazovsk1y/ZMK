@@ -10,7 +10,12 @@ using ZMK.PostgresDAL;
 using ZMK.PostgresDAL.Extensions;
 using ZMK.Wpf.Services;
 using ZMK.Wpf.ViewModels;
+using ZMK.Wpf.ViewModels.Area;
+using ZMK.Wpf.ViewModels.Employee;
+using ZMK.Wpf.ViewModels.Mark;
 using ZMK.Wpf.ViewModels.Project;
+using ZMK.Wpf.ViewModels.Shipment;
+using ZMK.Wpf.ViewModels.User;
 using ZMK.Wpf.Views.Windows;
 
 namespace ZMK.Wpf.Extensions;
@@ -37,14 +42,8 @@ public static class Registrator
         services.AddSingleton<ProjectsPanelViewModel>();
         services.AddSingleton<AreasPanelViewModel>();
 
-
-        services.AddTransient<MarksPanelViewModel>();
-
-        services.AddTransient<MarkFillExecutionWindow>();
-        services.AddTransient<MarkFillExecutionWindowViewModel>();
-
-        services.AddTransient<ProjectProcessingWindow>();
-        services.AddTransient<ProjectProcessingWindowViewModel>();
+        services.AddTransient<MarkExecutionFillingViewModel>();
+        services.AddTransient<MarkExecutionFillingWindow>();
 
         services.AddWindowWithViewModelSingleton<MainWindow, MainWindowViewModel>();
         services.AddWindowWithViewModelTransient<LoginWindow, LoginWindowViewModel>();
@@ -54,7 +53,10 @@ public static class Registrator
         services.AddWindowWithViewModelTransient<ProjectAddWindow, ProjectAddViewModel>();
         services.AddWindowWithViewModelTransient<MarkAddWindow, MarkAddViewModel>();
         services.AddWindowWithViewModelTransient<AreaAddWindow, AreaAddViewModel>();
-        services.AddWindowWithViewModelTransient<ProjectReportsWindow, ProjectReportsWindowViewModel>();
+        services.AddWindowWithViewModelTransient<ProjectReportsWindow, ProjectReportsViewModel>();
+        services.AddWindowWithViewModelTransient<ShipmentAddWindow, ShipmentAddViewModel>();
+        services.AddWindowWithViewModelTransient<ProjectShipmentsWindow, ProjectShipmentsViewModel>();
+        services.AddWindowWithViewModelTransient<ProjectExecutionWindow, ProjectExecutionViewModel>();
 
         services.AddMemoryCache();
     }

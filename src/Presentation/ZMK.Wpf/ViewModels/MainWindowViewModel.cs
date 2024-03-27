@@ -1,5 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ZMK.Wpf.ViewModels.Area;
+using ZMK.Wpf.ViewModels.Base;
+using ZMK.Wpf.ViewModels.Employee;
+using ZMK.Wpf.ViewModels.Project;
+using ZMK.Wpf.ViewModels.User;
 
 namespace ZMK.Wpf.ViewModels;
 

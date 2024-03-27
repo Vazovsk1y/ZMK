@@ -6,8 +6,9 @@ using ZMK.Application.Services;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Messages;
 using ZMK.Wpf.Services;
+using ZMK.Wpf.ViewModels.Base;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Employee;
 
 public partial class EmployeeAddViewModel : DialogViewModel
 {

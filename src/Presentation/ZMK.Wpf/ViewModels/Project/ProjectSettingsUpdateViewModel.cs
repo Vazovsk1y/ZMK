@@ -5,8 +5,9 @@ using System.Collections.ObjectModel;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Services;
+using ZMK.Wpf.ViewModels.Base;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Project;
 
 public partial class ProjectSettingsUpdateViewModel : DialogViewModel
 {
@@ -18,8 +19,9 @@ public partial class ProjectSettingsUpdateViewModel : DialogViewModel
         IUserDialogService userDialogService,
         ProjectsPanelViewModel projectsPanelViewModel) : base(userDialogService)
     {
-        ProjectSettingsViewModel = projectsPanelViewModel.SelectedProject!.Settings;
-        ControlTitle = "Настройки проэкта";
+        ArgumentNullException.ThrowIfNull(projectsPanelViewModel.SelectedProject?.Settings);
+        ProjectSettingsViewModel = projectsPanelViewModel.SelectedProject.Settings;
+        ControlTitle = "Настройки проекта";
     }
 
     protected override Task Accept(object action)

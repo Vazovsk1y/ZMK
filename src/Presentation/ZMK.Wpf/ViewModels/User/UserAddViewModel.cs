@@ -9,9 +9,10 @@ using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Messages;
 using ZMK.Wpf.Services;
-using static ZMK.Wpf.ViewModels.UserViewModel;
+using ZMK.Wpf.ViewModels.Base;
+using static ZMK.Wpf.ViewModels.User.UserViewModel;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.User;
 
 public partial class UserAddViewModel : DialogViewModel
 {

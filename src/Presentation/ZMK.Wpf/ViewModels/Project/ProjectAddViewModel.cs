@@ -9,9 +9,10 @@ using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Messages;
 using ZMK.Wpf.Services;
-using static ZMK.Wpf.ViewModels.ProjectSettingsUpdateViewModel;
+using ZMK.Wpf.ViewModels.Base;
+using static ZMK.Wpf.ViewModels.Project.ProjectSettingsUpdateViewModel;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Project;
 
 public partial class ProjectAddViewModel : DialogViewModel
 {

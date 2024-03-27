@@ -4,6 +4,7 @@ using System.Windows.Data;
 using System.Windows;
 using ZMK.Wpf.ViewModels;
 using CommunityToolkit.Mvvm.ComponentModel;
+using ZMK.Wpf.ViewModels.Project;
 
 namespace ZMK.Wpf.Extensions;
 

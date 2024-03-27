@@ -2,12 +2,14 @@
 using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using ZMK.Domain.Entities;
 using ZMK.Wpf.Extensions;
+using ZMK.Wpf.ViewModels.Area;
+using ZMK.Wpf.ViewModels.Project;
+using ZMK.Domain.Entities;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Mark;
 
-public partial class FillMarkExecutionViewModel : ObservableObject
+public partial class MarkExecutionByAreaViewModel : ObservableObject
 {
     public required double LeftCount { get; init; }
 
@@ -15,14 +17,13 @@ public partial class FillMarkExecutionViewModel : ObservableObject
 
     public required bool AreExecutorsRequired { get; init; }
 
-    public FillMarkExecutionViewModel? Next { get; set; }
+    public MarkExecutionByAreaViewModel? Next { get; set; }
 
-    public FillMarkExecutionViewModel? Previous { get; set; }
+    public MarkExecutionByAreaViewModel? Previous { get; set; }
 
     public bool IsFirst { get; init; }
 
     public ObservableCollection<ExecutorInfo> Executors { get; } = [];
-
 
     public string? ExecutorFilterText
     {
@@ -87,10 +88,10 @@ public partial class FillMarkExecutionViewModel : ObservableObject
                         return;
                     }
 
-                    var isValid = value.ParseInDifferentCultures() is double count && Mark.IsValidCount(count);
+                    var isValid = value.ParseInDifferentCultures() is double count && Domain.Entities.Mark.IsValidCount(count);
                     if (!isValid)
                     {
-                        MessageBoxHelper.ShowErrorBox($"Количество выполненных марок должно быть целое число больше нуля или кратное {Mark.CountMultiplicityNumber}.");
+                        MessageBoxHelper.ShowErrorBox($"Количество выполненных марок должно быть целое число больше нуля или кратное {Domain.Entities.Mark.CountMultiplicityNumber}.");
                         _count = null;
                     }
                 }
@@ -165,7 +166,7 @@ public partial class FillMarkExecutionViewModel : ObservableObject
                 return true;
             }
 
-            FillMarkExecutionViewModel? currentElement = this;
+            MarkExecutionByAreaViewModel? currentElement = this;
             while (!currentElement?.Previous?.IsEmpty is false && currentElement?.Previous?.IsFinished is false)
             {
                 currentElement = currentElement?.Previous;

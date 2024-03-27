@@ -8,8 +8,10 @@ using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Messages;
 using ZMK.Wpf.Services;
+using ZMK.Wpf.ViewModels.Base;
+using ZMK.Wpf.ViewModels.Project;
 
-namespace ZMK.Wpf.ViewModels;
+namespace ZMK.Wpf.ViewModels.Mark;
 
 public partial class MarkAddViewModel : DialogViewModel
 {

@@ -1,4 +1,4 @@
-﻿using ZMK.Wpf.ViewModels;
+﻿using ZMK.Wpf.ViewModels.User;
 
 namespace ZMK.Wpf.Messages;
 

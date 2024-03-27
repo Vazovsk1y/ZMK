@@ -1,5 +1,5 @@
 ﻿<Window
-	x:Class="ZMK.Wpf.Views.Windows.ProjectProcessingWindow"
+	x:Class="ZMK.Wpf.Views.Windows.ProjectExecutionWindow"
 	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 	xmlns:b="clr-namespace:Microsoft.Xaml.Behaviors;assembly=Microsoft.Xaml.Behaviors"
 	xmlns:controls="clr-namespace:ZMK.Wpf.Views.Controls"
@@ -11,13 +11,14 @@
 	xmlns:system="clr-namespace:System;assembly=mscorlib"
 	xmlns:viewmodels="clr-namespace:ZMK.Wpf.ViewModels"
     xmlns:projectVms="clr-namespace:ZMK.Wpf.ViewModels.Project"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	MinHeight="700"
+    xmlns:marks="clr-namespace:ZMK.Wpf.ViewModels.Mark"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    d:DataContext="{d:DesignInstance Type=projectVms:ProjectExecutionViewModel}"
+    MinHeight="700"
 	MinWidth="1050"
 	Width="1050"
 	Height="700"
-	d:DataContext="{d:DesignInstance Type=projectVms:ProjectProcessingWindowViewModel}"
-	IsEnabled="{Binding MarksPanelViewModel.IsEnabled}"
+	IsEnabled="{Binding IsEnabled}"
 	Title="{Binding ControlTitle}"
 	WindowStartupLocation="CenterScreen"
 	mc:Ignorable="d">
@@ -52,7 +53,7 @@
         <TextBlock
 			Grid.Row="0"
 			Margin="10, 5, 0, 0"
-			Text="{Binding MarksPanelViewModel.SelectedProject.FactoryNumber, StringFormat='Выбранный проект: {0}'}"/>
+			Text="{Binding SelectedProject.FactoryNumber, StringFormat='Выбранный проект: {0}'}"/>
         <Grid Grid.Row="1" Margin="10, 5, 0, 0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
@@ -65,8 +66,8 @@
 					MinWidth="120"
 					Margin="5"
 					DisplayMemberPath="Title"
-					ItemsSource="{Binding MarksPanelViewModel.AvailableAreas}"
-					SelectedItem="{Binding  MarksPanelViewModel.SelectedArea}"
+					ItemsSource="{Binding AvailableAreas}"
+					SelectedItem="{Binding SelectedArea}"
 					VerticalContentAlignment="Center"/>
                 <TextBlock
 					Margin="10, 0, 0, 0"
@@ -75,29 +76,29 @@
                 <ComboBox
 					MinWidth="120"
 					Margin="5"
-					ItemsSource="{Binding MarksPanelViewModel.DisplayExecutionInOptions}"
-					SelectedItem="{Binding MarksPanelViewModel.SelectedDisplayInOption}"
+					ItemsSource="{Binding DisplayExecutionInOptions}"
+					SelectedItem="{Binding SelectedDisplayInOption}"
 					VerticalContentAlignment="Center">
                 </ComboBox>
                 <StackPanel Margin="20, 0, 0, 0">
                     <TextBlock Text="Кол-во марок"/>
-                    <TextBlock Text="{Binding  MarksPanelViewModel.Marks.Count}" TextAlignment="Center"/>
+                    <TextBlock Text="{Binding  Marks.Count}" TextAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Margin="20, 0, 0, 0">
                     <TextBlock Text="Общее кол-во"/>
-                    <TextBlock Text="{Binding MarksPanelViewModel.TotalCount}" TextAlignment="Center"/>
+                    <TextBlock Text="{Binding TotalCount}" TextAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Margin="20, 0, 0, 0">
                     <TextBlock Text="Общий вес"/>
-                    <TextBlock Text="{Binding MarksPanelViewModel.TotalWeight}" TextAlignment="Center"/>
+                    <TextBlock Text="{Binding TotalWeight}" TextAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Margin="20, 0, 0, 0">
                     <TextBlock Text="Выполнено"/>
-                    <TextBlock Text="{Binding MarksPanelViewModel.TotalComplete}" TextAlignment="Center"/>
+                    <TextBlock Text="{Binding TotalComplete}" TextAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Margin="20, 0, 0, 0">
                     <TextBlock Text="Осталось"/>
-                    <TextBlock Text="{Binding MarksPanelViewModel.TotalLeft}" TextAlignment="Center"/>
+                    <TextBlock Text="{Binding TotalLeft}" TextAlignment="Center"/>
                 </StackPanel>
             </StackPanel>
             <DataGrid
@@ -110,7 +111,7 @@
 				ColumnWidth="*"
 				FontSize="14"
 				FrozenColumnCount="9"
-				ItemsSource="{Binding MarksPanelViewModel.Marks}"
+				ItemsSource="{Binding Marks}"
 				SelectionMode="Single">
                 <DataGrid.Columns>
                     <DataGridTextColumn Binding="{Binding Order}" Header="Очередность"/>
@@ -137,39 +138,39 @@
                 </DataGrid.Columns>
                 <i:Interaction.Triggers>
                     <b:EventTrigger EventName="SelectionChanged">
-                        <i:InvokeCommandAction Command="{Binding MarksPanelViewModel.MarkSelectionChangedCommand}" CommandParameter="{Binding SelectedItem, ElementName=MarksDataGrid}"/>
+                        <i:InvokeCommandAction Command="{Binding MarkSelectionChangedCommand}" CommandParameter="{Binding SelectedItem, ElementName=MarksDataGrid}"/>
                     </b:EventTrigger>
                 </i:Interaction.Triggers>
             </DataGrid>
             <StackPanel Grid.Row="2" Orientation="Horizontal">
                 <Button
 					Margin="0, 10, 10, 10"
-					Command="{Binding MarksPanelViewModel.FillExecutionCommand}"
+					Command="{Binding FillExecutionCommand}"
 					Content="Заполнить выполнение"
 					Style="{StaticResource ButtonStyle}"/>
                 <Button
 					Margin="10"
-					Command="{Binding MarksPanelViewModel.AddCommand}"
+					Command="{Binding AddCommand}"
 					Content="Добавить"
 					Style="{StaticResource ButtonStyle}"/>
                 <Button
 					Margin="10"
-					Command="{Binding MarksPanelViewModel.ImportFromExcelCommand}"
+					Command="{Binding ImportFromExcelCommand}"
 					Content="Импорт из Excel"
 					Style="{StaticResource ButtonStyle}"/>
                 <Button
 					Margin="10"
-					Command="{Binding MarksPanelViewModel.SaveChangesCommand}"
+					Command="{Binding SaveChangesCommand}"
 					Content="Сохранить изменения"
 					Style="{StaticResource ButtonStyle}"/>
                 <Button
 					Margin="10"
-					Command="{Binding MarksPanelViewModel.RollbackChangesCommand}"
+					Command="{Binding RollbackChangesCommand}"
 					Content="Отменить изменения"
 					Style="{StaticResource ButtonStyle}"/>
                 <Button
 					Margin="10"
-					Command="{Binding MarksPanelViewModel.DeleteCommand}"
+					Command="{Binding DeleteCommand}"
 					Content="Удалить"
 					Style="{StaticResource ButtonStyle}"/>
             </StackPanel>
@@ -177,20 +178,20 @@
         <Grid
 			Grid.Row="2"
 			Margin="10, 5, 0, 0"
-			Visibility="{Binding MarksPanelViewModel.SelectedMark, Converter={StaticResource NullVisibilityConverter}}">
+			Visibility="{Binding SelectedMark, Converter={StaticResource NullVisibilityConverter}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="auto"/>
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <TextBlock Grid.Row="0" Text="{Binding MarksPanelViewModel.SelectedMark.Code, StringFormat='Выбранная марка: {0}'}"/>
+                <TextBlock Grid.Row="0" Text="{Binding SelectedMark.Code, StringFormat='Выбранная марка: {0}'}"/>
                 <TextBlock Margin="20, 0, 0, 0" Text="Тип события: "/>
                 <ComboBox
 					MinWidth="120"
 					Margin="5, 0, 0, 0"
-					ItemsSource="{Binding MarksPanelViewModel.EventTypesOptions}"
-					SelectedItem="{Binding MarksPanelViewModel.SelectedEventTypeOption}"
+					ItemsSource="{Binding EventTypesOptions}"
+					SelectedItem="{Binding SelectedEventTypeOption}"
 					VerticalContentAlignment="Center"/>
             </StackPanel>
             <FrameworkElement x:Name="frmElement" Visibility="Collapsed"/>
@@ -201,11 +202,11 @@
 				CanUserAddRows="False"
 				CanUserDeleteRows="False"
 				FontSize="14"
-				ItemsSource="{Binding MarksPanelViewModel.SelectedMarkEvents}"
+				ItemsSource="{Binding SelectedMarkEvents}"
 				SelectionMode="Single">
                 <DataGrid.Resources>
-                    <CollectionViewSource x:Key="AvailableAreas" Source="{Binding MarksPanelViewModel.AvailableAreas}"/>
-                    <CollectionViewSource x:Key="AvailableExecutors" Source="{Binding MarksPanelViewModel.AvailableExecutors}"/>
+                    <CollectionViewSource x:Key="AvailableAreas" Source="{Binding AvailableAreas}"/>
+                    <CollectionViewSource x:Key="AvailableExecutors" Source="{Binding AvailableExecutors}"/>
                     <DataTemplate x:Key="DateReadonlyCellTemplate">
                         <TextBlock Text="{Binding DisplayDate}"/>
                     </DataTemplate>
@@ -213,7 +214,7 @@
                         <DatePicker
 							Margin="0, 10, 0, 0"
 							DisplayDateEnd="{x:Static system:DateTime.Now}"
-							DisplayDateStart="01/01/2000"
+							DisplayDateStart="01/01/2024"
 							IsTodayHighlighted="True"
 							SelectedDate="{Binding Date}">
                             <DatePicker.Resources>
@@ -271,7 +272,7 @@
 						Binding="{Binding CommonTitle}"
 						Header="Название"
 						IsReadOnly="True"
-						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static viewmodels:MarkEventViewModel.CommonEventType}}"/>
+						Visibility="{Binding DataContext.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static marks:MarkEventViewModel.CommonEventType}}"/>
                     <DataGridTextColumn
 						Binding="{Binding EventType}"
 						Header="Тип события"
@@ -285,8 +286,8 @@
 						ItemsSource="{Binding Source={StaticResource AvailableAreas}}"
 						SelectedItemBinding="{Binding Area}"
                         DisplayMemberPath="Title"
-						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents, Source={x:Reference frmElement},      Converter={StaticResource MarkEventsColumnVisibililtyConverter},ConverterParameter={x:Static viewmodels:MarkEventViewModel.CompleteEventType}}"/>
-                    <DataGridTemplateColumn Header="Исполнители" Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static viewmodels:MarkEventViewModel.CompleteEventType}}">
+						Visibility="{Binding DataContext.SelectedMarkEvents, Source={x:Reference frmElement},      Converter={StaticResource MarkEventsColumnVisibililtyConverter},ConverterParameter={x:Static marks:MarkEventViewModel.CompleteEventType}}"/>
+                    <DataGridTemplateColumn Header="Исполнители" Visibility="{Binding DataContext.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static marks:MarkEventViewModel.CompleteEventType}}">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <ItemsControl ItemsSource="{Binding Executors}">
@@ -342,22 +343,22 @@
 						Binding="{Binding MarkCode}"
 						Header="Марка"
 						IsReadOnly="True"
-						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
+						Visibility="{Binding DataContext.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
                     <DataGridTextColumn
 						Binding="{Binding MarkTitle}"
 						Header="Название марки"
 						IsReadOnly="True"
-						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
+						Visibility="{Binding DataContext.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
                     <DataGridTextColumn
 						Binding="{Binding MarkOrder}"
 						Header="Очередность марки"
 						IsReadOnly="True"
-						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
+						Visibility="{Binding DataContext.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
                     <DataGridTextColumn
 						Binding="{Binding MarkWeight}"
 						Header="Вес марки"
 						IsReadOnly="True"
-						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
+						Visibility="{Binding DataContext.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCreateOrModifyEventType}}"/>
                     <DataGridTemplateColumn CellTemplate="{StaticResource RemarkReadonlyCellTemplate}" Header="Примечание">
                         <DataGridTemplateColumn.CellEditingTemplate>
                             <DataTemplate>
@@ -376,7 +377,7 @@
                     <DataGridTextColumn
 						Binding="{Binding UpdatableSign.Value}"
 						IsReadOnly="True"
-						Visibility="{Binding DataContext.MarksPanelViewModel.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCompleteOrCommonEventType}}"/>
+						Visibility="{Binding DataContext.SelectedMarkEvents,  Source={x:Reference frmElement},  Converter={StaticResource MarkEventsColumnVisibililtyConverter},  ConverterParameter={x:Static extensions:MarkEventsColumnVisibilityConverter.MarkCompleteOrCommonEventType}}"/>
                 </DataGrid.Columns>
             </DataGrid>
             <StackPanel Grid.Row="2" Orientation="Horizontal">
@@ -384,14 +385,14 @@
 					HorizontalAlignment="Left"
 					Margin="0, 10, 10, 10"
 					Content="Экспорт в Excel"
-                    Command="{Binding MarksPanelViewModel.ExportEventsToExcelCommand}"
+                    Command="{Binding ExportEventsToExcelCommand}"
 					Style="{StaticResource ButtonStyle}"/>
                 <Button Content="Сохранить изменения"
-                        Command="{Binding MarksPanelViewModel.SaveCompleteMarkEventsChangesCommand}"
+                        Command="{Binding SaveCompleteMarkEventsChangesCommand}"
                         Style="{StaticResource ButtonStyle}"
                         Margin="0, 10, 10, 10"/>
                 <Button Content="Отменить изменения"
-                        Command="{Binding MarksPanelViewModel.RollbackEventsChangesCommand}"
+                        Command="{Binding RollbackEventsChangesCommand}"
                         Style="{StaticResource ButtonStyle}"
                         Margin="0, 10, 10, 10"/>
             </StackPanel>
