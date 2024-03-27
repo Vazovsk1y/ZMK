@@ -3,10 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ZMK.Wpf.Views.Windows"
-        xmlns:shipmentsVms="clr-namespace:ZMK.Wpf.ViewModels.Shipment"
-        xmlns:system="clr-namespace:System;assembly=mscorlib"
-        d:DataContext="{d:DesignInstance Type=shipmentsVms:ProjectShipmentsViewModel, IsDesignTimeCreatable=True}"
+        xmlns:system="clr-namespace:System;assembly=mscorlib" 
+        xmlns:project="clr-namespace:ZMK.Wpf.ViewModels.Project" 
+        d:DataContext="{d:DesignInstance Type=project:ProjectShipmentsViewModel}"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         Title="{Binding ControlTitle}" Height="600" Width="900">
@@ -81,12 +80,20 @@
                     <DataGridTextColumn Header="Создатель"
                                         Binding="{Binding Creator}"
                                         IsReadOnly="True"/>
+                    <DataGridTextColumn Binding="{Binding UpdatableSign.Value}"
+                                        IsReadOnly="True"/>
                 </DataGrid.Columns>
             </DataGrid>
 
             <StackPanel Margin="0, 5, 0, 0" Grid.Row="2" Orientation="Horizontal">
                 <Button Content="Добавить"
                         Command="{Binding AddCommand}"/>
+                <Button Content="Сохранить измененния"
+                        Margin="5, 0, 0, 0"
+                        Command="{Binding SaveChangesCommand}"/>
+                <Button Content="Отменить изменения"
+                        Margin="5, 0, 0, 0"
+                        Command="{Binding RollbackChangesCommand}"/>
             </StackPanel>
         </Grid>
         

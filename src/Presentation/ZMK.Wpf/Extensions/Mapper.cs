@@ -17,7 +17,7 @@ public static class Mapper
     public static ShipmentViewModel ToViewModel(this Shipment shipment)
     {
         // TODO: Fill marks count and marks weight
-        return new ShipmentViewModel
+        var entity = new ShipmentViewModel
         {
             Id = shipment.Id,
             ShipmentDate = shipment.ShipmentDate.LocalDateTime,
@@ -26,6 +26,8 @@ public static class Mapper
             Number = shipment.Number,
             MarksWeight = 0
         };
+        entity.SaveState();
+        return entity;
     }
     public static ProjectExecutionReportTypes ToProjectReportType(this string type)
     {

@@ -4,6 +4,9 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
+using ZMK.Application.Contracts;
+using ZMK.Application.Services;
+using ZMK.Domain.Shared;
 using ZMK.PostgresDAL;
 using ZMK.Wpf.Extensions;
 using ZMK.Wpf.Messages;
@@ -39,6 +42,56 @@ public partial class ProjectShipmentsViewModel :
         using var scope = App.Services.CreateScope();
         var dialogService = scope.ServiceProvider.GetRequiredService<IUserDialogService>();
         dialogService.ShowDialog<ShipmentAddWindow>();
+    }
+
+    [RelayCommand]
+    public async Task SaveChanges()
+    {
+        var modifiedShipments = Shipments.Where(e => e.IsModified()).ToList();
+        if (SaveChangesCommand.IsRunning || modifiedShipments.Count == 0)
+        {
+            return;
+        }
+
+        IsEnabled = false;
+        using var scope = App.Services.CreateScope();
+        var shipmentService = scope.ServiceProvider.GetRequiredService<IShipmentService>();
+
+        var results = new List<Result>();
+        foreach (var shipment in modifiedShipments)
+        {
+            var dto = new ShipmentUpdateDTO(shipment.Id, DateOnly.FromDateTime(shipment.ShipmentDate), shipment.Number, shipment.Remark);
+            var updateResult = await shipmentService.UpdateAsync(dto);
+            if (updateResult.IsFailure)
+            {
+                shipment.RollBackChanges();
+            }
+            else
+            {
+                shipment.SaveState();
+            }
+
+            results.Add(updateResult);
+        }
+
+        results.DisplayUpdateResultMessageBox();
+        IsEnabled = true;
+    }
+
+    [RelayCommand]
+    public void RollbackChanges()
+    {
+        var modifiedShipments = Shipments.Where(e => e.IsModified()).ToList();
+        if (modifiedShipments.Count == 0)
+        {
+            return;
+        }
+
+        var dialogResult = MessageBoxHelper.ShowDialogBoxYesNo($"Вы уверены, что желаете отменить все текущие изменения?");
+        if (dialogResult == System.Windows.MessageBoxResult.Yes)
+        {
+            modifiedShipments.ForEach(e => e.RollBackChanges());
+        }
     }
 
     public void Receive(ShipmentAddedMessage message)
