@@ -3,11 +3,11 @@ using ZMK.Application.Contracts;
 
 namespace ZMK.Application.Implementation.Validators;
 
-public class ShipmentAddDTOValidator : AbstractValidator<ShipmentAddDTO>
+public class ShipmentUpdateDTOValidator : AbstractValidator<ShipmentUpdateDTO>
 {
-    public ShipmentAddDTOValidator()
+    public ShipmentUpdateDTOValidator()
     {
-        RuleFor(e => e.ProjectId).NotEmpty();
+        RuleFor(e => e.ShipmentId).NotEmpty();
         RuleFor(e => e.ShipmentDate).NotEmpty();
         RuleFor(e => e.Number).NotEmpty().WithMessage("Номер погрузки обязательное к заполнению поле.");
     }

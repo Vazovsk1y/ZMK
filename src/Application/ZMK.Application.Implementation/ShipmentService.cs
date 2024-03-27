@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ZMK.Application.Contracts;
+using ZMK.Application.Implementation.Constants;
 using ZMK.Application.Services;
 using ZMK.Domain.Constants;
 using ZMK.Domain.Entities;
@@ -60,5 +61,45 @@ public class ShipmentService : BaseService, IShipmentService
         await _dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Отгрузка успешно добавлена.");
         return shipment.Id;
+    }
+
+    public async Task<Result> UpdateAsync(ShipmentUpdateDTO dTO, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var validationResult = Validate(dTO);
+        if (validationResult.IsFailure)
+        {
+            return Result.Failure(validationResult.Errors);
+        }
+
+        var isAbleResult = await IsAbleToPerformAction(cancellationToken, DefaultRoles.Admin, DefaultRoles.User).ConfigureAwait(false);
+        if (isAbleResult.IsFailure)
+        {
+            return Result.Failure<Guid>(isAbleResult.Errors);
+        }
+
+        var targetShipment = await _dbContext.Shipments.SingleOrDefaultAsync(e => e.Id == dTO.ShipmentId, cancellationToken);
+        if (targetShipment is not null)
+        {
+            targetShipment.Number = dTO.Number.Trim();
+            targetShipment.ShipmentDate = new DateTimeOffset(dTO.ShipmentDate.Year, dTO.ShipmentDate.Month, dTO.ShipmentDate.Day, 0, 0, 0, TimeSpan.Zero);
+            targetShipment.Remark = dTO.Remark?.Trim();
+        }
+
+        _logger.LogInformation("Попытка обновления данных о погрузке.");
+        switch (targetShipment)
+        {
+            case null:
+                return Result.Failure(Errors.NotFound("Погрузка"));
+            case Shipment when await _dbContext.Shipments.Where(e => e.ProjectId == targetShipment.ProjectId).AnyAsync(e => e.Id != targetShipment.Id && targetShipment.Number == e.Number):
+                return Result.Failure(new Error(nameof(Error), $"Погрузка с таким номером '{targetShipment.Number}' уже существует."));
+            default:
+                {
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+                    _logger.LogInformation("Данные о погрузке успешно обновлены.");
+                    return Result.Success();
+                }
+        }
     }
 }
