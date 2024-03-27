@@ -11,7 +11,15 @@ public class Shipment : Entity
 
     public required Guid CreatorId { get; init; }
 
+    /// <summary>
+    /// Дата создания погрузки.
+    /// </summary>
     public required DateTimeOffset CreatedDate { get; init; }
+
+    /// <summary>
+    /// Дата погрузки.
+    /// </summary>
+    public required DateTimeOffset ShipmentDate { get; set; }
 
     public required string Number { get; set; }
 

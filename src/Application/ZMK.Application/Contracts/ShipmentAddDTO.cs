@@ -1,3 +1,3 @@
 ﻿namespace ZMK.Application.Contracts;
 
-public record ShipmentAddDTO(Guid ProjectId, string Number, string? Remark);
+public record ShipmentAddDTO(Guid ProjectId, DateOnly ShipmentDate, string Number, string? Remark);

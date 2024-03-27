@@ -48,6 +48,7 @@ public class ShipmentService : BaseService, IShipmentService
             CreatorId = isAbleResult.Value.UserId,
             Number = dTO.Number.Trim(),
             Remark = dTO.Remark?.Trim(),
+            ShipmentDate = new DateTimeOffset(dTO.ShipmentDate.Year, dTO.ShipmentDate.Month, dTO.ShipmentDate.Day, 0, 0, 0, TimeSpan.Zero),
         };
 
         if (await _dbContext.Shipments.AnyAsync(e => e.ProjectId == shipment.ProjectId && e.Number == shipment.Number, cancellationToken))
