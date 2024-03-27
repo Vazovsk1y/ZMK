@@ -33,6 +33,8 @@ public class ZMKDbContext(DbContextOptions options) : IdentityDbContext<
 
     public DbSet<MarkCompleteEventEmployee> MarkCompleteEventsEmployees { get; set; }
 
+    public DbSet<Shipment> Shipments { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
