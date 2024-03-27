@@ -187,11 +187,10 @@ public partial class ProjectsPanelViewModel : TitledViewModel,
     public void Processing(object selectedItem)
     {
         using var scope = App.Services.CreateScope();
-        var window = scope.ServiceProvider.GetRequiredService<ProjectProcessingWindow>();
         var viewModel = scope.ServiceProvider.GetRequiredService<ProjectProcessingWindowViewModel>();
+        var dialogService = scope.ServiceProvider.GetRequiredService<IUserDialogService>();
         viewModel.IsActive = true;
-        window.DataContext = viewModel;
-        window.ShowDialog();
+        dialogService.ShowDialog<ProjectProcessingWindow, ProjectProcessingWindowViewModel>(viewModel);
         viewModel.IsActive = false;
     }
 

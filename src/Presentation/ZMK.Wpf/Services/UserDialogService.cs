@@ -6,38 +6,50 @@ namespace ZMK.Wpf.Services;
 
 public class UserDialogService : IUserDialogService
 {
-    protected Window? _window;
+    private readonly Stack<Window> _windows = new();
 
     public void CloseDialog()
     {
-        _window?.Close();
-        _window = null;
+        if (_windows.TryPop(out var window))
+        {
+            window.Close();
+        }
     }
 
     public void ShowDialog<T>() where T : Window
     {
-        CloseDialog();
-
         var scope = App.Services.CreateScope();
-        _window = scope.ServiceProvider.GetRequiredService<T>();
+        var window = scope.ServiceProvider.GetRequiredService<T>();
 
-        _window.Closed += (_, _) =>
+        EventHandler onWindowClose = default!;
+        onWindowClose = (_, _) =>
         {
             scope.Dispose();
-            _window = null;
+            _windows.TryPop(out _);
+            window.Closed -= onWindowClose;
         };
+        window.Closed += onWindowClose;
 
-        _window.ShowDialog();
+        _windows.Push(window);
+        window.ShowDialog();
     }
 
     public void ShowDialog<T, TViewModel>(TViewModel dataContext) where TViewModel : ObservableObject where T : Window
     {
-        CloseDialog();
-
         var scope = App.Services.CreateScope();
-        _window = scope.ServiceProvider.GetRequiredService<T>();
-        _window.DataContext = dataContext;
-        _window.Closed += (_, _) => scope.Dispose();
-        _window.ShowDialog();
+        var window = scope.ServiceProvider.GetRequiredService<T>();
+        window.DataContext = dataContext;
+
+        EventHandler onWindowClose = default!;
+        onWindowClose = (_, _) =>
+        {
+            scope.Dispose();
+            _windows.TryPop(out _);
+            window.Closed -= onWindowClose;
+        };
+        window.Closed += onWindowClose;
+
+        _windows.Push(window);
+        window.ShowDialog();
     }
 }
